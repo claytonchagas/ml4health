@@ -1,0 +1,13 @@
+Referência,Modelo,ΔAUROC,IC 95%,Inclui zero?
+Mayo 1989 (coef. publicados),"RL, 5 var. (Mayo reestimado)",-0.005,[-0.012; +0.003],sim
+Mayo 1989 (coef. publicados),"RL penalizada, 17 var.",0.004,[-0.015; +0.023],sim
+Mayo 1989 (coef. publicados),"Random forest, 5 var.",-0.018,[-0.034; -0.002],não
+Mayo 1989 (coef. publicados),"Random forest, 17 var.",-0.003,[-0.021; +0.014],sim
+Mayo 1989 (coef. publicados),"XGBoost, 5 var.",-0.018,[-0.031; -0.006],não
+Mayo 1989 (coef. publicados),"XGBoost, 17 var.",-0.011,[-0.030; +0.007],sim
+"RL, 5 var. (Mayo reestimado)",Mayo 1989 (coef. publicados),0.005,[-0.003; +0.012],sim
+"RL, 5 var. (Mayo reestimado)","RL penalizada, 17 var.",0.009,[-0.010; +0.030],sim
+"RL, 5 var. (Mayo reestimado)","Random forest, 5 var.",-0.013,[-0.029; +0.003],sim
+"RL, 5 var. (Mayo reestimado)","Random forest, 17 var.",0.001,[-0.016; +0.017],sim
+"RL, 5 var. (Mayo reestimado)","XGBoost, 5 var.",-0.013,[-0.027; -0.001],não
+"RL, 5 var. (Mayo reestimado)","XGBoost, 17 var.",-0.006,[-0.025; +0.012],sim

@@ -1,0 +1,276 @@
+% ============================================================================
+% ARTIGO DO PROJETO DE APLICACAO | APRENDIZADO DE MAQUINA PARA SAUDE - UFF
+% Projeto editavel no Overleaf: pdfLaTeX + BibTeX; citacoes ABNT autor-data.
+% Todo o texto e ilustrativo. Substitua-o pelo conteudo real do projeto.
+% O arquivo LEIA-ME.md apresenta orientacoes adicionais de escrita.
+% ============================================================================
+\documentclass[11pt,a4paper]{article}
+
+% Idioma, caracteres e tipografia
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{setspace}
+
+% Pagina, estrutura e estilo
+\usepackage[a4paper,top=2.55cm,bottom=2.5cm,left=2.75cm,right=2.65cm]{geometry}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta}
+\usepackage{enumitem}
+\PassOptionsToPackage{hyphens}{url}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=azulescuro,urlcolor=azulescuro]{hyperref}
+\usepackage[alf]{abntex2cite}
+\urlstyle{same}
+
+\definecolor{azulescuro}{RGB}{22,62,83}
+\definecolor{cinzasec}{RGB}{96,107,115}
+\definecolor{linha}{RGB}{213,221,224}
+\definecolor{azulclaro}{RGB}{241,246,247}
+
+\setstretch{1.12}
+\setlength{\parindent}{1.25em}
+\setlength{\parskip}{0.21em}
+\setlength{\emergencystretch}{2em}
+\captionsetup{font=small,labelfont=bf,justification=centering}
+\titleformat{\section}{\large\sffamily\bfseries\color{azulescuro}}{\thesection}{0.70em}{}
+\titleformat{\subsection}{\normalsize\sffamily\bfseries\color{azulescuro}}{\thesubsection}{0.65em}{}
+\titlespacing*{\section}{0pt}{1.4em}{0.55em}
+\titlespacing*{\subsection}{0pt}{1.05em}{0.35em}
+\renewcommand{\refname}{Referências}
+\addto\captionsbrazil{\renewcommand{\tablename}{Tabela}}
+\setlength{\headheight}{14pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\footnotesize\sffamily\color{cinzasec} APRENDIZADO DE MÁQUINA PARA SAÚDE}
+\fancyhead[R]{\footnotesize\sffamily\color{cinzasec} UFF}
+\fancyfoot[C]{\footnotesize\color{cinzasec}\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\footnotesize\color{cinzasec}\thepage}\renewcommand{\headrulewidth}{0pt}}
+
+\begin{document}
+
+% =========================== TITULO E AUTORES ================================
+\begin{center}
+  {\sffamily\footnotesize\color{azulescuro}\bfseries PROJETO DE APLICAÇÃO \enspace|\enspace ARTIGO CIENTÍFICO}\par
+  \vspace{0.65em}
+  {\LARGE\sffamily\bfseries Predição de desfechos clínicos com aprendizado de máquina: um estudo comparativo}\par
+  \vspace{0.8em}
+  {\normalsize Nome do(a) estudante \quad\textbullet\quad Nome do(a) coautor(a)}\par
+  \vspace{0.15em}
+  {\small Instituto de Computação -- Universidade Federal Fluminense}\par
+  {\small\color{cinzasec} Aprendizado de Máquina para Saúde \enspace|\enspace 2026.2}\par
+  \vspace{0.85em}
+  {\color{linha}\rule{\linewidth}{0.8pt}}
+\end{center}
+\vspace{-0.7em}
+
+% ================================ RESUMO =====================================
+\begin{center}
+\textbf{\sffamily Resumo}
+\end{center}
+\vspace{-0.85em}
+\begin{quote}
+\small
+O aprendizado de máquina tem sido investigado como ferramenta de apoio à análise de dados em saúde, especialmente em problemas que exigem a identificação de padrões associados a desfechos clínicos. Este estudo examina a aplicação de modelos preditivos a uma tarefa de classificação baseada em dados estruturados de pacientes, considerando a relevância do problema, a qualidade das informações disponíveis e os desafios de generalização. O protocolo metodológico abrange a caracterização da população, o tratamento de valores ausentes, a seleção de atributos, a comparação de algoritmos supervisionados e a definição de uma estratégia de validação que minimize o risco de vazamento de dados. O desempenho é analisado por métricas compatíveis com o desfecho e com a distribuição das classes, além de uma avaliação crítica das limitações do estudo. A apresentação dos resultados enfatiza a comparação com uma abordagem de referência, a interpretação dos erros e a relação entre as evidências obtidas e a aplicação clínica pretendida.
+\end{quote}
+\vspace{-0.35em}
+\noindent\textbf{Palavras-chave:} aprendizado de máquina; saúde digital; modelos preditivos; avaliação de modelos.
+\vspace{0.55em}
+
+% =============================== INTRODUCAO ==================================
+% Introducao deliberadamente SEM subsecoes. Construa a argumentacao em paragrafos:
+% contexto -> problema -> lacuna -> pergunta/objetivo -> contribuicoes.
+\section{Introdução}\label{sec:introducao}
+
+A crescente disponibilidade de informações clínicas, epidemiológicas e administrativas tem ampliado as possibilidades de investigação de problemas relevantes para a assistência e a gestão em saúde. Nesse contexto, algoritmos de aprendizado de máquina podem contribuir para identificar relações entre características dos pacientes e desfechos de interesse, oferecendo subsídios para estudos exploratórios, para a estratificação de risco e para o desenvolvimento de ferramentas de apoio à decisão. Entretanto, o desempenho computacional, isoladamente, não determina a utilidade de um modelo: é necessário considerar a qualidade dos dados, a definição da população, a pertinência do desfecho e a forma como os resultados poderão ser interpretados no contexto de aplicação.
+
+O problema abordado neste artigo refere-se à predição de um desfecho clínico a partir de características disponíveis em uma base de dados de saúde. A dificuldade central consiste em determinar se as informações registradas são suficientes para produzir estimativas confiáveis e se diferentes métodos de aprendizado supervisionado apresentam vantagens consistentes em relação a uma abordagem de referência. A delimitação desse problema requer explicitar quem são os indivíduos analisados, qual evento se pretende estimar, em que momento a previsão seria realizada e quais consequências práticas poderiam decorrer de classificações incorretas.
+
+Embora exista uma ampla variedade de métodos preditivos, a comparação entre eles exige atenção às condições de treinamento e de avaliação. Escolhas como a divisão dos conjuntos de dados, o tratamento de dados ausentes, a otimização de hiperparâmetros e a seleção de métricas podem influenciar substancialmente as estimativas de desempenho. Recomendações de relato para modelos de predição clínica, como as apresentadas no TRIPOD+AI, destacam a importância de uma descrição transparente do processo de desenvolvimento e avaliação \cite{collins2024tripodai}. A lacuna investigada deve, portanto, ser fundamentada tanto nos resultados de estudos anteriores quanto nas particularidades do problema e dos dados considerados.
+
+O objetivo deste trabalho é desenvolver e avaliar uma abordagem de aprendizado de máquina para estimar um desfecho de interesse em saúde, comparando algoritmos, examinando o impacto das etapas de preparação dos dados e discutindo a adequação das métricas ao cenário estudado. Para alcançar esse objetivo, consideram-se a análise exploratória, a construção de um pipeline reprodutível, a definição de um modelo de referência, a validação dos classificadores e a interpretação dos resultados. A principal contribuição esperada é uma avaliação metodologicamente consistente da viabilidade da abordagem, sem pressupor sua aplicabilidade clínica antes de haver evidências suficientes.
+
+O restante do artigo está organizado da seguinte forma: a Seção~\ref{sec:relacionados} apresenta os trabalhos relacionados; a Seção~\ref{sec:metodos} descreve materiais, dados e procedimentos experimentais; a Seção~\ref{sec:resultados} apresenta os resultados; a Seção~\ref{sec:discussao} discute as evidências, implicações e limitações; e a Seção~\ref{sec:conclusao} sintetiza as conclusões.
+
+% =========================== TRABALHOS RELACIONADOS ===========================
+\section{Trabalhos relacionados}\label{sec:relacionados}
+
+\subsection{Levantamento e seleção da literatura}
+O levantamento bibliográfico deve delimitar os estudos mais próximos do problema investigado, considerando o contexto clínico, a população de interesse, a natureza dos dados e a tarefa de aprendizado de máquina. Uma estratégia de busca pode combinar descritores da condição ou do desfecho de saúde com termos relacionados a modelos preditivos, classificação ou regressão. A descrição da revisão deve informar as bases de dados consultadas, como PubMed, Scopus ou IEEE Xplore, o intervalo temporal, os critérios de seleção e as razões para a inclusão dos artigos discutidos. Quando não houver revisão sistemática, convém caracterizar o levantamento como uma revisão narrativa ou exploratória, sem atribuir-lhe um rigor metodológico que não foi aplicado.
+
+\subsection{Abordagens existentes e comparação crítica}
+Os trabalhos selecionados podem ser organizados em três dimensões principais: características da amostra e das variáveis, escolhas metodológicas e evidências de desempenho. Na primeira, é importante observar a origem e o tamanho da base, os critérios de inclusão e a definição do desfecho. Na segunda, examinam-se os algoritmos empregados, o tratamento do desbalanceamento, a seleção de atributos e a estratégia de validação. Na terceira, analisam-se as métricas relatadas, a existência de intervalos de confiança, a avaliação em dados externos e as limitações reconhecidas pelos autores. Comparações de valores numéricos publicados só são informativas quando as diferenças entre conjuntos de dados, desfechos e protocolos são consideradas.
+
+A Tabela~\ref{tab:literatura} apresenta uma forma compacta de sintetizar essa análise. A organização proposta favorece a identificação de padrões metodológicos e de limitações recorrentes, permitindo justificar explicitamente as decisões adotadas no presente estudo.
+
+\begin{table}[htbp]
+\centering
+\caption{Estrutura ilustrativa para síntese comparativa de estudos relacionados.}
+\label{tab:literatura}
+\small
+\renewcommand{\arraystretch}{1.14}
+\begin{tabularx}{\linewidth}{@{}p{2.15cm}X X X@{}}
+\toprule
+\textbf{Estudo} & \textbf{Dados e população} & \textbf{Modelagem e avaliação} & \textbf{Limitação central} \\
+\midrule
+Estudo A & Base clínica e critérios de inclusão & Classificação e validação interna & Ausência de teste externo \\
+Estudo B & Registros longitudinais e janelas temporais & Modelos temporais e análise de subgrupos & Perdas no acompanhamento \\
+Estudo C & Imagens ou exames e definição do rótulo & Rede neural e comparação com referência & Amostra de instituição única \\
+\bottomrule
+\end{tabularx}
+\par\vspace{3pt}{\footnotesize\color{cinzasec}Fonte: estrutura fictícia para demonstração; não corresponde a artigos específicos.}
+\end{table}
+
+\subsection{Lacuna de pesquisa e posicionamento da proposta}
+A síntese da literatura deve conduzir à identificação de uma questão ainda não suficientemente respondida no contexto do estudo. Essa questão pode envolver a comparação de métodos em uma população pouco investigada, a aplicação de um protocolo de validação mais rigoroso, a avaliação de métricas adequadas para eventos raros ou a análise da interpretabilidade e da estabilidade dos modelos. O posicionamento da proposta deve deixar claro se o trabalho pretende reproduzir, adaptar ou ampliar abordagens anteriores, evitando afirmações de originalidade que não sejam sustentadas pela revisão.
+
+% ============================= MATERIAIS E METODOS ============================
+\section{Materiais e métodos}\label{sec:metodos}
+
+\subsection{Desenho do estudo e definição da tarefa}
+O estudo é estruturado como uma investigação experimental de aprendizado supervisionado aplicada a dados de saúde. A unidade de análise deve ser explicitada como paciente, consulta, episódio de atendimento, imagem ou intervalo temporal, conforme a organização da base utilizada. A variável-alvo representa o desfecho que se deseja estimar, e sua definição deve indicar os critérios de rotulagem, o momento em que é observado e, quando pertinente, o horizonte de previsão. Em problemas de regressão, agrupamento ou segmentação, o desenho e os procedimentos de avaliação devem ser adequados à natureza da tarefa.
+
+\subsection{Conjunto de dados e caracterização da amostra}\label{subsec:dados}
+A descrição da base de dados contempla sua origem institucional ou pública, versão, período de coleta, forma de acesso e condições de uso. Também são relevantes o número de indivíduos e registros, o processo de seleção da amostra, as exclusões realizadas e as diferenças entre registros independentes e observações repetidas do mesmo paciente. O dicionário de variáveis deve distinguir entre atributos preditores, identificadores, possíveis fontes de vazamento de informação e a variável de desfecho. Quando houver dados sensíveis, o relato deve incluir os procedimentos de proteção da privacidade, bem como a aprovação ética ou a justificativa para sua dispensa, quando aplicáveis.
+
+A Tabela~\ref{tab:variaveis} apresenta de forma sintética as características da base. Para dados tabulares, essa descrição pode ser complementada por estatísticas de tendência central, dispersão, proporção de valores ausentes e distribuição das classes; para imagens e séries temporais, devem ser relatadas as unidades, dimensões, frequências de amostragem e particularidades da aquisição.
+
+\begin{table}[htbp]
+\centering
+\caption{Exemplo de dicionário resumido das variáveis de uma base de saúde.}
+\label{tab:variaveis}
+\small
+\renewcommand{\arraystretch}{1.12}
+\begin{tabularx}{\linewidth}{@{}p{3.0cm}p{2.0cm}p{2.0cm}X@{}}
+\toprule
+\textbf{Variável} & \textbf{Tipo} & \textbf{Função} & \textbf{Definição} \\
+\midrule
+Idade & Numérica & Preditor & Idade em anos completos \\
+Variável clínica & Numérica & Preditor & Indicador clínico e respectiva unidade \\
+Desfecho & Categórica & Alvo & Evento definido por critério clínico \\
+Identificador & Categórica & Controle & Agrupamento de registros do mesmo indivíduo \\
+\bottomrule
+\end{tabularx}
+\par\vspace{3pt}{\footnotesize\color{cinzasec}Fonte: elaboração própria; exemplo de estrutura de dados.}
+\end{table}
+
+\subsection{Pipeline de preparação e modelagem}\label{subsec:pipeline}
+O pipeline experimental deve apresentar, em ordem lógica, as atividades realizadas desde a obtenção dos dados até a avaliação dos modelos. A Figura~\ref{fig:pipeline} ilustra um fluxo genérico para problemas supervisionados. Inicialmente, são verificados a consistência, a duplicidade, a qualidade dos rótulos e a elegibilidade da amostra. Em seguida, os dados são particionados segundo a unidade de análise, de modo a preservar a independência entre os conjuntos e impedir que informações do mesmo indivíduo sejam inadvertidamente distribuídas entre os conjuntos de treinamento e de teste.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+  >=Latex,
+  etapa/.style={draw=azulescuro!36,rounded corners=2.5pt,fill=azulclaro,
+    align=center,text width=2.97cm,minimum height=1.08cm,font=\footnotesize\sffamily},
+  seta/.style={->,line width=.7pt,draw=azulescuro!65}
+]
+\node[etapa] (a) {Obtenção e auditoria\\dos dados};
+\node[etapa,right=0.25cm of a] (b) {Definição de amostra\\e desfecho};
+\node[etapa,right=0.25cm of b] (c) {Particionamento\\treinamento / teste};
+\node[etapa,below=0.65cm of c] (d) {Transformações\\ajustadas no treino};
+\node[etapa,left=0.25cm of d] (e) {Validação cruzada\\e seleção do modelo};
+\node[etapa,left=0.25cm of e] (f) {Avaliação final,\\análise e relato};
+\draw[seta] (a)--(b); \draw[seta] (b)--(c); \draw[seta] (c)--(d);
+\draw[seta] (d)--(e); \draw[seta] (e)--(f);
+\end{tikzpicture}
+\caption{Etapas gerais de um pipeline de aprendizado de máquina supervisionado.}
+\label{fig:pipeline}
+\par\vspace{3pt}{\footnotesize\color{cinzasec}Fonte: elaboração própria; esquema metodológico.}
+\end{figure}
+
+O tratamento de valores ausentes, a padronização, a codificação de categorias, a seleção de atributos e eventuais técnicas de reamostragem devem ser descritos com precisão. Quando uma transformação depende de parâmetros estimados a partir dos dados, esses parâmetros devem ser aprendidos exclusivamente no conjunto de treinamento correspondente, inclusive em cada dobra da validação cruzada. Essa separação reduz o risco de vazamento de informações e de avaliações artificialmente otimistas.
+
+\subsection{Análise exploratória dos dados}
+A análise exploratória busca compreender o perfil da população e identificar propriedades relevantes para a escolha dos modelos. São examinadas a distribuição da variável-alvo, a ocorrência de valores ausentes, a frequência das categorias, a presença de observações extremas e as possíveis relações entre os preditores. A Figura~\ref{fig:classes} apresenta uma visualização ilustrativa de desbalanceamento entre classes, situação que pode exigir métricas além da acurácia e estratégias cuidadosas de treinamento. O gráfico utiliza valores fictícios apenas para demonstrar o formato de apresentação.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.68\linewidth]{figuras/exemplo_distribuicao.png}
+\caption{Distribuição ilustrativa das classes de um desfecho binário.}
+\label{fig:classes}
+\par\vspace{3pt}{\footnotesize\color{cinzasec}Fonte: dados fictícios, utilizados exclusivamente como exemplo gráfico.}
+\end{figure}
+
+\subsection{Estratégia de validação e prevenção de vazamento}
+A separação entre treinamento e teste deve respeitar a estrutura dos dados. Em estudos com múltiplos registros por pessoa, o particionamento por paciente evita que observações relacionadas apareçam em ambos os conjuntos. Em bases longitudinais, pode ser necessário organizar a avaliação cronologicamente; em estudos multicêntricos, pode ser útil verificar a capacidade de generalização entre as instituições. No conjunto de treinamento, a validação cruzada permite comparar configurações e selecionar hiperparâmetros. Quando o mesmo procedimento é utilizado tanto para otimizar quanto para estimar o desempenho, uma validação cruzada aninhada pode reduzir o viés da estimativa \cite{varma2006bias}.
+
+\subsection{Algoritmos e ajuste de hiperparâmetros}
+A escolha dos algoritmos deve considerar o tamanho e a estrutura do conjunto de dados, a natureza da tarefa e a necessidade de interpretabilidade. Para problemas de classificação tabular, uma abordagem de referência pode ser comparada com modelos lineares, árvores de decisão, métodos de conjunto e outras técnicas adequadas. O protocolo de comparação deve registrar os hiperparâmetros avaliados, os critérios de seleção, as bibliotecas e versões empregadas, bem como os mecanismos de controle da aleatoriedade. O \textit{scikit-learn} é um exemplo de biblioteca utilizada em experimentos de aprendizado de máquina \cite{pedregosa2011scikit}.
+
+\subsection{Métricas de avaliação}\label{subsec:metricas}
+A seleção da métrica principal deve refletir as consequências dos diferentes tipos de erro no contexto da saúde. Para classificação binária, sensibilidade, especificidade, precisão, F1, AUROC e AUPRC podem oferecer perspectivas complementares sobre o desempenho. Em bases de dados desbalanceadas, uma boa acurácia global pode coexistir com desempenho inadequado na classe de maior interesse; por isso, os resultados devem ser interpretados em relação à prevalência do evento e ao limiar de classificação. Curvas ROC, curvas de precisão--revocação e calibração podem ampliar a avaliação \cite{fawcett2006roc}. Para tarefas de regressão ou agrupamento, devem ser escolhidos indicadores próprios desses problemas.
+
+A sensibilidade mede a proporção de eventos positivos corretamente identificados e pode ser expressa como:
+\begin{equation}
+\operatorname{Sensibilidade}=\frac{VP}{VP+FN},
+\label{eq:sensibilidade}
+\end{equation}
+onde $VP$ corresponde ao número de verdadeiros positivos e $FN$ ao número de falsos negativos. As métricas devem ser acompanhadas, sempre que possível, de medidas de variabilidade ou intervalos de confiança, com identificação do conjunto de dados no qual foram estimadas.
+
+\subsection{Reprodutibilidade e aspectos éticos}
+A descrição do experimento deve permitir compreender como os resultados foram produzidos, incluindo o ambiente computacional, as versões das bibliotecas, as sementes de aleatoriedade, os parâmetros finais e a disponibilidade do código. Caso o projeto utilize dados de pacientes, a apresentação de tabelas, exemplos ou repositórios não deve permitir a identificação dos pacientes. Também devem ser explicitadas as limitações de acesso aos dados, as restrições de compartilhamento e os eventuais procedimentos de aprovação ética, observadas as exigências da instituição e da fonte de dados.
+
+% ================================= RESULTADOS ================================
+\section{Resultados}\label{sec:resultados}
+
+\subsection{Caracterização do conjunto analisado}
+A apresentação dos resultados começa pela caracterização da amostra efetivamente utilizada. O relato deve esclarecer como o conjunto inicial foi reduzido com base em critérios de seleção e controle de qualidade, quantas observações permaneceram e como o desfecho se distribuiu entre os subconjuntos de treinamento e de avaliação. Alterações decorrentes de exclusões, imputações ou reamostragens precisam ser distinguíveis da composição original da base, permitindo avaliar a representatividade da população analisada.
+
+\subsection{Comparação do desempenho dos modelos}
+O desempenho dos algoritmos deve ser apresentado de forma comparável, identificando-se o modelo de referência, as métricas e o protocolo de avaliação. A Tabela~\ref{tab:resultados} exemplifica uma organização de problemas de classificação binária. Em uma versão final do estudo, cada célula deve apresentar os resultados efetivamente obtidos, e a narrativa deve destacar os contrastes relevantes, as diferenças de estabilidade e as implicações da escolha da métrica principal, sem repetir todos os valores da tabela.
+
+\begin{table}[htbp]
+\centering
+\caption{Estrutura de comparação de modelos para uma tarefa de classificação.}
+\label{tab:resultados}
+\small
+\renewcommand{\arraystretch}{1.18}
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+\textbf{Modelo} & \textbf{Precisão} & \textbf{Recall} & \textbf{F1} & \textbf{AUROC} & \textbf{AUPRC} \\
+\midrule
+Modelo de referência & --- & --- & --- & --- & --- \\
+Modelo supervisionado A & --- & --- & --- & --- & --- \\
+Modelo supervisionado B & --- & --- & --- & --- & --- \\
+\bottomrule
+\end{tabular}
+\par\vspace{3pt}{\footnotesize\color{cinzasec}Fonte: elaboração própria; tabela ilustrativa sem resultados experimentais.}
+\end{table}
+
+\subsection{Análise de erros e resultados complementares}
+A análise dos erros pode complementar os indicadores agregados ao investigar falsos positivos, falsos negativos, a variação do desempenho entre grupos de pacientes e a sensibilidade às configurações do modelo. Dependendo do objetivo, também podem ser apresentadas matrizes de confusão, curvas de desempenho, estudos de ablação e técnicas de interpretação. Métodos como SHAP permitem explorar as contribuições dos atributos para as predições, mas suas explicações não devem ser interpretadas automaticamente como relações causais \cite{lundberg2017unified}.
+
+% ================================= DISCUSSAO =================================
+\section{Discussão}\label{sec:discussao}
+
+Os resultados devem ser interpretados à luz do objetivo do estudo e das decisões metodológicas adotadas. Uma eventual melhoria de desempenho em relação ao modelo de referência deve ser avaliada considerando a magnitude da diferença, a variabilidade da estimativa e as consequências de erros de classificação. Em aplicações clínicas, um aumento de sensibilidade pode reduzir eventos não identificados, mas também aumentar o número de falsos positivos, o que pode alterar a demanda por exames, encaminhamentos ou avaliações adicionais. A relevância prática depende, portanto, do cenário de uso e dos recursos disponíveis.
+
+A comparação com a literatura deve considerar não apenas as métricas relatadas, mas também a composição da amostra, a prevalência do desfecho, a definição da tarefa, o horizonte temporal e a existência de validação independente. Resultados obtidos em bases distintas não são diretamente equivalentes, mesmo quando os mesmos algoritmos são empregados. Essa discussão permite esclarecer em que medida as evidências sustentam as hipóteses iniciais e quais aspectos do protocolo podem explicar as convergências ou divergências em relação aos estudos revisados.
+
+Entre as limitações a considerar estão o tamanho da amostra, possíveis vieses de seleção, incompletude de registros, qualidade dos rótulos, desbalanceamento de classes e ausência de validação externa. A análise também deve reconhecer as limitações técnicas da comparação, como a incerteza associada à seleção de hiperparâmetros, a estabilidade das estimativas e os riscos residuais de vazamento de informações. É importante distinguir evidências de desempenho retrospectivo de evidências de efetividade clínica, pois um modelo que apresenta bons indicadores em dados históricos não está automaticamente apto a ser integrado à prática assistencial.
+
+% ================================= CONCLUSAO =================================
+\section{Conclusão}\label{sec:conclusao}
+
+Este estudo apresenta uma estrutura para investigar o emprego de aprendizado de máquina na predição de desfechos de saúde, articulando a definição do problema, a caracterização dos dados, a construção de um pipeline reproduzível e a avaliação comparativa de modelos. A conclusão de um trabalho experimental deve retomar o objetivo estabelecido e sintetizar os achados efetivamente demonstrados, indicando de que forma os resultados contribuem para responder à pergunta de pesquisa.
+
+A continuidade da investigação pode envolver a ampliação da amostra, a validação em outras populações, a análise de calibração, a avaliação de subgrupos ou o desenvolvimento de estratégias de interpretação, conforme as limitações identificadas. Essas possibilidades devem decorrer dos resultados e das necessidades do contexto clínico, sem pressupor que o desempenho observado seja suficiente para a adoção operacional.
+
+% ================================ BIBLIOGRAFIA ===============================
+% Bibliografia em BibTeX; abntex2cite [alf] configura estilo autor-data ABNT.
+% Incluir no .bib somente referencias realmente citadas no artigo.
+\bibliography{referencias}
+\end{document}
