@@ -155,6 +155,8 @@ A AUROC das tabelas é a média dos 25 folds; a das curvas ROC do notebook é ca
 | Random forest, 17 var., pré-proc. da regressão | 0,907 ± 0,042 | 0,868 ± 0,063 | 0,122 ± 0,024 | 0,00 ± 0,20 | 1,52 ± 0,60 |
 | XGBoost, 17 var., pré-proc. da regressão | 0,899 ± 0,039 | 0,855 ± 0,053 | 0,126 ± 0,027 | 0,07 ± 0,33 | 1,04 ± 0,46 |
 
+**Intervalos de confiança 95% da AUROC, do CITL e da inclinação** de cada modelo, por *bootstrap* pareado sobre as predições fora-do-fold (condicionais, sem treino): [`resultados/ic_desempenho_oof.csv`](resultados/ic_desempenho_oof.csv), gerado por `python ic_desempenho.py`. Referência: AUROC 0,904 [0,864; 0,937]; o CITL da probabilidade original de Mayo (0,34 [0,06; 0,59]) e as inclinações acima de 1 da RL penalizada e do RF com 17 variáveis têm IC que exclui o valor ideal.
+
 **Tabela 2 x 2 (AUROC médio):**
 
 | | 5 variáveis (310 com dados completos) | 17 variáveis (210 com dados completos) |
