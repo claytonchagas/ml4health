@@ -1,0 +1,12 @@
+Cenário,Modelo,l1_ratio,C,min_samples_leaf,max_features,max_depth,reg_lambda,n_estimators,min_child_weight,learning_rate
+quase externa,"Mayo 1989 inicial (n=312), recalibrado",,,,,,,,,
+quase externa,"Mayo 1989 final, prob. original",,,,,,,,,
+quase externa,"Mayo 1989 final, recalibrado",,,,,,,,,
+quase externa,"RL, 5 var. (Mayo reestimado)",,,,,,,,,
+quase externa,"RL penalizada, 17 var.",0.0,0.01,,,,,,,
+quase externa,"Random forest, 5 var.",,,3.0,sqrt,6.0,,,,
+quase externa,"Random forest, 17 var.",,,3.0,sqrt,6.0,,,,
+quase externa,"XGBoost, 5 var.",,,,,3.0,5.0,100.0,1.0,0.05
+quase externa,"XGBoost, 17 var.",,,,,3.0,1.0,200.0,1.0,0.05
+quase externa,"Random forest, 17 var., pré-proc. da RL",,,3.0,sqrt,6.0,,,,
+quase externa,"XGBoost, 17 var., pré-proc. da RL",,,,,3.0,1.0,200.0,1.0,0.05
