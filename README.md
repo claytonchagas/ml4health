@@ -120,7 +120,7 @@ $$\min_{\beta_0, \boldsymbol{\beta}} \; -\sum_i \left[y_i \ln \hat{\pi}_i + (1 -
 - **Custo de dados:** número de variáveis exigidas e pacientes elegíveis sem imputação.
 - **Braço de vazamento:** *log loss* multiclasse, AUROC macro (um contra todos) e acurácia.
 
-A AUROC das tabelas é a média dos 25 folds; a das curvas ROC do notebook é calculada sobre as predições fora-do-fold médias (por exemplo, 0,910 e 0,908 para o Mayo publicado). São estimadores diferentes, ambos corretos.
+A AUROC das tabelas é a média dos 25 folds; a das curvas ROC do notebook é calculada sobre as predições fora-do-fold médias (por exemplo, 0,911 para a probabilidade original e 0,908 para a versão recalibrada do Mayo publicado, contra 0,910 de média por fold nas duas). São estimadores diferentes, ambos corretos.
 
 ---
 
