@@ -33,8 +33,8 @@ Desde 1989 existe o **Escore de Risco de Mayo** (Dickson et al., 1989), um model
 ### 2.1 Dados
 
 - **Fonte:** UCI Machine Learning Repository, dataset 878, *Cirrhosis Patient Survival Prediction*, DOI [10.24432/C5R02G](https://doi.org/10.24432/C5R02G), licença CC BY 4.0. Link: <https://archive.ics.uci.edu/dataset/878/cirrhosis+patient+survival+prediction+dataset-1>
-- **Origem:** ensaio clínico da Mayo Clinic (1974 a 1984) sobre D-penicilamina em CBP; base do artigo de Dickson et al. (1989). É o mesmo conjunto disponível como `survival::pbc` no R.
-- **População:** 418 pacientes (312 randomizados no ensaio, com o painel completo de exames, ainda que com alguns valores ausentes; 106 elegíveis que recusaram a randomização e só têm as medidas de rotina). São 374 mulheres (89,5%).
+- **Origem:** dois ensaios clínicos randomizados da Mayo Clinic sobre D-penicilamina em CBP (recrutamento de 1974 a 1984; um com estágio histológico 1 ou 2, outro com 3 ou 4), combinados por não terem encontrado efeito do tratamento; base do artigo de Dickson et al. (1989). É o mesmo conjunto disponível como `survival::pbc` no R.
+- **População:** 418 pacientes (312 randomizados nos ensaios, com o painel completo de exames, ainda que com alguns valores ausentes; 106 elegíveis que recusaram a randomização, de 112 que recusaram (6 perdidos no seguimento), e só têm as medidas de rotina). São 374 mulheres (89,5%).
 - **Unidade de observação:** paciente; todas as variáveis medidas na data de registro (linha de base).
 - **Variáveis de entrada (17):** idade, sexo, tratamento (D-penicilamina ou placebo), ascite, hepatomegalia, aranhas vasculares, edema (3 níveis), bilirrubina, colesterol, albumina, cobre urinário, fosfatase alcalina, AST (SGOT/TGO), triglicerídeos, plaquetas, tempo de protrombina, estágio histológico.
 - **Variáveis de desfecho:** `Status` (C: censurado, 232; D: óbito, 161; CL: transplante, 25) e `N_Days` (dias até óbito, transplante ou fim do estudo em julho de 1986).
@@ -105,7 +105,7 @@ $$\min_{\beta_0, \boldsymbol{\beta}} \; -\sum_i \left[y_i \ln \hat{\pi}_i + (1 -
 - **Validação cruzada:** estratificada repetida, 5 repetições de 5 folds (25 avaliações), com as mesmas divisões para todos os modelos.
 - **Ajuste de hiperparâmetros aninhado:** `RandomizedSearchCV` com 3 folds internos, critério AUROC, **12 configurações sorteadas para todos os modelos ajustáveis**, somente no treino de cada fold externo. Imputação, padronização e ajuste ficam dentro de um `Pipeline`, refeitos em cada partição. Os hiperparâmetros escolhidos em cada fold estão em [`resultados/hiperparametros.csv`](resultados/hiperparametros.csv).
 - **Grades** (definidas antes de qualquer resultado e não alteradas depois): regressão *elastic net*: $C \in \{0{,}01; 0{,}03; 0{,}1; 0{,}3; 1; 3\}$, $\alpha \in \{0; 0{,}5; 1\}$. Random forest: folha mínima $\in \{3, 5, 10, 20\}$, variáveis por divisão $\in \{\sqrt{p}, 0{,}5p, p\}$, profundidade $\in \{\text{livre}, 4, 6\}$. XGBoost: árvores $\in \{100, 200, 400\}$, taxa $\eta \in \{0{,}02; 0{,}05; 0{,}1\}$, profundidade $\in \{1, 2, 3\}$, peso mínimo $\in \{1, 5\}$, $\lambda \in \{1, 5\}$.
-- **Validação quase externa:** desenvolvimento nos 244 pacientes rotulados do ensaio randomizado, teste nos 68 rotulados não randomizados.
+- **Validação quase externa:** desenvolvimento nos 244 pacientes rotulados dos ensaios randomizados, teste nos 68 rotulados não randomizados.
 - **Braço de controle de vazamento:** classificação de `Status` em 3 classes (enquadramento da PS3E26), XGBoost com 17 variáveis, com e sem `N_Days`, mesma validação 5 x 5.
 - **Reprodutibilidade:** semente 2026 em todos os componentes aleatórios (divisões, buscas, florestas, XGBoost e o *solver* `saga` da regressão penalizada); avisos de convergência registrados (nenhum ocorreu); versões exatas em [`requirements.txt`](requirements.txt).
 
@@ -256,4 +256,4 @@ Com as versões do `requirements.txt` e `FONTE_DADOS = "local"` (padrão), a exe
 - Kapoor, S.; Narayanan, A. Leakage and the reproducibility crisis in machine-learning-based science. *Patterns*, 4(9):100804, 2023.
 - Steyerberg, E. W.; Vergouwe, Y. Towards better clinical prediction models: seven steps for development and an ABCD for validation. *European Heart Journal*, 35(29):1925-1931, 2014.
 - Van Calster, B. et al. Calibration: the Achilles heel of predictive analytics. *BMC Medicine*, 17:230, 2019.
-- UCI Machine Learning Repository. Cirrhosis Patient Survival Prediction [dataset], 2023. DOI 10.24432/C5R02G.
+- Dickson, E. et al. Cirrhosis Patient Survival Prediction [dataset]. UCI Machine Learning Repository, 1989 (disponibilizado em 2023). DOI 10.24432/C5R02G.
