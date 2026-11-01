@@ -62,7 +62,7 @@ Desde 1989 existe o **Escore de Risco de Mayo** (Dickson et al., 1989), um model
 
 ### 2.3 Link para a versão usada
 
-A execução oficial usa a cópia versionada em [`data/pbc_rdatasets.csv`](data/pbc_rdatasets.csv), obtida do espelho Rdatasets do `survival::pbc` (<https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/survival/pbc.csv>), com verificação de checksum SHA-256 (`797ea9b6abfe...`). As contagens (418 pacientes, 232/161/25 por `Status`, 106 sem tratamento) coincidem com o UCI 878. No notebook, `FONTE_DADOS = "uci"` baixa o dataset oficial pelo pacote `ucimlrepo` (id 878).
+A execução oficial usa a cópia versionada em [`data/pbc_rdatasets.csv`](data/pbc_rdatasets.csv), obtida do espelho Rdatasets do `survival::pbc` (<https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/survival/pbc.csv>), com verificação de checksum SHA-256 (`797ea9b6abfe...`). Uma comparação valor a valor com o UCI 878, baixado pelo `ucimlrepo`, mostrou que as duas versões são idênticas em todos os 418 pacientes e em todas as variáveis usadas ([`auditoria/comparacao_uci_rdatasets.txt`](auditoria/comparacao_uci_rdatasets.txt); script em `auditoria/comparar_uci_rdatasets.py`). No notebook, `FONTE_DADOS = "uci"` baixa o dataset oficial pelo pacote `ucimlrepo` (id 878).
 
 ---
 
