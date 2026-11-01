@@ -31,7 +31,7 @@ Estágio histológico & 3 (2--3) & 4 (3--4) & 6 \\
 \end{table}
 
 \subsection{Comparação do desempenho dos modelos}
-A Tabela~\ref{tab:resultados} apresenta o desempenho na validação cruzada 5 x 5. A referência principal, a regressão logística com as 5 variáveis de Mayo, teve AUROC média de 0,906 e calibração próxima da ideal (CITL de $-$0,01 e inclinação de 1,04). A maior AUROC nominal foi a da regressão penalizada com 17 variáveis (0,915). \textit{Random forest} e XGBoost ficaram entre 0,891 e 0,903 nas configurações principais. A dispersão entre partições (desvio de 0,035 a 0,051) é maior do que qualquer diferença entre modelos.
+A Tabela~\ref{tab:resultados} apresenta o desempenho na validação cruzada 5 x 5. A referência principal, a regressão logística com as 5 variáveis de Mayo, teve AUROC média de 0,906 e estimativas de calibração próximas das ideais (CITL de $-$0,01 e inclinação de 1,04). A maior AUROC nominal foi a da regressão penalizada com 17 variáveis (0,915). \textit{Random forest} e XGBoost ficaram entre 0,891 e 0,903 nas configurações principais. A dispersão entre partições (desvio de 0,035 a 0,051) é maior do que qualquer diferença entre modelos.
 
 \begin{table}[htbp]
 \centering
@@ -88,7 +88,7 @@ XGBoost, 17 var. & $-$0,006 & [$-$0,025; 0,012] & [$-$0,030; 0,017] & $-$0,011 $
 
 No desenho 2 x 2, as 12 variáveis extras acrescentaram cerca de 0,01 de AUROC nominal em cada família (regressão: 0,906 para 0,915; \textit{random forest}: 0,893 para 0,903; XGBoost: 0,891 para 0,895), sem contraste inferencial próprio. Na leitura vertical, a regressão teve a maior AUROC nominal nas duas colunas. Com o pré-processamento da regressão, \textit{random forest} e XGBoost com 17 variáveis também não mostraram ganho sobre a regressão penalizada ($-$0,006, IC de Bonferroni de 97,5\% [$-$0,023; 0,011]; e $-$0,013 [$-$0,030; 0,004]). Nominalmente, esse pré-processamento elevou a AUROC das árvores (de 0,903 para 0,907 e de 0,895 para 0,899), mas esse efeito não foi testado diretamente.
 
-A Figura~\ref{fig:roc} mostra a distribuição das AUROCs por partição, as curvas ROC sobre as predições fora da partição e a calibração por decis de risco. As curvas ROC praticamente se sobrepõem. Na calibração, a probabilidade original do Escore de Mayo fica acima da diagonal em quase toda a faixa, ou seja, subestima o risco observado, enquanto os demais modelos acompanham a diagonal com flutuações compatíveis com cerca de 31 pacientes por decil.
+A Figura~\ref{fig:roc} mostra a distribuição das AUROCs por partição, as curvas ROC sobre as predições fora da partição e a calibração por decis de risco. As curvas ROC praticamente se sobrepõem. Na calibração, a probabilidade original do Escore de Mayo fica acima da diagonal em quase toda a faixa, ou seja, subestima o risco observado, enquanto os demais modelos ficam próximos da diagonal, com oscilações entre decis; com cerca de 31 pacientes por decil, a figura é descritiva e não traz bandas de incerteza.
 
 \begin{figure}[htbp]
 \centering
