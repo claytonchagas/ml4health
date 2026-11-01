@@ -34,7 +34,7 @@ Desde 1989 existe o **Escore de Risco de Mayo** (Dickson et al., 1989), um model
 
 - **Fonte:** UCI Machine Learning Repository, dataset 878, *Cirrhosis Patient Survival Prediction*, DOI [10.24432/C5R02G](https://doi.org/10.24432/C5R02G), licença CC BY 4.0. Link: <https://archive.ics.uci.edu/dataset/878/cirrhosis+patient+survival+prediction+dataset-1>
 - **Origem:** ensaio clínico da Mayo Clinic (1974 a 1984) sobre D-penicilamina em CBP; base do artigo de Dickson et al. (1989). É o mesmo conjunto disponível como `survival::pbc` no R.
-- **População:** 418 pacientes (312 randomizados no ensaio, com exames completos; 106 elegíveis que recusaram a randomização e só têm as medidas de rotina). Mais de 90% mulheres.
+- **População:** 418 pacientes (312 randomizados no ensaio, com o painel completo de exames, ainda que com alguns valores ausentes; 106 elegíveis que recusaram a randomização e só têm as medidas de rotina). São 374 mulheres (89,5%).
 - **Unidade de observação:** paciente; todas as variáveis medidas na data de registro (linha de base).
 - **Variáveis de entrada (17):** idade, sexo, tratamento (D-penicilamina ou placebo), ascite, hepatomegalia, aranhas vasculares, edema (3 níveis), bilirrubina, colesterol, albumina, cobre urinário, fosfatase alcalina, AST (SGOT/TGO), triglicerídeos, plaquetas, tempo de protrombina, estágio histológico.
 - **Variáveis de desfecho:** `Status` (C: censurado, 232; D: óbito, 161; CL: transplante, 25) e `N_Days` (dias até óbito, transplante ou fim do estudo em julho de 1986).

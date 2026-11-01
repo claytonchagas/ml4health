@@ -1,0 +1,39 @@
+% =========================== TRABALHOS RELACIONADOS ===========================
+\section{Trabalhos relacionados}\label{sec:relacionados}
+
+\subsection{Levantamento e seleção da literatura}
+O levantamento foi uma revisão narrativa, sem protocolo sistemático. Foram consultados o PubMed, o Google Acadêmico e repositórios institucionais com combinações de termos sobre a doença (\textit{primary biliary cirrhosis}, \textit{primary biliary cholangitis}, \textit{PBC}) e sobre a tarefa (\textit{prognostic score}, \textit{machine learning}, \textit{survival prediction}), além de buscas pelo próprio conjunto de dados (\textit{UCI cirrhosis patient survival prediction}, \textit{Kaggle playground cirrhosis}). Foram selecionados estudos de três grupos: escores prognósticos derivados por regressão, aplicações de AM em CBP e trabalhos de AM sobre o conjunto da Mayo Clinic. Somaram-se estudos metodológicos sobre comparação entre AM e regressão, calibração e vazamento.
+
+\subsection{Abordagens existentes e comparação crítica}
+Os escores clínicos para CBP são, em sua maioria, modelos de regressão de Cox. O Escore de Mayo foi estimado em 312 pacientes do ensaio randomizado e reestimado com os 418 pacientes da coorte \cite{dickson1989prognosis}. Depois da adoção do ácido ursodesoxicólico como tratamento padrão, surgiram escores para pacientes tratados. O GLOBE foi derivado em 4.119 pacientes de oito países e obteve estatística C de 0,82 na validação \cite{lammers2015globe}. Os escores UK-PBC foram derivados em 1.916 pacientes e validados em 1.249, com áreas sob a curva acima de 0,90 em 5, 10 e 15 anos \cite{carbone2016ukpbc}. Ambos usam variáveis medidas após um ano de tratamento, o que os torna incompatíveis com uma predição feita na linha de base.
+
+Em CBP, o AM aparece sobretudo como ferramenta de descoberta. \citeonline{gerussi2022ml} aplicaram agrupamento não supervisionado a 11.819 pacientes e identificaram quatro perfis com prognósticos distintos, mas não compararam o desempenho preditivo com o de um escore de regressão. No conjunto da Mayo Clinic, os 312 pacientes randomizados serviram como um dos exemplos de \textit{random survival forests} \cite{ishwaran2008rsf}, numa comparação de métodos de sobrevivência que não tinha como foco o valor incremental sobre o Escore de Mayo.
+
+Os trabalhos mais recentes sobre esse conjunto seguem o enquadramento da competição do Kaggle, cujos dados são sintéticos, gerados a partir do conjunto original \cite{reade2023ps3e26}. \citeonline{shakir2025cirrhosis} classificaram o desfecho em três classes, removendo o tempo de seguimento das entradas, e relataram acurácia de 89,55\% com XGBoost após balanceamento sintético de classes. No fluxograma do estudo, o balanceamento aparece antes da divisão entre treino e teste, e não há avaliação de calibração. \citeonline{tu2025cirrhosis} treinou cinco modelos nos dados sintéticos e os testou nos 418 pacientes originais, dos quais os dados sintéticos foram derivados. Ele agrupou censura e transplante como sobrevida, sem horizonte temporal, e relatou acurácia de 89\% com \textit{random forest} e AUC de 0,95 com XGBoost, também sem calibração. A Tabela~\ref{tab:literatura} resume esses estudos.
+
+\begin{table}[htbp]
+\centering
+\caption{Síntese dos estudos relacionados.}
+\label{tab:literatura}
+\small
+\renewcommand{\arraystretch}{1.14}
+\begin{tabularx}{\linewidth}{@{}p{2.55cm}X X X@{}}
+\toprule
+\textbf{Estudo} & \textbf{Dados e população} & \textbf{Modelagem e avaliação} & \textbf{Limitação central para esta pergunta} \\
+\midrule
+\citeonline{dickson1989prognosis} & Ensaio da Mayo Clinic; 312 randomizados e 418 no total & Cox com 5 variáveis; validação em coorte independente & Coeficientes estimados nos mesmos dados usados aqui \\
+\citeonline{lammers2015globe} & 4.119 pacientes tratados, 8 países & Cox (GLOBE); C de 0,82 na validação & Variáveis após 1 ano de tratamento \\
+\citeonline{carbone2016ukpbc} & 1.916 + 1.249 pacientes tratados, Reino Unido & Cox (UK-PBC); AUC acima de 0,90 & Variáveis após 1 ano de tratamento \\
+\citeonline{gerussi2022ml} & 11.819 + 1.069 pacientes, internacional & Agrupamento não supervisionado & Sem comparação preditiva com escore \\
+\citeonline{ishwaran2008rsf} & 312 randomizados da Mayo Clinic, entre outros & \textit{Random survival forests} & Foco no método, não no valor incremental \\
+\citeonline{shakir2025cirrhosis} & Dados sintéticos do Kaggle & 5 classificadores, 3 classes; acurácia & Balanceamento antes da divisão; sem calibração \\
+\citeonline{tu2025cirrhosis} & Sintéticos (treino) e 418 originais (teste) & 5 classificadores, binário sem horizonte & Teste nos dados que geraram o treino; sem calibração \\
+\bottomrule
+\end{tabularx}
+\par\vspace{3pt}{\footnotesize\color{cinzasec}Fonte: elaboração própria a partir dos estudos citados.}
+\end{table}
+
+No plano metodológico, \citeonline{christodoulou2019systematic} compararam 282 pares de modelos em 71 estudos: nas comparações com baixo risco de viés, a diferença no logito da AUC entre AM e regressão logística foi de 0,00 (IC 95\% de $-$0,18 a 0,18), enquanto nas de alto risco de viés o AM pareceu superior. \citeonline{vancalster2019calibration} chamam a calibração de calcanhar de Aquiles da análise preditiva, porque um modelo pode discriminar bem e ainda assim fornecer probabilidades erradas. \citeonline{kapoor2023leakage} mostram que o vazamento de dados, inclusive o uso de variáveis que não estariam disponíveis no momento da predição, é uma causa frequente de resultados irreprodutíveis em ciência baseada em AM.
+
+\subsection{Lacuna de pesquisa e posicionamento da proposta}
+No levantamento realizado, não foi encontrado estudo que compare, nos mesmos dados e nas mesmas partições, modelos de AM com um modelo de regressão com as variáveis do Escore de Mayo, avaliando discriminação e calibração e medindo o efeito do vazamento pelo tempo de seguimento. Este trabalho não propõe um novo modelo nem um novo escore. Ele reproduz, com protocolo controlado, a comparação entre AM e regressão num caso clássico, nos termos sugeridos por \citeonline{christodoulou2019systematic} e \citeonline{steyerberg2014seven}, e quantifica o quanto o enquadramento mais difundido do conjunto infla o desempenho.

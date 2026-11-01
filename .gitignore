@@ -3,3 +3,13 @@ __pycache__/
 *.pyc
 .venv/
 privado/
+
+# LaTeX auxiliares
+artigo/*.aux
+artigo/*.log
+artigo/*.out
+artigo/*.blg
+artigo/*.fdb_latexmk
+artigo/*.fls
+artigo/*.bbl
+artigo/*.synctex.gz
