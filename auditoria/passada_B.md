@@ -9,5 +9,6 @@ PASSADA B: AFIRMAÇÕES E NÚMEROS. Verifique, com evidência de arquivo e linha
 4. Coerência interna: os mesmos números aparecem iguais no resumo, nos resultados, na discussão, na conclusão e no README?
 5. Linguagem: afirmações clínicas indevidas (uso do modelo em pacientes atuais, tratados com ácido ursodesoxicólico); termos como "IA" ou "hype" usados como adjetivos; tom de crítica pessoal a trabalhos citados.
 6. Forma: o artigo compila sem erros e sem referências indefinidas; tabelas e figuras são citadas no texto; não há travessão (—) no texto.
+7. Correções da passada A2: confira, com evidência, se os achados de auditoria/relatorio_A2.md (A-02 e A-04 residuais, A2-01, A2-02, A2-03) estão resolvidos no código, no notebook, no README e no artigo. Classifique cada um como resolvido, parcialmente resolvido ou não resolvido.
 
 Grave o relatório em auditoria/relatorio_B.md, no formato de AUDITORIA.md (achados B-NN, tabela-resumo e veredito).
