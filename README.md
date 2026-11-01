@@ -247,7 +247,7 @@ jupyter nbconvert --to notebook --execute ml4health_cbp_mayo.ipynb
 
 Quem já tem o Python 3.13 pode usar `python3.13 -m venv .venv && source .venv/bin/activate` e `pip install -r requirements.txt`.
 
-Com as versões do `requirements.txt` e `FONTE_DADOS = "local"` (padrão), a execução reproduz os números deste documento. No Colab (botão no topo), a primeira célula instala apenas os pacotes ausentes e usa as versões do Colab, de modo que os resultados podem diferir na terceira casa decimal. Tempo de execução: cerca de 35 a 40 minutos em CPU com 2 núcleos; para um teste rápido, use `N_REP = 1`.
+Com as versões do `requirements.txt` e `FONTE_DADOS = "local"` (padrão), a execução reproduz os números deste documento. No Colab (botão no topo), a primeira célula instala apenas os pacotes ausentes e usa as versões do Colab, de modo que os resultados podem diferir na terceira casa decimal. Duas execuções completas, guardadas nos commits `00d1773` e `0fb5b54`, produziram os mesmos resultados (diferença absoluta máxima de 1,6e-13); a comparação pode ser refeita, sem treinar nada, com `python auditoria/comparar_execucoes.py`, e a saída está em [`auditoria/comparacao_execucoes.txt`](auditoria/comparacao_execucoes.txt). Tempo de execução: cerca de 35 a 40 minutos em CPU com 2 núcleos; para um teste rápido, use `N_REP = 1`.
 
 ## Referências
 

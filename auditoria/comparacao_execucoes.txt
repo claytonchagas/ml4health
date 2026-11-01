@@ -1,0 +1,15 @@
+Execução A: commit 00d1773
+Execução B: commit 0fb5b54
+
+arquivo                                   linhas  dif. máx.  texto igual  sha256 A / B
+folds                                        250    1.6e-13  True         9c9897c2f9e2 / 5708b9dd20b4
+oof                                          312    3.3e-16  True         d0fd6a002f23 / 9c5b3444759b
+resumo_cv                                     11    1.5e-14  True         15ed878c7e22 / 30753d2d9735
+quase_externa                                 11    1.1e-16  True         660b1670b808 / 9f801ec74546
+valor_incremental                              5    0.0e+00  True         79d79f010681 / 190cd10ec3fc
+valor_incremental_vs_mayo_publicado            6    0.0e+00  True         b34d5e11a19b / a900647b3aa4
+sensibilidade_preprocessamento                 2    0.0e+00  True         daaaa3c88895 / 09a85ff50118
+vazamento                                     50    0.0e+00  True         3630ae5f9831 / 3630ae5f9831
+hiperparametros                              250    0.0e+00  True         ba895a0085fe / ba895a0085fe
+
+Maior diferença absoluta entre as duas execuções: 1.6e-13
