@@ -1,0 +1,101 @@
+Modelo,Fold,l1_ratio,alphas,min_samples_split,min_samples_leaf,max_features,max_depth
+"Cox, 5 var. (referência)",0,,,,,,
+"Cox, 5 var. (referência)",1,,,,,,
+"Cox, 5 var. (referência)",2,,,,,,
+"Cox, 5 var. (referência)",3,,,,,,
+"Cox, 5 var. (referência)",4,,,,,,
+"Cox, 5 var. (referência)",5,,,,,,
+"Cox, 5 var. (referência)",6,,,,,,
+"Cox, 5 var. (referência)",7,,,,,,
+"Cox, 5 var. (referência)",8,,,,,,
+"Cox, 5 var. (referência)",9,,,,,,
+"Cox, 5 var. (referência)",10,,,,,,
+"Cox, 5 var. (referência)",11,,,,,,
+"Cox, 5 var. (referência)",12,,,,,,
+"Cox, 5 var. (referência)",13,,,,,,
+"Cox, 5 var. (referência)",14,,,,,,
+"Cox, 5 var. (referência)",15,,,,,,
+"Cox, 5 var. (referência)",16,,,,,,
+"Cox, 5 var. (referência)",17,,,,,,
+"Cox, 5 var. (referência)",18,,,,,,
+"Cox, 5 var. (referência)",19,,,,,,
+"Cox, 5 var. (referência)",20,,,,,,
+"Cox, 5 var. (referência)",21,,,,,,
+"Cox, 5 var. (referência)",22,,,,,,
+"Cox, 5 var. (referência)",23,,,,,,
+"Cox, 5 var. (referência)",24,,,,,,
+"Cox penalizado, 17 var.",0,0.1,1.0,,,,
+"Cox penalizado, 17 var.",1,0.1,0.46415888336127775,,,,
+"Cox penalizado, 17 var.",2,0.1,0.46415888336127775,,,,
+"Cox penalizado, 17 var.",3,0.1,0.1,,,,
+"Cox penalizado, 17 var.",4,0.1,0.1,,,,
+"Cox penalizado, 17 var.",5,0.1,1.0,,,,
+"Cox penalizado, 17 var.",6,0.1,0.46415888336127775,,,,
+"Cox penalizado, 17 var.",7,0.1,0.46415888336127775,,,,
+"Cox penalizado, 17 var.",8,0.1,0.21544346900318823,,,,
+"Cox penalizado, 17 var.",9,0.5,0.1,,,,
+"Cox penalizado, 17 var.",10,0.1,0.21544346900318823,,,,
+"Cox penalizado, 17 var.",11,0.1,0.046415888336127774,,,,
+"Cox penalizado, 17 var.",12,0.1,0.21544346900318823,,,,
+"Cox penalizado, 17 var.",13,0.1,0.46415888336127775,,,,
+"Cox penalizado, 17 var.",14,0.1,0.21544346900318823,,,,
+"Cox penalizado, 17 var.",15,0.1,0.46415888336127775,,,,
+"Cox penalizado, 17 var.",16,0.1,0.46415888336127775,,,,
+"Cox penalizado, 17 var.",17,0.5,0.1,,,,
+"Cox penalizado, 17 var.",18,0.1,0.21544346900318823,,,,
+"Cox penalizado, 17 var.",19,0.1,0.46415888336127775,,,,
+"Cox penalizado, 17 var.",20,0.1,0.46415888336127775,,,,
+"Cox penalizado, 17 var.",21,0.1,0.21544346900318823,,,,
+"Cox penalizado, 17 var.",22,0.1,0.46415888336127775,,,,
+"Cox penalizado, 17 var.",23,0.1,1.0,,,,
+"Cox penalizado, 17 var.",24,0.1,0.21544346900318823,,,,
+"RSF, 5 var.",0,,,20.0,3.0,0.5,8.0
+"RSF, 5 var.",1,,,40.0,20.0,0.5,3.0
+"RSF, 5 var.",2,,,6.0,3.0,1.0,3.0
+"RSF, 5 var.",3,,,10.0,5.0,1.0,3.0
+"RSF, 5 var.",4,,,6.0,10.0,1.0,8.0
+"RSF, 5 var.",5,,,6.0,3.0,1.0,3.0
+"RSF, 5 var.",6,,,10.0,5.0,0.33,8.0
+"RSF, 5 var.",7,,,10.0,15.0,0.5,8.0
+"RSF, 5 var.",8,,,6.0,10.0,sqrt,
+"RSF, 5 var.",9,,,6.0,20.0,sqrt,4.0
+"RSF, 5 var.",10,,,10.0,30.0,sqrt,3.0
+"RSF, 5 var.",11,,,6.0,3.0,0.5,4.0
+"RSF, 5 var.",12,,,6.0,3.0,sqrt,3.0
+"RSF, 5 var.",13,,,6.0,5.0,1.0,3.0
+"RSF, 5 var.",14,,,40.0,3.0,1.0,4.0
+"RSF, 5 var.",15,,,6.0,20.0,sqrt,4.0
+"RSF, 5 var.",16,,,40.0,20.0,0.33,3.0
+"RSF, 5 var.",17,,,10.0,3.0,1.0,4.0
+"RSF, 5 var.",18,,,10.0,3.0,sqrt,6.0
+"RSF, 5 var.",19,,,10.0,5.0,1.0,3.0
+"RSF, 5 var.",20,,,40.0,10.0,1.0,8.0
+"RSF, 5 var.",21,,,10.0,5.0,sqrt,4.0
+"RSF, 5 var.",22,,,10.0,3.0,1.0,3.0
+"RSF, 5 var.",23,,,20.0,3.0,1.0,4.0
+"RSF, 5 var.",24,,,20.0,20.0,sqrt,4.0
+"RSF, 17 var.",0,,,20.0,5.0,sqrt,3.0
+"RSF, 17 var.",1,,,10.0,10.0,sqrt,3.0
+"RSF, 17 var.",2,,,6.0,3.0,1.0,3.0
+"RSF, 17 var.",3,,,10.0,10.0,sqrt,
+"RSF, 17 var.",4,,,40.0,30.0,sqrt,6.0
+"RSF, 17 var.",5,,,40.0,20.0,sqrt,6.0
+"RSF, 17 var.",6,,,20.0,20.0,sqrt,8.0
+"RSF, 17 var.",7,,,10.0,15.0,0.5,8.0
+"RSF, 17 var.",8,,,40.0,10.0,sqrt,8.0
+"RSF, 17 var.",9,,,20.0,15.0,sqrt,6.0
+"RSF, 17 var.",10,,,20.0,15.0,sqrt,8.0
+"RSF, 17 var.",11,,,20.0,10.0,0.33,6.0
+"RSF, 17 var.",12,,,40.0,15.0,sqrt,6.0
+"RSF, 17 var.",13,,,6.0,5.0,0.5,3.0
+"RSF, 17 var.",14,,,20.0,5.0,sqrt,4.0
+"RSF, 17 var.",15,,,6.0,20.0,sqrt,4.0
+"RSF, 17 var.",16,,,20.0,15.0,sqrt,8.0
+"RSF, 17 var.",17,,,10.0,5.0,sqrt,3.0
+"RSF, 17 var.",18,,,10.0,5.0,0.5,8.0
+"RSF, 17 var.",19,,,6.0,5.0,0.33,3.0
+"RSF, 17 var.",20,,,10.0,5.0,sqrt,
+"RSF, 17 var.",21,,,40.0,15.0,0.33,6.0
+"RSF, 17 var.",22,,,10.0,5.0,sqrt,3.0
+"RSF, 17 var.",23,,,10.0,15.0,0.33,6.0
+"RSF, 17 var.",24,,,20.0,20.0,sqrt,4.0

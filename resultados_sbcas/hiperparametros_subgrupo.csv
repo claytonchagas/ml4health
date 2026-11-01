@@ -1,0 +1,5 @@
+Cenário,Modelo,l1_ratio,alphas,min_samples_split,min_samples_leaf,max_features,max_depth
+subgrupo independente,"Cox, 5 var. (referência)",,,,,,
+subgrupo independente,"Cox penalizado, 17 var.",0.1,0.21544346900318823,,,,
+subgrupo independente,"RSF, 5 var.",,,6.0,5.0,sqrt,4.0
+subgrupo independente,"RSF, 17 var.",,,6.0,5.0,sqrt,4.0
