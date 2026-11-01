@@ -58,7 +58,7 @@ Desde 1989 existe o **Escore de Risco de Mayo** (Dickson et al., 1989), um model
 3. **Codificação:** idade em anos; sexo e sinais clínicos em 0/1; edema em 0, 0,5 e 1, como no Escore de Mayo; tratamento em 0/1 com ausência mantida.
 4. **Transformação:** na regressão logística, laboratórios assimétricos em logaritmo natural (bilirrubina, albumina e protrombina na especificação de Mayo; também colesterol, cobre, fosfatase alcalina, AST e triglicerídeos no modelo de 17 variáveis), seguidos de padronização.
 5. **Imputação, dentro de cada partição de treino:** mediana para as 5 variáveis de Mayo (só 2 pacientes rotulados têm algum ausente); imputação iterativa para as 17 variáveis (na escala logarítmica, na regressão; na escala original, no random forest); o XGBoost trata ausentes nativamente.
-6. **Sem balanceamento artificial de classes**, porque distorce as probabilidades previstas (Christodoulou et al., 2019).
+6. **Sem balanceamento artificial de classes**, porque correções de desbalanceamento pioram a calibração das probabilidades sem melhorar a discriminação (van den Goorbergh et al., 2022).
 
 ### 2.3 Link para a versão usada
 
@@ -255,5 +255,6 @@ Com as versões do `requirements.txt` e `FONTE_DADOS = "local"` (padrão), a exe
 - Dickson, E. R. et al. Prognosis in primary biliary cirrhosis: model for decision making. *Hepatology*, 10(1):1-7, 1989.
 - Kapoor, S.; Narayanan, A. Leakage and the reproducibility crisis in machine-learning-based science. *Patterns*, 4(9):100804, 2023.
 - Steyerberg, E. W.; Vergouwe, Y. Towards better clinical prediction models: seven steps for development and an ABCD for validation. *European Heart Journal*, 35(29):1925-1931, 2014.
+- van den Goorbergh, R. et al. The harm of class imbalance corrections for risk prediction models: illustration and simulation using logistic regression. *Journal of the American Medical Informatics Association*, 29(9):1525-1534, 2022.
 - Van Calster, B. et al. Calibration: the Achilles heel of predictive analytics. *BMC Medicine*, 17:230, 2019.
 - Dickson, E. et al. Cirrhosis Patient Survival Prediction [dataset]. UCI Machine Learning Repository, 1989 (disponibilizado em 2023). DOI 10.24432/C5R02G.
