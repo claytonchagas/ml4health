@@ -103,7 +103,7 @@ C.append(md("""### 2.4 Hiperparâmetros utilizados
 - **Sensibilidade do pré-processamento:** random forest e XGBoost com 17 variáveis recebendo exatamente o pré-processamento da regressão com 17 variáveis (auditoria, A-04).
 - **Métricas:** AUROC (principal); **AP** (*average precision*, precisão média: soma da precisão ponderada pelos incrementos de revocação, estimador usual da área sob a curva precisão-revocação, mas não a integração trapezoidal); Brier; CITL (intercepto com o logit da predição como *offset*); inclinação de calibração.
 - **Sem balanceamento artificial de classes:** distorceria as probabilidades (Christodoulou et al., 2019).
-- **Avisos de convergência** não são silenciados: são contados e reportados após a validação cruzada."""))
+- **Avisos de convergência** não são silenciados: são contados, têm categoria e mensagem registradas e são reportados após a validação cruzada e na validação quase externa."""))
 C.append(code("""N_REP = 5      # repetições da validação cruzada (use 1 para um teste rápido)
 N_FOLDS = 5
 print("Semente:", SEMENTE, "| horizonte:", HORIZONTE, "dias")
@@ -162,7 +162,9 @@ hiper.to_csv("resultados/hiperparametros.csv", index=False)
 print(f"Tempo: {time.time() - t0:.0f} s")
 conv = folds.groupby("Modelo", sort=False)["Avisos de convergência"].sum()
 print("Avisos de convergência por modelo (soma nos 25 folds, incluindo a busca interna):")
-print(conv.to_string() if conv.sum() else "  nenhum")"""))
+print(conv.to_string() if conv.sum() else "  nenhum")
+msgs = sorted({m for s in folds["Mensagens dos avisos"].dropna() for m in str(s).split(" | ") if m})
+for m in msgs: print("  ", m)"""))
 C.append(code("""# Hiperparâmetros escolhidos pela busca aninhada: configuração mais frequente em cada modelo (todas em resultados/hiperparametros.csv)
 hp = hiper.dropna(axis=1, how="all")
 for nome, g in hp.groupby("Modelo", sort=False):
@@ -172,7 +174,7 @@ for nome, g in hp.groupby("Modelo", sort=False):
         g = g.apply(lambda col: col.map(lambda v: int(v) if col.name in inteiros and isinstance(v, float) and v.is_integer() else v))
         moda = g.astype(str).value_counts().head(1)
         print(f"{nome}: {dict(zip(g.columns, moda.index[0]))} (em {moda.iloc[0]} de {len(g)} folds)")"""))
-C.append(code("""resumo = folds.drop(columns=["Fold", "Avisos de convergência"]).groupby("Modelo", sort=False).agg(["mean", "std"])
+C.append(code("""resumo = folds.drop(columns=["Fold", "Avisos de convergência", "Mensagens dos avisos"]).groupby("Modelo", sort=False).agg(["mean", "std"])
 fmt = resumo.copy()
 tab = pd.DataFrame({c: [f"{m:.3f} ± {s:.3f}" for m, s in zip(resumo[(c, 'mean')], resumo[(c, 'std')])] for c in ["AUROC", "AP", "Brier", "CITL", "Incl. calibr."]}, index=resumo.index)
 tab"""))
@@ -231,11 +233,15 @@ axs[2].plot([0, 1], [0, 1], ":", c="gray"); axs[2].set_xlabel("probabilidade pre
 plt.tight_layout(); plt.savefig("figs/discriminacao_roc_calibracao.png", dpi=200, bbox_inches="tight"); plt.show()"""))
 
 C.append(md("### 3.3 Validação quase externa: desenvolvimento nos pacientes do ensaio, teste nos não randomizados"))
-C.append(code("""qe, ntr, nte, nev = validacao_quase_externa(df, X, y)
+C.append(code("""qe, ntr, nte, nev, hqe = validacao_quase_externa(df, X, y)
 qe.to_csv("resultados/quase_externa.csv", index=False)
+hqe.to_csv("resultados/hiperparametros_quase_externa.csv", index=False)
 print(f"Treino: {ntr} pacientes randomizados | Teste: {nte} não randomizados ({nev} óbitos em 5 anos)")
 print("No teste, as variáveis exclusivas do ensaio estão ausentes e são imputadas (17 var.) ou tratadas nativamente (XGBoost).")
-qe.set_index("Modelo").round(3)"""))
+print("Avisos de convergência:", int(qe["Avisos de convergência"].sum()) or "nenhum")
+qe.drop(columns=["Avisos de convergência", "Mensagens dos avisos"]).set_index("Modelo").round(3)"""))
+C.append(code("""# Hiperparâmetros escolhidos pela busca no treino da validação quase externa (resultados/hiperparametros_quase_externa.csv)
+hqe.drop(columns="Cenário").set_index("Modelo").dropna(axis=0, how="all").dropna(axis=1, how="all")"""))
 
 C.append(md("### 3.4 Braço de controle: vazamento por `N_Days` no enquadramento da PS3E26 (3 classes)"))
 C.append(code("""vz = experimento_vazamento(df, X, n_rep=N_REP)

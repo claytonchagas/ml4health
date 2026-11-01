@@ -250,7 +250,8 @@ def modelos():
 
 def ajustar(est, grade, X, y, semente):
     """Ajusta o modelo (com busca aninhada, se houver grade) apenas nos dados recebidos.
-    Devolve (modelo ajustado, hiperparametros escolhidos, numero de avisos de convergencia)."""
+    Devolve (modelo ajustado, hiperparametros escolhidos, avisos de convergencia), em que avisos e a
+    lista de textos "Categoria: mensagem", um por aviso distinto (vazia quando nenhum ocorre)."""
     with warnings.catch_warnings(record=True) as avisos:
         warnings.simplefilter("always", ConvergenceWarning)
         if grade is None:
@@ -261,8 +262,8 @@ def ajustar(est, grade, X, y, semente):
                                        random_state=semente, n_jobs=1, refit=True)
             busca.fit(X, y)
             m, hp = busca.best_estimator_, busca.best_params_
-    n_conv = sum(issubclass(a.category, ConvergenceWarning) for a in avisos)
-    return m, hp, n_conv
+    conv = [f"{a.category.__name__}: {a.message}" for a in avisos if issubclass(a.category, ConvergenceWarning)]
+    return m, hp, conv
 
 # ----------------------------------------------------------------------------- metricas
 
@@ -296,17 +297,18 @@ def metricas(y, p):
 
 def validacao_cruzada(X, y, n_rep=5, n_folds=5, semente=SEMENTE, log=print):
     """Devolve (metricas por fold, predicoes fora-do-fold medias por paciente, hiperparametros por fold).
-    As metricas por fold incluem o numero de avisos de convergencia do ajuste daquele fold."""
+    As metricas por fold incluem o numero de avisos de convergencia do ajuste daquele fold e seus textos."""
     cv = RepeatedStratifiedKFold(n_splits=n_folds, n_repeats=n_rep, random_state=semente)
     linhas, oof, hiper = [], {}, []
     for nome, cols, est, grade in modelos():
         P = np.full((n_rep, len(y)), np.nan)
         for k, (tr, te) in enumerate(cv.split(X, y)):
             rep = k // n_folds
-            m, hp, n_conv = ajustar(est, grade, X.iloc[tr][cols], y.iloc[tr], semente + k)
+            m, hp, conv = ajustar(est, grade, X.iloc[tr][cols], y.iloc[tr], semente + k)
             p = m.predict_proba(X.iloc[te][cols])[:, 1]
             P[rep, te] = p
-            linhas.append({"Modelo": nome, "Fold": k, **metricas(y.iloc[te].to_numpy(), p), "Avisos de convergência": n_conv})
+            linhas.append({"Modelo": nome, "Fold": k, **metricas(y.iloc[te].to_numpy(), p), "Avisos de convergência": len(conv),
+                           "Mensagens dos avisos": " | ".join(sorted(set(conv)))})
             hiper.append({"Modelo": nome, "Fold": k, **{c.replace("clf__", ""): v for c, v in hp.items()}})
         oof[nome] = P.mean(axis=0)
         log(f"  {nome}: AUROC medio por fold = {np.mean([l['AUROC'] for l in linhas if l['Modelo'] == nome]):.3f}")
@@ -383,17 +385,20 @@ def experimento_vazamento(df, X, n_rep=5, n_folds=5, semente=SEMENTE):
 # ----------------------------------------------------------------------------- validacao quase externa
 
 def validacao_quase_externa(df, X, y):
-    """Desenvolve nos pacientes do ensaio randomizado; testa nos nao randomizados (Drug ausente)."""
+    """Desenvolve nos pacientes do ensaio randomizado; testa nos nao randomizados (Drug ausente).
+    Devolve (metricas, n treino, n teste, obitos no teste, hiperparametros escolhidos por modelo)."""
     rot = y.notna()
     tr = rot & df["Drug"].notna(); te = rot & df["Drug"].isna()
-    linhas = []
+    linhas, hiper = [], []
     # O Mayo inicial (n=312) entra aqui como comparador historico valido: foi estimado so nos randomizados.
     lista = [("Mayo 1989 inicial (n=312), recalibrado", MAYO5, MayoOriginal("inicial"), None)] + modelos()
     for nome, cols, est, grade in lista:
-        m, hp, n_conv = ajustar(est, grade, X.loc[tr, cols], y[tr], SEMENTE)
+        m, hp, conv = ajustar(est, grade, X.loc[tr, cols], y[tr], SEMENTE)
         p = m.predict_proba(X.loc[te, cols])[:, 1]
-        linhas.append({"Modelo": nome, **metricas(y[te].to_numpy(), p), "Avisos de convergência": n_conv})
-    return pd.DataFrame(linhas), int(tr.sum()), int(te.sum()), int(y[te].sum())
+        linhas.append({"Modelo": nome, **metricas(y[te].to_numpy(), p), "Avisos de convergência": len(conv),
+                       "Mensagens dos avisos": " | ".join(sorted(set(conv)))})
+        hiper.append({"Cenário": "quase externa", "Modelo": nome, **{c.replace("clf__", ""): v for c, v in hp.items()}})
+    return pd.DataFrame(linhas), int(tr.sum()), int(te.sum()), int(y[te].sum()), pd.DataFrame(hiper)
 
 
 if __name__ == "__main__":
@@ -407,12 +412,13 @@ if __name__ == "__main__":
     folds, oof, hiper = validacao_cruzada(X[rot], y[rot])
     folds.to_csv("resultados/folds.csv", index=False); oof.to_csv("resultados/oof.csv")
     hiper.to_csv("resultados/hiperparametros.csv", index=False)
-    print(folds.groupby("Modelo", sort=False).agg(["mean", "std"]).round(3).to_string())
+    print(folds.drop(columns="Mensagens dos avisos").groupby("Modelo", sort=False).agg(["mean", "std"]).round(3).to_string())
     yy = y[rot].to_numpy()
     vi = valor_incremental(yy, oof, folds, "RL, 5 var. (Mayo reestimado)", COMPARACOES_PRINCIPAIS)
     vi.to_csv("resultados/valor_incremental.csv", index=False); print(vi.round(3).to_string())
     vz = experimento_vazamento(df, X); vz.to_csv("resultados/vazamento.csv", index=False)
     print(vz.groupby("Entrada").agg(["mean", "std"]).round(3).to_string())
-    qe, ntr, nte, nev = validacao_quase_externa(df, X, y); qe.to_csv("resultados/quase_externa.csv", index=False)
+    qe, ntr, nte, nev, hqe = validacao_quase_externa(df, X, y); qe.to_csv("resultados/quase_externa.csv", index=False)
+    hqe.to_csv("resultados/hiperparametros_quase_externa.csv", index=False)
     print("quase externa: treino", ntr, "teste", nte, "obitos teste", nev); print(qe.round(3).to_string())
     print("tempo", round(time.time() - t0), "s")
