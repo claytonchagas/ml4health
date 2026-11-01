@@ -36,3 +36,4 @@ Ao final, uma tabela-resumo com todos os achados e um veredito: "aprovado", "apr
 | B. Afirmações e números | Após o rascunho do artigo | [`auditoria/passada_B.md`](auditoria/passada_B.md) |
 | C. Conformidade e referências | No fim | [`auditoria/passada_C.md`](auditoria/passada_C.md) |
 | C2. Fechamento | Após corrigir os achados da passada C | [`auditoria/passada_C2.md`](auditoria/passada_C2.md) |
+| A3. Análise de sobrevivência (versão SBCAS, ramo `sbcas-2027`) | Após executar o plano registrado | [`auditoria/passada_A3.md`](auditoria/passada_A3.md) |
