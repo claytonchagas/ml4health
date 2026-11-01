@@ -250,8 +250,8 @@ plt.suptitle("XGBoost, 17 variáveis, Status em 3 classes (C, CL, D)", fontsize=
 
 C.append(md("""## 4. Leitura dos resultados
 
-- **Discriminação:** compare cada célula com o Escore de Mayo pela tabela de valor incremental; intervalos que incluem zero indicam ausência de evidência de ganho.
-- **Desenho 2 x 2:** a leitura vertical (mesma coluna) isola o algoritmo; a horizontal (mesma linha), as variáveis extras, que custam pacientes elegíveis.
+- **Discriminação:** compare cada modelo com a regressão logística com as 5 variáveis de Mayo (referência) pela tabela de valor incremental; só se afirma ganho ou perda quando o IC de Bonferroni exclui zero, e um IC que inclui zero indica ausência de evidência de diferença, não equivalência. O Mayo publicado é só referência histórica.
+- **Desenho 2 x 2:** a leitura vertical (mesma coluna) compara pipelines, que diferem no algoritmo e também no tratamento dos dados; a análise de sensibilidade aproxima o efeito do algoritmo ao dar às árvores o pré-processamento da regressão. A leitura horizontal (mesma linha) mostra o efeito nominal das variáveis extras, que não teve contraste inferencial próprio. Exigir as 17 variáveis completas, sem imputação, reduziria os elegíveis de 310 para 210.
 - **Calibração:** inclinação próxima de 1 e CITL próximo de 0 indicam probabilidades confiáveis.
 - **Vazamento:** a diferença entre os braços com e sem `N_Days` mede o quanto o enquadramento da PS3E26 infla o desempenho.
 
