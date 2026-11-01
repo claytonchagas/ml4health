@@ -58,7 +58,7 @@ Desde 1989 existe o **Escore de Risco de Mayo** (Dickson et al., 1989), um model
 3. **Codificação:** idade em anos; sexo e sinais clínicos em 0/1; edema em 0, 0,5 e 1, como no Escore de Mayo; tratamento em 0/1 com ausência mantida.
 4. **Transformação:** na regressão logística, laboratórios assimétricos em logaritmo natural (bilirrubina, albumina e protrombina na especificação de Mayo; também colesterol, cobre, fosfatase alcalina, AST e triglicerídeos no modelo de 17 variáveis), seguidos de padronização.
 5. **Imputação, dentro de cada partição de treino:** mediana para as 5 variáveis de Mayo (só 2 pacientes rotulados têm algum ausente); imputação iterativa para as 17 variáveis (na escala logarítmica, na regressão; na escala original, no random forest); o XGBoost trata ausentes nativamente.
-6. **Sem balanceamento artificial de classes**, porque correções de desbalanceamento pioram a calibração das probabilidades sem melhorar a discriminação (van den Goorbergh et al., 2022).
+6. **Sem balanceamento artificial de classes**, escolha deste estudo para preservar as probabilidades estimadas; em regressão logística, correções de desbalanceamento por reamostragem pioraram a calibração sem melhorar a discriminação (van den Goorbergh et al., 2022).
 
 ### 2.3 Link para a versão usada
 

@@ -102,7 +102,7 @@ C.append(md("""### 2.4 Hiperparâmetros utilizados
 - **XGBoost:** ausentes tratados nativamente; grade sobre número de árvores, taxa de aprendizado, profundidade, peso mínimo por folha e regularização L2.
 - **Sensibilidade do pré-processamento:** random forest e XGBoost com 17 variáveis recebendo exatamente o pré-processamento da regressão com 17 variáveis (auditoria, A-04).
 - **Métricas:** AUROC (principal); **AP** (*average precision*, precisão média: soma da precisão ponderada pelos incrementos de revocação, estimador usual da área sob a curva precisão-revocação, mas não a integração trapezoidal); Brier; CITL (intercepto com o logit da predição como *offset*); inclinação de calibração.
-- **Sem balanceamento artificial de classes:** correções de desbalanceamento pioram a calibração das probabilidades sem melhorar a discriminação (van den Goorbergh et al., 2022).
+- **Sem balanceamento artificial de classes:** escolha deste estudo para preservar as probabilidades estimadas; em regressão logística, correções de desbalanceamento por reamostragem pioraram a calibração sem melhorar a discriminação (van den Goorbergh et al., 2022).
 - **Avisos de convergência** não são silenciados: são contados, têm categoria e mensagem registradas e são reportados após a validação cruzada e na validação quase externa."""))
 C.append(code("""N_REP = 5      # repetições da validação cruzada (use 1 para um teste rápido)
 N_FOLDS = 5
