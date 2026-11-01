@@ -32,5 +32,6 @@ Ao final, uma tabela-resumo com todos os achados e um veredito: "aprovado", "apr
 | Passada | Quando | Prompt |
 |---|---|---|
 | A. Método e código | Antes do artigo | [`auditoria/passada_A.md`](auditoria/passada_A.md) |
+| A2. Reauditoria de método e código | Após corrigir os achados da passada A | [`auditoria/passada_A2.md`](auditoria/passada_A2.md) |
 | B. Afirmações e números | Após o rascunho do artigo | [`auditoria/passada_B.md`](auditoria/passada_B.md) |
 | C. Conformidade | No fim | [`auditoria/passada_C.md`](auditoria/passada_C.md) |

@@ -1,13 +1,6 @@
-Referência,Modelo,ΔAUROC,IC 95%,Inclui zero?
-Mayo 1989 (coef. publicados),"RL, 5 var. (Mayo reestimado)",-0.005,[-0.012; +0.003],sim
-Mayo 1989 (coef. publicados),"RL penalizada, 17 var.",0.004,[-0.015; +0.023],sim
-Mayo 1989 (coef. publicados),"Random forest, 5 var.",-0.018,[-0.034; -0.002],não
-Mayo 1989 (coef. publicados),"Random forest, 17 var.",-0.003,[-0.021; +0.014],sim
-Mayo 1989 (coef. publicados),"XGBoost, 5 var.",-0.018,[-0.031; -0.006],não
-Mayo 1989 (coef. publicados),"XGBoost, 17 var.",-0.011,[-0.030; +0.007],sim
-"RL, 5 var. (Mayo reestimado)",Mayo 1989 (coef. publicados),0.005,[-0.003; +0.012],sim
-"RL, 5 var. (Mayo reestimado)","RL penalizada, 17 var.",0.009,[-0.010; +0.030],sim
-"RL, 5 var. (Mayo reestimado)","Random forest, 5 var.",-0.013,[-0.029; +0.003],sim
-"RL, 5 var. (Mayo reestimado)","Random forest, 17 var.",0.001,[-0.016; +0.017],sim
-"RL, 5 var. (Mayo reestimado)","XGBoost, 5 var.",-0.013,[-0.027; -0.001],não
-"RL, 5 var. (Mayo reestimado)","XGBoost, 17 var.",-0.006,[-0.025; +0.012],sim
+Referência,Modelo,ΔAUROC,IC95_inf,IC95_sup,ICBonf99_inf,ICBonf99_sup,Leitura (Bonferroni),Δ fold a fold (média),Δ fold a fold (desvio),Folds com ganho (%)
+"RL, 5 var. (Mayo reestimado)","RL penalizada, 17 var.",0.008783932906643033,-0.010215931886471238,0.02954847933797168,-0.017084105391603058,0.03546246906268798,sem evidência de diferença,0.0088639910813824,0.02687083179519754,60.0
+"RL, 5 var. (Mayo reestimado)","Random forest, 5 var.",-0.013197969543147337,-0.029343253425609464,0.0032240110092331496,-0.035258203003928776,0.008768809086134513,sem evidência de diferença,-0.013294314381270907,0.01861276338849744,24.0
+"RL, 5 var. (Mayo reestimado)","Random forest, 17 var.",-0.0003089825645553601,-0.018170644039627957,0.016160017675833502,-0.02217879855196624,0.02371337388623621,sem evidência de diferença,-0.002870680044593077,0.017820561276665245,40.0
+"RL, 5 var. (Mayo reestimado)","XGBoost, 5 var.",-0.013330390642242396,-0.026892954415733604,-0.001040581597222168,-0.03119087548091413,0.0027102627076433174,sem evidência de diferença,-0.015536789297658875,0.019232941001566903,20.0
+"RL, 5 var. (Mayo reestimado)","XGBoost, 17 var.",-0.006135510924740628,-0.024844882733347323,0.011705621654368724,-0.0301498812597059,0.017084969288355394,sem evidência de diferença,-0.010788182831661107,0.01938355024112102,24.0

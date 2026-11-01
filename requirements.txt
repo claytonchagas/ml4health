@@ -1,7 +1,11 @@
-ucimlrepo
-xgboost>=2.0
-scikit-learn>=1.5
-pandas
-numpy
-matplotlib>=3.9
-jupyter
+# Versões exatas da execução oficial (Python 3.13). Para reproduzir os números do README:
+#   pip install -r requirements.txt   e   FONTE_DADOS = "local" no notebook.
+ucimlrepo==0.0.7
+scikit-learn==1.9.1
+xgboost==3.4.1
+pandas==3.0.5
+numpy==2.5.3
+matplotlib==3.11.2
+nbformat==5.11.1
+nbconvert==7.17.2
+ipykernel==7.4.0

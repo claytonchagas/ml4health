@@ -6,23 +6,25 @@
 
 [![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/claytonchagas/ml4health/blob/main/ml4health_cbp_mayo.ipynb)
 
+**Auditoria independente.** O código, o notebook e este documento foram auditados por um segundo agente ([`AUDITORIA.md`](AUDITORIA.md)). Os sete achados da primeira passada ([`auditoria/relatorio_A.md`](auditoria/relatorio_A.md)) foram tratados nesta versão; a seção 6 resume cada um.
+
 ---
 
 ## 1. Motivação e objetivo
 
 A cirrose biliar primária (CBP; desde 2015, colangite biliar primária) é uma doença hepática crônica e autoimune, de progressão muito variável entre pacientes. Estimar o risco individual de óbito na primeira avaliação orienta a intensidade do acompanhamento e o momento de encaminhamento ao transplante.
 
-Desde 1989 existe o **Escore de Risco de Mayo** (Dickson et al., 1989), uma regressão com cinco variáveis de rotina (idade, bilirrubina, albumina, tempo de protrombina e edema), derivada exatamente nos dados usados aqui. Modelos de aprendizado de máquina (AM) prometem mais precisão, mas exigem mais variáveis, mais pacientes com dados completos e mais infraestrutura, e perdem a transparência de uma fórmula. Revisões sistemáticas não encontraram vantagem do AM sobre a regressão logística em predição clínica quando a comparação é metodologicamente limpa (Christodoulou et al., 2019).
+Desde 1989 existe o **Escore de Risco de Mayo** (Dickson et al., 1989), um modelo de Cox com cinco variáveis de rotina (idade, bilirrubina, albumina, tempo de protrombina e edema), derivado exatamente nos dados usados aqui. Modelos de aprendizado de máquina (AM) prometem mais precisão, mas exigem mais variáveis, mais pacientes com dados completos e mais infraestrutura, e perdem a transparência de uma fórmula. Revisões sistemáticas não encontraram vantagem do AM sobre a regressão logística em predição clínica quando a comparação é metodologicamente limpa (Christodoulou et al., 2019).
 
-**Objetivo.** Medir o **valor incremental** do AM sobre o Escore de Mayo na predição de óbito em até 5 anos, e o custo desse ganho. *Valor incremental* é o benefício adicional que um novo modelo traz em comparação com o método clínico já usado na rotina: não basta o modelo ser preciso, ele precisa ser melhor do que o que os médicos já fazem para justificar custo, tempo e mudança no fluxo de trabalho.
+**Objetivo.** Medir o **valor incremental** do AM sobre um modelo de regressão com as 5 variáveis do Escore de Mayo, na predição de óbito em até 5 anos, e o custo desse ganho. *Valor incremental* é o benefício adicional que um novo modelo traz em comparação com o método clínico já usado na rotina: não basta o modelo ser preciso, ele precisa ser melhor do que o que os médicos já fazem para justificar custo, tempo e mudança no fluxo de trabalho.
 
 **Perguntas.**
 
-1. Em que condições random forest e XGBoost superam, empatam ou perdem para o Escore de Mayo, em discriminação e em calibração?
+1. Em que condições random forest e XGBoost mostram ganho, ausência de diferença ou perda em relação à regressão com as 5 variáveis de Mayo, em discriminação e em calibração?
 2. O ganho, se houver, vem do algoritmo ou das variáveis extras?
 3. Quanto o enquadramento da competição Kaggle PS3E26 (prever `Status` com `N_Days` como entrada) infla o desempenho?
 
-**Desenho 2 x 2.** Duas famílias de métodos (regressão e AM), cada uma com as 5 variáveis de Mayo e com as 17 variáveis do dataset, nos mesmos folds. A leitura vertical (mesmas variáveis) isola o efeito do algoritmo; a horizontal (mesmo algoritmo), o efeito das variáveis extras.
+**Desenho 2 x 2.** Duas famílias de métodos (regressão e AM), cada uma com as 5 variáveis de Mayo e com as 17 variáveis do dataset, nos mesmos pacientes e nos mesmos folds. A leitura horizontal (mesma família) mede o efeito das variáveis extras. A leitura vertical (mesmas variáveis) compara os **pipelines** de cada família, que diferem também no tratamento dos dados; uma análise de sensibilidade iguala o pré-processamento para isolar o algoritmo.
 
 ---
 
@@ -51,16 +53,16 @@ Desde 1989 existe o **Escore de Risco de Mayo** (Dickson et al., 1989), uma regr
 
 ### 2.2 Preparação e pré-processamento
 
-1. **Rótulo de 5 anos (1.826 dias).** `Status = D` e `N_Days ≤ 1826` → 1 (óbito); `N_Days > 1826` → 0 (vivo aos 5 anos); `Status ∈ {C, CL}` e `N_Days ≤ 1826` → excluído (saiu antes dos 5 anos sem óbito observado; censura). Resultado: **312 pacientes rotulados, 115 óbitos (36,9%), 106 excluídos.**
+1. **Rótulo de 5 anos (1.826 dias).** `Status = D` e `N_Days ≤ 1826` → 1 (óbito); `N_Days > 1826` → 0 (vivo aos 5 anos); `Status ∈ {C, CL}` e `N_Days ≤ 1826` → excluído (saiu antes dos 5 anos sem óbito observado; censura). Resultado: **312 pacientes rotulados, 115 óbitos (36,9%), 106 excluídos.** Esses 106 excluídos e os 106 não randomizados são conjuntos distintos; a coincidência é numérica.
 2. **`N_Days` nunca é variável de entrada.** É o tempo até o desfecho, conhecido só depois dele. Entra apenas na construção do rótulo, e no braço de controle de vazamento, rodado de propósito.
 3. **Codificação:** idade em anos; sexo e sinais clínicos em 0/1; edema em 0, 0,5 e 1, como no Escore de Mayo; tratamento em 0/1 com ausência mantida.
-4. **Transformação:** na regressão logística, laboratórios assimétricos em logaritmo (bilirrubina, albumina e protrombina na especificação de Mayo; também colesterol, cobre, fosfatase alcalina, AST e triglicerídeos no modelo de 17 variáveis). Árvores não precisam de transformação.
-5. **Imputação, dentro de cada partição de treino:** mediana para as 5 variáveis de Mayo (só 2 pacientes rotulados têm algum ausente); imputação iterativa para as 17 variáveis; o XGBoost trata ausentes nativamente.
+4. **Transformação:** na regressão logística, laboratórios assimétricos em logaritmo natural (bilirrubina, albumina e protrombina na especificação de Mayo; também colesterol, cobre, fosfatase alcalina, AST e triglicerídeos no modelo de 17 variáveis), seguidos de padronização.
+5. **Imputação, dentro de cada partição de treino:** mediana para as 5 variáveis de Mayo (só 2 pacientes rotulados têm algum ausente); imputação iterativa para as 17 variáveis (na escala logarítmica, na regressão; na escala original, no random forest); o XGBoost trata ausentes nativamente.
 6. **Sem balanceamento artificial de classes**, porque distorce as probabilidades previstas (Christodoulou et al., 2019).
 
 ### 2.3 Link para a versão usada
 
-O notebook baixa o dataset oficial pelo pacote `ucimlrepo` (id 878). Se o servidor do UCI não responder, usa automaticamente o espelho Rdatasets do mesmo conjunto: <https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/survival/pbc.csv>. Os resultados deste README foram obtidos com o espelho; as contagens (418 pacientes, 232/161/25 por `Status`, 106 sem tratamento) coincidem com o UCI 878.
+A execução oficial usa a cópia versionada em [`data/pbc_rdatasets.csv`](data/pbc_rdatasets.csv), obtida do espelho Rdatasets do `survival::pbc` (<https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/survival/pbc.csv>), com verificação de checksum SHA-256 (`797ea9b6abfe...`). As contagens (418 pacientes, 232/161/25 por `Status`, 106 sem tratamento) coincidem com o UCI 878. No notebook, `FONTE_DADOS = "uci"` baixa o dataset oficial pelo pacote `ucimlrepo` (id 878).
 
 ---
 
@@ -70,17 +72,22 @@ O notebook baixa o dataset oficial pelo pacote `ucimlrepo` (id 878). Se o servid
 
 Seja $\mathbf{x}_i \in \mathbb{R}^p$ o vetor de variáveis de linha de base do paciente $i$ ($p = 5$ ou $p = 17$) e $y_i \in \{0, 1\}$ o indicador de óbito em até 5 anos. Cada modelo estima $\hat{\pi}(\mathbf{x}) = \hat{P}(y = 1 \mid \mathbf{x})$.
 
-**Escore de Risco de Mayo (1989), coeficientes publicados:**
+**Escore de Risco de Mayo (Dickson et al., 1989).** O modelo final, estimado com os 418 pacientes, define
 
 $$R = 0{,}039\,\text{idade} + 0{,}871\ln(\text{bilirrubina}) - 2{,}53\ln(\text{albumina}) + 2{,}38\ln(\text{protrombina}) + 0{,}859\,\text{edema}$$
 
-Os coeficientes não são reestimados. Para converter $R$ em probabilidade, só intercepto e inclinação são recalibrados no treino: $\hat{\pi} = \sigma(a + bR)$, com $\sigma(z) = 1/(1 + e^{-z})$. A ordenação, e portanto o AUROC, é exatamente a do escore original.
+A implementação reproduz os dois exemplos resolvidos do artigo ($R = 3{,}12$ e $R = 8{,}39$). Como esses coeficientes foram estimados nesta mesma coorte, o escore publicado é apresentado só como **referência histórica**, em duas versões:
 
-**Regressão logística.** $\hat{\pi}(\mathbf{x}) = \sigma(\beta_0 + \boldsymbol{\beta}^\top \tilde{\mathbf{x}})$, em que $\tilde{\mathbf{x}}$ são as variáveis transformadas e padronizadas. Com 5 variáveis, $\boldsymbol{\beta}$ é estimado por máxima verossimilhança (é o escore de Mayo reestimado). Com 17, por *elastic net*:
+- **probabilidade original** do modelo de Cox, sem nenhum ajuste: $\hat{\pi} = 1 - S_0(5)^{\exp(R - 5{,}07)}$, com $S_0(5) = 0{,}774$ (Tabela 4 do artigo) e 5,07 a média de $R$ nos 418 pacientes;
+- **recalibrado no treino:** $\hat{\pi} = \sigma(a + bR)$, com $\sigma(z) = 1/(1 + e^{-z})$ e $a, b$ estimados no treino.
+
+Na validação quase externa, entra também o **modelo inicial** de Dickson (Tabela 2), estimado só com os 312 pacientes randomizados: coeficientes 0,0333 (idade), 0,8792 (ln bilirrubina), −3,053 (ln albumina), 3,016 (ln protrombina), 0,7847 (edema), recalibrado no treino.
+
+**Regressão logística.** $\hat{\pi}(\mathbf{x}) = \sigma(\beta_0 + \boldsymbol{\beta}^\top \tilde{\mathbf{x}})$, em que $\tilde{\mathbf{x}}$ são as variáveis transformadas e padronizadas. Com 5 variáveis, $\boldsymbol{\beta}$ é estimado por máxima verossimilhança em cada fold: é o Escore de Mayo reestimado, e a **referência principal** do valor incremental. Com 17, por *elastic net*:
 
 $$\min_{\beta_0, \boldsymbol{\beta}} \; -\sum_i \left[y_i \ln \hat{\pi}_i + (1 - y_i)\ln(1 - \hat{\pi}_i)\right] + \frac{1}{C}\left(\alpha\|\boldsymbol{\beta}\|_1 + \frac{1 - \alpha}{2}\|\boldsymbol{\beta}\|_2^2\right)$$
 
-**Random forest.** $\hat{\pi}(\mathbf{x}) = \frac{1}{B}\sum_{b=1}^{B} T_b(\mathbf{x})$, média de $B = 300$ árvores de classificação, cada uma treinada numa amostra bootstrap e escolhendo, em cada nó, a melhor divisão (índice de Gini) entre um subconjunto aleatório de variáveis.
+**Random forest.** $\hat{\pi}(\mathbf{x}) = \frac{1}{B}\sum_{b=1}^{B} T_b(\mathbf{x})$, média de $B = 300$ árvores de classificação, cada uma treinada numa amostra *bootstrap* e escolhendo, em cada nó, a melhor divisão (índice de Gini) entre um subconjunto aleatório de variáveis.
 
 **XGBoost.** Modelo aditivo $F_M(\mathbf{x}) = \sum_{m=1}^{M} \eta f_m(\mathbf{x})$, com $\hat{\pi} = \sigma(F_M)$. Cada árvore $f_m$ minimiza uma aproximação de segunda ordem da perda logística mais a penalização $\gamma T + \frac{\lambda}{2}\|\mathbf{w}\|_2^2$ ($T$ folhas, pesos $\mathbf{w}$).
 
@@ -88,28 +95,32 @@ $$\min_{\beta_0, \boldsymbol{\beta}} \; -\sum_i \left[y_i \ln \hat{\pi}_i + (1 -
 
 | | 5 variáveis de Mayo | 17 variáveis |
 |---|---|---|
-| **Regressão** | Mayo 1989; regressão logística | Regressão logística *elastic net* |
+| **Regressão** | Regressão logística (Mayo reestimado) | Regressão logística *elastic net* |
 | **Aprendizado de máquina** | Random forest; XGBoost | Random forest; XGBoost |
+
+**Análise de sensibilidade do pré-processamento.** Random forest e XGBoost com 17 variáveis recebendo exatamente as etapas da regressão com 17 variáveis (logaritmo, imputação iterativa e padronização). Árvores são invariantes a transformações monotônicas; a diferença restante em relação à regressão é o algoritmo e seus hiperparâmetros.
 
 ### 3.2 Método de validação
 
-- **Externa ao ajuste:** validação cruzada estratificada repetida, 5 repetições de 5 folds (25 avaliações).
-- **Ajuste de hiperparâmetros aninhado:** `RandomizedSearchCV` com 3 folds internos, critério AUROC, 12 configurações (8 para o random forest), somente no treino de cada fold externo. Imputação, padronização e ajuste ficam dentro de um `Pipeline`, refeitos em cada partição.
-- **Grades:** regressão *elastic net*: $C \in \{0{,}01; 0{,}03; 0{,}1; 0{,}3; 1; 3\}$, $\alpha \in \{0; 0{,}5; 1\}$. Random forest: folha mínima $\in \{3, 5, 10, 20\}$, variáveis por divisão $\in \{\sqrt{p}, 0{,}5p, p\}$, profundidade $\in \{\text{livre}, 4, 6\}$. XGBoost: árvores $\in \{100, 200, 400\}$, taxa $\eta \in \{0{,}02; 0{,}05; 0{,}1\}$, profundidade $\in \{1, 2, 3\}$, peso mínimo $\in \{1, 5\}$, $\lambda \in \{1, 5\}$.
-- **Validação quase externa:** desenvolvimento nos pacientes do ensaio randomizado, teste nos não randomizados.
+- **Validação cruzada:** estratificada repetida, 5 repetições de 5 folds (25 avaliações), com as mesmas divisões para todos os modelos.
+- **Ajuste de hiperparâmetros aninhado:** `RandomizedSearchCV` com 3 folds internos, critério AUROC, **12 configurações sorteadas para todos os modelos ajustáveis**, somente no treino de cada fold externo. Imputação, padronização e ajuste ficam dentro de um `Pipeline`, refeitos em cada partição. Os hiperparâmetros escolhidos em cada fold estão em [`resultados/hiperparametros.csv`](resultados/hiperparametros.csv).
+- **Grades** (definidas antes de qualquer resultado e não alteradas depois): regressão *elastic net*: $C \in \{0{,}01; 0{,}03; 0{,}1; 0{,}3; 1; 3\}$, $\alpha \in \{0; 0{,}5; 1\}$. Random forest: folha mínima $\in \{3, 5, 10, 20\}$, variáveis por divisão $\in \{\sqrt{p}, 0{,}5p, p\}$, profundidade $\in \{\text{livre}, 4, 6\}$. XGBoost: árvores $\in \{100, 200, 400\}$, taxa $\eta \in \{0{,}02; 0{,}05; 0{,}1\}$, profundidade $\in \{1, 2, 3\}$, peso mínimo $\in \{1, 5\}$, $\lambda \in \{1, 5\}$.
+- **Validação quase externa:** desenvolvimento nos 244 pacientes rotulados do ensaio randomizado, teste nos 68 rotulados não randomizados.
 - **Braço de controle de vazamento:** classificação de `Status` em 3 classes (enquadramento da PS3E26), XGBoost com 17 variáveis, com e sem `N_Days`, mesma validação 5 x 5.
-- **Semente:** 2026.
+- **Reprodutibilidade:** semente 2026 em todos os componentes aleatórios (divisões, buscas, florestas, XGBoost e o *solver* `saga` da regressão penalizada); avisos de convergência registrados (nenhum ocorreu); versões exatas em [`requirements.txt`](requirements.txt).
 
 ### 3.3 Medidas de desempenho
 
 - **AUROC** (principal): probabilidade de o modelo dar risco maior a quem morreu do que a quem sobreviveu, num par sorteado.
-- **Valor incremental:** $\Delta\text{AUROC}$ em relação ao Escore de Mayo, com IC 95% por *bootstrap* de pacientes (2.000 reamostragens) sobre as predições fora-do-fold, médias das 5 repetições.
-- **AUPRC:** área sob a curva precisão-revocação.
+- **Valor incremental:** $\Delta\text{AUROC}$ em relação à regressão logística com as 5 variáveis de Mayo, sobre as predições fora-do-fold de cada paciente (média das 5 repetições). Intervalos por *bootstrap* **pareado** de pacientes (2.000 reamostragens): IC 95% e, para as cinco comparações principais, IC simultâneo de **Bonferroni** (99%). Só se afirma "maior" ou "menor" quando o IC de Bonferroni exclui zero. Os intervalos são **condicionais** às predições já obtidas (não incorporam a variação de refazer o treino e a busca), portanto **exploratórios**; "sem evidência de diferença" não significa equivalência, pois nenhuma margem foi definida a priori. Complementam: a média e o desvio da diferença de AUROC dentro de cada um dos 25 folds e a fração de folds com ganho.
+- **AP** (*average precision*, precisão média): soma da precisão ponderada pelos incrementos de revocação, estimador usual da área sob a curva precisão-revocação (não é a integração trapezoidal).
 - **Brier:** $\frac{1}{n}\sum_i (\hat{\pi}_i - y_i)^2$; menor é melhor.
 - **Calibração no geral (CITL):** intercepto $a$ em $\text{logit}\,P(y=1) = a + \text{logit}(\hat{\pi})$, isto é, com o logit da predição como *offset* (Van Calster et al., 2019); ideal 0. Positivo: o modelo subestima o risco; negativo: superestima.
 - **Inclinação de calibração:** coeficiente $b$ em $\text{logit}\,P(y=1) = a + b\,\text{logit}(\hat{\pi})$; ideal 1. Abaixo de 1, probabilidades extremas demais; acima de 1, comprimidas demais.
 - **Custo de dados:** número de variáveis exigidas e pacientes elegíveis sem imputação.
 - **Braço de vazamento:** *log loss* multiclasse, AUROC macro (um contra todos) e acurácia.
+
+A AUROC das tabelas é a média dos 25 folds; a das curvas ROC do notebook é calculada sobre as predições fora-do-fold médias (por exemplo, 0,910 e 0,908 para o Mayo publicado). São estimadores diferentes, ambos corretos.
 
 ---
 
@@ -123,56 +134,71 @@ $$\min_{\beta_0, \boldsymbol{\beta}} \; -\sum_i \left[y_i \ln \hat{\pi}_i + (1 -
 | Rotulados para 5 anos (análise principal) | 312 | 115 (36,9%) |
 | Cada fold externo: treino / teste | ≈ 250 / ≈ 62 | ≈ 92 / ≈ 23 |
 | Cada fold interno (ajuste): treino / validação | ≈ 166 / ≈ 83 | |
-| Quase externa: treino (randomizados) | 244 | |
-| Quase externa: teste (não randomizados) | 68 | 30 |
+| Quase externa: treino (randomizados) | 244 | 85 (34,8%) |
+| Quase externa: teste (não randomizados) | 68 | 30 (44,1%) |
 | Braço de vazamento (3 classes) | 418 | 161 D, 25 CL, 232 C |
 
 **Custo de dados:** dos 312 rotulados, **310 têm as 5 variáveis de Mayo completas e só 210 têm as 17 completas**. Exigir o conjunto completo sem imputação custa um terço dos pacientes.
 
 ### 4.2 Desempenho na validação cruzada 5 x 5 (média ± desvio entre os 25 folds)
 
-| Modelo | AUROC | AUPRC | Brier | CITL | Incl. calibração |
+| Modelo | AUROC | AP | Brier | CITL | Incl. calibração |
 |---|---|---|---|---|---|
-| Mayo 1989 (coef. publicados) | 0,910 ± 0,040 | 0,879 ± 0,054 | 0,112 ± 0,028 | 0,00 ± 0,31 | 1,10 ± 0,33 |
-| Regressão logística, 5 var. (Mayo reestimado) | 0,906 ± 0,044 | 0,871 ± 0,061 | 0,115 ± 0,032 | −0,01 ± 0,33 | 1,04 ± 0,36 |
+| *Mayo 1989 final, probabilidade original (ref. histórica)* | *0,910 ± 0,040* | *0,879 ± 0,054* | *0,121 ± 0,023* | *0,33 ± 0,18* | *1,56 ± 0,44* |
+| *Mayo 1989 final, recalibrado (ref. histórica)* | *0,910 ± 0,040* | *0,879 ± 0,054* | *0,112 ± 0,028* | *0,00 ± 0,31* | *1,10 ± 0,33* |
+| **Regressão logística, 5 var. (Mayo reestimado; referência)** | **0,906 ± 0,044** | **0,871 ± 0,061** | **0,115 ± 0,032** | **−0,01 ± 0,33** | **1,04 ± 0,36** |
 | Regressão logística *elastic net*, 17 var. | 0,915 ± 0,035 | 0,880 ± 0,051 | 0,121 ± 0,024 | 0,00 ± 0,25 | 1,74 ± 0,91 |
-| Random forest, 5 var. | 0,893 ± 0,047 | 0,852 ± 0,066 | 0,130 ± 0,030 | 0,01 ± 0,27 | 1,26 ± 0,60 |
-| Random forest, 17 var. | 0,903 ± 0,044 | 0,862 ± 0,068 | 0,124 ± 0,026 | 0,02 ± 0,21 | 1,54 ± 0,52 |
+| Random forest, 5 var. | 0,893 ± 0,047 | 0,852 ± 0,066 | 0,130 ± 0,030 | 0,01 ± 0,27 | 1,27 ± 0,60 |
+| Random forest, 17 var. | 0,903 ± 0,044 | 0,862 ± 0,069 | 0,124 ± 0,026 | 0,02 ± 0,21 | 1,57 ± 0,58 |
 | XGBoost, 5 var. | 0,891 ± 0,051 | 0,852 ± 0,072 | 0,126 ± 0,033 | 0,04 ± 0,26 | 1,09 ± 0,34 |
 | XGBoost, 17 var. | 0,895 ± 0,042 | 0,854 ± 0,064 | 0,126 ± 0,028 | 0,04 ± 0,26 | 1,15 ± 0,41 |
+| Random forest, 17 var., pré-proc. da regressão | 0,907 ± 0,042 | 0,868 ± 0,063 | 0,122 ± 0,024 | 0,00 ± 0,20 | 1,52 ± 0,60 |
+| XGBoost, 17 var., pré-proc. da regressão | 0,899 ± 0,039 | 0,855 ± 0,053 | 0,126 ± 0,027 | 0,07 ± 0,33 | 1,04 ± 0,46 |
 
 **Tabela 2 x 2 (AUROC médio):**
 
 | | 5 variáveis (310 elegíveis) | 17 variáveis (210 elegíveis) |
 |---|---|---|
-| **Regressão** | 0,906 (Mayo 1989: 0,910) | 0,915 |
-| **Random forest** | 0,893 | 0,903 |
-| **XGBoost** | 0,891 | 0,895 |
+| **Regressão** | 0,906 | 0,915 |
+| **Random forest** | 0,893 | 0,903 (0,907 com o pré-proc. da regressão) |
+| **XGBoost** | 0,891 | 0,895 (0,899 com o pré-proc. da regressão) |
 
-**Valor incremental sobre o Escore de Mayo 1989 ($\Delta$AUROC, IC 95% bootstrap):**
+**Valor incremental sobre a regressão com as 5 variáveis de Mayo (exploratório):**
 
-| Modelo | ΔAUROC | IC 95% |
-|---|---|---|
-| Regressão logística, 5 var. (reestimado) | −0,005 | [−0,012; +0,003] |
-| Regressão logística *elastic net*, 17 var. | +0,004 | [−0,015; +0,023] |
-| Random forest, 5 var. | −0,018 | [−0,034; −0,002] |
-| Random forest, 17 var. | −0,003 | [−0,021; +0,014] |
-| XGBoost, 5 var. | −0,018 | [−0,031; −0,006] |
-| XGBoost, 17 var. | −0,011 | [−0,030; +0,007] |
+| Modelo | ΔAUROC | IC 95% | IC 99% (Bonferroni) | Leitura | Δ por fold (média ± desvio) | Folds com ganho |
+|---|---|---|---|---|---|---|
+| Regressão *elastic net*, 17 var. | +0,009 | [−0,010; +0,030] | [−0,017; +0,035] | sem evidência de diferença | +0,009 ± 0,027 | 60% |
+| Random forest, 5 var. | −0,013 | [−0,029; +0,003] | [−0,035; +0,009] | sem evidência de diferença | −0,013 ± 0,019 | 24% |
+| Random forest, 17 var. | −0,000 | [−0,018; +0,016] | [−0,022; +0,024] | sem evidência de diferença | −0,003 ± 0,018 | 40% |
+| XGBoost, 5 var. | −0,013 | [−0,027; −0,001] | [−0,031; +0,003] | sem evidência de diferença | −0,016 ± 0,019 | 20% |
+| XGBoost, 17 var. | −0,006 | [−0,025; +0,012] | [−0,030; +0,017] | sem evidência de diferença | −0,011 ± 0,019 | 24% |
+
+**Sensibilidade do pré-processamento (referência: regressão *elastic net* com 17 variáveis; IC de Bonferroni para 2 comparações):**
+
+| Modelo | ΔAUROC | IC 95% | IC 97,5% (Bonferroni) | Leitura | Folds com ganho |
+|---|---|---|---|---|---|
+| Random forest, 17 var., pré-proc. da regressão | −0,006 | [−0,022; +0,009] | [−0,023; +0,011] | sem evidência de diferença | 40% |
+| XGBoost, 17 var., pré-proc. da regressão | −0,013 | [−0,028; +0,002] | [−0,030; +0,004] | sem evidência de diferença | 16% |
+
+**Referência histórica (exploratória).** Contra a probabilidade original do Mayo publicado, a regressão reestimada com 5 variáveis ficou em −0,007 [−0,016; +0,000], e random forest e XGBoost com 5 variáveis ficaram abaixo (−0,021 cada, com IC de Bonferroni que exclui zero). Essa comparação favorece o escore, cujos coeficientes viram os pacientes do teste, e por isso não sustenta inferências (tabela completa em [`resultados/valor_incremental_vs_mayo_publicado.csv`](resultados/valor_incremental_vs_mayo_publicado.csv)).
 
 ### 4.3 Validação quase externa (treino em 244 randomizados, teste em 68 não randomizados)
 
-| Modelo | AUROC | Brier | CITL | Incl. calibração |
-|---|---|---|---|---|
-| Mayo 1989 | 0,873 | 0,149 | 0,29 | 0,89 |
-| Regressão logística, 5 var. | 0,878 | 0,144 | 0,30 | 0,88 |
-| Regressão logística *elastic net*, 17 var. | 0,874 | 0,172 | 0,46 | 2,27 |
-| Random forest, 5 var. | 0,882 | 0,145 | 0,41 | 1,15 |
-| Random forest, 17 var. | 0,896 | 0,145 | 0,30 | 1,49 |
-| XGBoost, 5 var. | 0,879 | 0,145 | 0,38 | 0,99 |
-| XGBoost, 17 var. | 0,845 | 0,179 | −0,81 | 1,00 |
+| Modelo | AUROC | AP | Brier | CITL | Incl. calibração |
+|---|---|---|---|---|---|
+| **Mayo 1989 inicial (n = 312), recalibrado** | **0,865** | **0,847** | **0,155** | **0,33** | **0,83** |
+| *Mayo 1989 final, probabilidade original (viu o teste)* | *0,873* | *0,856* | *0,161* | *0,58* | *1,25* |
+| *Mayo 1989 final, recalibrado (viu o teste)* | *0,873* | *0,856* | *0,149* | *0,29* | *0,89* |
+| Regressão logística, 5 var. | 0,878 | 0,844 | 0,144 | 0,30 | 0,88 |
+| Regressão logística *elastic net*, 17 var. | 0,874 | 0,859 | 0,172 | 0,46 | 2,27 |
+| Random forest, 5 var. | 0,882 | 0,876 | 0,145 | 0,41 | 1,15 |
+| Random forest, 17 var. | 0,896 | 0,876 | 0,145 | 0,30 | 1,49 |
+| XGBoost, 5 var. | 0,879 | 0,870 | 0,145 | 0,38 | 0,99 |
+| XGBoost, 17 var. | 0,845 | 0,842 | 0,179 | −0,81 | 1,00 |
+| Random forest, 17 var., pré-proc. da regressão | 0,897 | 0,882 | 0,149 | 0,79 | 0,98 |
+| XGBoost, 17 var., pré-proc. da regressão | 0,888 | 0,878 | 0,150 | 0,85 | 0,66 |
 
-Com só 68 pacientes e 30 óbitos no teste, diferenças de alguns centésimos de AUROC estão dentro do ruído; o que esta análise mostra com segurança são as quedas grandes e os desvios de calibração.
+Os coeficientes finais de Mayo foram estimados com os 418 pacientes, inclusive os 68 do teste; por isso, o comparador histórico válido aqui é o **modelo inicial** (n = 312). Com só 68 pacientes e 30 óbitos no teste, diferenças de alguns centésimos de AUROC estão dentro do ruído; o que esta análise mostra com segurança são as quedas grandes e os desvios de calibração.
 
 ### 4.4 Braço de controle: vazamento por `N_Days` (3 classes, XGBoost, 17 variáveis)
 
@@ -185,24 +211,39 @@ Com só 68 pacientes e 30 óbitos no teste, diferenças de alguns centésimos de
 
 ## 5. Conclusão
 
-1. **Nenhum modelo de aprendizado de máquina superou o Escore de Mayo de 1989.** O melhor resultado foi a regressão logística com 17 variáveis (+0,004 de AUROC, intervalo que inclui zero). Random forest e XGBoost com as 5 variáveis de Mayo ficaram **abaixo** do escore, com intervalos que excluem zero (−0,018). Com 17 variáveis, os dois empataram com o escore.
-2. **Desenho 2 x 2.** Na leitura vertical, a regressão ficou à frente do AM nas duas colunas: com as mesmas variáveis, o algoritmo flexível não acrescentou nada, e as transformações logarítmicas escolhidas em 1989 já capturavam o que as árvores precisariam aprender. Na leitura horizontal, as 12 variáveis extras acrescentaram cerca de 0,01 de AUROC em todas as famílias, ao custo de um terço dos pacientes elegíveis sem imputação (310 para 210).
-3. **Calibração.** O escore de Mayo e o XGBoost tiveram inclinação próxima de 1. A regressão penalizada com 17 variáveis (1,74) e o random forest (1,26 e 1,54) produziram probabilidades comprimidas demais. Na validação quase externa, a mortalidade em 5 anos dos pacientes fora do ensaio (44%, 30 de 68) foi maior que a dos randomizados usados no treino (35%, 85 de 244), e quase todos os modelos passaram a subestimar o risco (CITL entre 0,29 e 0,46). A exceção foi o XGBoost com 17 variáveis, que perdeu discriminação (0,845) e passou a superestimar o risco (CITL −0,81): nos pacientes fora do ensaio, as variáveis ausentes deixam de ser exceção, e a regra aprendida para ausentes deixa de valer. Os modelos de 5 variáveis, cujos dados existem para todos, mantiveram a discriminação.
+1. **O aprendizado de máquina não demonstrou ganho sobre a regressão com as 5 variáveis de Mayo.** Em nenhuma das cinco comparações principais o IC de Bonferroni excluiu zero. A maior diferença nominal foi a da regressão *elastic net* com 17 variáveis (+0,009). Random forest e XGBoost superaram a regressão em apenas 20% a 40% dos folds. Nominalmente, os modelos de AM com 5 variáveis ficaram abaixo (−0,013), sem significância após a correção para comparações múltiplas.
+2. **Desenho 2 x 2.** Na leitura horizontal, as 12 variáveis extras acrescentaram cerca de 0,01 de AUROC nominal em cada família, sem evidência de diferença, ao custo de um terço dos pacientes elegíveis sem imputação (310 para 210). Na leitura vertical, a regressão teve a maior AUROC nominal nas duas colunas. Com o mesmo pré-processamento da regressão, random forest e XGBoost com 17 variáveis também não mostraram ganho (−0,006 e −0,013), o que indica que a ausência de ganho não se deve ao tratamento dos dados. A conclusão vale para os pipelines e o orçamento de busca avaliados.
+3. **Calibração.** Na validação cruzada, a regressão com 5 variáveis e o XGBoost tiveram inclinação próxima de 1; a regressão penalizada com 17 variáveis (1,74) e o random forest (1,27 e 1,57) produziram probabilidades comprimidas demais. A probabilidade original do modelo de Cox de 1989, sem ajuste, **subestimou** o risco nesta análise (CITL +0,33; inclinação 1,56), provavelmente porque o rótulo de 5 anos exclui pacientes que saíram vivos antes do horizonte; recalibrada no treino, ficou bem calibrada. Na validação quase externa, a mortalidade do teste (44%) foi maior que a do treino (35%), e quase todos os modelos subestimaram o risco; o XGBoost com 17 variáveis, ao contrário, perdeu discriminação (0,845) e superestimou o risco (CITL −0,81), porque nos pacientes fora do ensaio as variáveis ausentes deixam de ser exceção.
 4. **Vazamento.** Incluir `N_Days` como entrada, como no enquadramento da PS3E26, reduziu o *log loss* de 0,753 para 0,645 e elevou o AUROC macro de 0,788 para 0,822, com uma informação que não existe no momento da predição.
-5. **Resposta à pergunta do título.** Neste dataset, o Escore de Mayo vale mais a pena: discrimina tão bem ou melhor que os modelos de AM, é bem calibrado, exige 5 variáveis de rotina disponíveis para quase todos os pacientes, e é uma fórmula interpretável. O resultado está alinhado com Christodoulou et al. (2019).
+5. **Resposta à pergunta do título.** Neste estudo de caso, um modelo de regressão com as 5 variáveis de rotina do Escore de Mayo vale mais a pena: o ganho do AM não foi demonstrado, enquanto seus custos são certos (mais variáveis, um terço a menos de pacientes com dados completos, perda de interpretabilidade e, no XGBoost com 17 variáveis, degradação fora do ensaio). O resultado está alinhado com Christodoulou et al. (2019).
 
-**Limitações.** Centro único, década de 1970/80, população anterior ao ácido ursodesoxicólico; sem coorte externa verdadeira; classificação em horizonte fixo exclui 106 pacientes censurados ou transplantados antes de 5 anos (análise de sobrevivência com riscos competitivos é a extensão natural); os coeficientes de Mayo foram derivados nestes mesmos dados, o que favorece o escore original (o escore reestimado na validação cruzada, sem essa vantagem, ficou 0,005 abaixo); grades de hiperparâmetros reduzidas por limite computacional; validação quase externa com amostra pequena.
+**Limitações.** Centro único, década de 1970/80, população anterior ao ácido ursodesoxicólico; sem coorte externa verdadeira; os coeficientes publicados de Mayo foram estimados nesta coorte, e por isso o escore publicado só serve como referência histórica; a classificação em horizonte fixo exclui 106 pacientes censurados ou transplantados antes de 5 anos (análise de sobrevivência com riscos competitivos é a extensão natural); os intervalos de confiança são condicionais às predições fora-do-fold e não incorporam a variação de refazer o treino (uma reamostragem do procedimento completo não foi feita por custo computacional); não houve teste de equivalência; orçamento de busca modesto (12 configurações); validação quase externa com amostra pequena.
+
+---
+
+## 6. Auditoria independente: achados da passada A e como foram tratados
+
+| Achado | Gravidade | Tratamento |
+|---|---|---|
+| A-01: coeficientes de Mayo estimados com os pacientes de teste | bloqueante | Referência principal passou a ser a regressão com as 5 variáveis de Mayo reestimada em cada fold; Mayo publicado só como referência histórica; na validação quase externa, comparador histórico é o modelo inicial de Dickson (n = 312) |
+| A-02: semente e ambiente não garantiam reprodução | importante | Semente no *solver* `saga`; avisos de convergência registrados (nenhum); versões fixadas; fonte de dados selecionável, com padrão local e checksum SHA-256; hiperparâmetros escolhidos salvos |
+| A-03: intervalos com interpretação mais ampla que o procedimento permite | importante | Intervalos descritos como condicionais e exploratórios; IC de Bonferroni; "maior/menor" só quando ele exclui zero; "sem evidência de diferença" em vez de "empate"; dispersão fold a fold |
+| A-04: leitura vertical não isolava o algoritmo | importante | Leitura vertical descrita como comparação de pipelines; análise de sensibilidade com o mesmo pré-processamento; orçamento de busca igual (12) para todos |
+| A-05: texto do notebook divergia do código | menor | Descrições corrigidas; calibração em decis de fato; curvas de iteração identificadas como demonstrativas |
+| A-06: convenção de AP/AUPRC | menor | Métrica renomeada para AP, com a definição explícita |
+| A-07: calibração atribuída às probabilidades originais de Mayo | importante | Separação entre probabilidade original do modelo de Cox ($1 - 0{,}774^{\exp(R - 5{,}07)}$) e versão recalibrada; conclusão sobre calibração restrita ao que foi medido |
 
 ---
 
 ## Como executar
 
 ```bash
-pip install ucimlrepo xgboost scikit-learn pandas numpy matplotlib jupyter
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
 jupyter nbconvert --to notebook --execute ml4health_cbp_mayo.ipynb
 ```
 
-Tempo de execução: cerca de 20 minutos em CPU com 2 núcleos. Para um teste rápido, mude `N_REP = 1` no notebook.
+Com as versões do `requirements.txt` e `FONTE_DADOS = "local"` (padrão), a execução reproduz os números deste documento. No Colab (botão no topo), a primeira célula instala apenas os pacotes ausentes e usa as versões do Colab, de modo que os resultados podem diferir na terceira casa decimal. Tempo de execução: cerca de 35 minutos em CPU com 2 núcleos; para um teste rápido, use `N_REP = 1`.
 
 ## Referências
 

@@ -1,0 +1,251 @@
+Modelo,Fold,l1_ratio,C,min_samples_leaf,max_features,max_depth,reg_lambda,n_estimators,min_child_weight,learning_rate
+"Mayo 1989 final, prob. original",0,,,,,,,,,
+"Mayo 1989 final, prob. original",1,,,,,,,,,
+"Mayo 1989 final, prob. original",2,,,,,,,,,
+"Mayo 1989 final, prob. original",3,,,,,,,,,
+"Mayo 1989 final, prob. original",4,,,,,,,,,
+"Mayo 1989 final, prob. original",5,,,,,,,,,
+"Mayo 1989 final, prob. original",6,,,,,,,,,
+"Mayo 1989 final, prob. original",7,,,,,,,,,
+"Mayo 1989 final, prob. original",8,,,,,,,,,
+"Mayo 1989 final, prob. original",9,,,,,,,,,
+"Mayo 1989 final, prob. original",10,,,,,,,,,
+"Mayo 1989 final, prob. original",11,,,,,,,,,
+"Mayo 1989 final, prob. original",12,,,,,,,,,
+"Mayo 1989 final, prob. original",13,,,,,,,,,
+"Mayo 1989 final, prob. original",14,,,,,,,,,
+"Mayo 1989 final, prob. original",15,,,,,,,,,
+"Mayo 1989 final, prob. original",16,,,,,,,,,
+"Mayo 1989 final, prob. original",17,,,,,,,,,
+"Mayo 1989 final, prob. original",18,,,,,,,,,
+"Mayo 1989 final, prob. original",19,,,,,,,,,
+"Mayo 1989 final, prob. original",20,,,,,,,,,
+"Mayo 1989 final, prob. original",21,,,,,,,,,
+"Mayo 1989 final, prob. original",22,,,,,,,,,
+"Mayo 1989 final, prob. original",23,,,,,,,,,
+"Mayo 1989 final, prob. original",24,,,,,,,,,
+"Mayo 1989 final, recalibrado",0,,,,,,,,,
+"Mayo 1989 final, recalibrado",1,,,,,,,,,
+"Mayo 1989 final, recalibrado",2,,,,,,,,,
+"Mayo 1989 final, recalibrado",3,,,,,,,,,
+"Mayo 1989 final, recalibrado",4,,,,,,,,,
+"Mayo 1989 final, recalibrado",5,,,,,,,,,
+"Mayo 1989 final, recalibrado",6,,,,,,,,,
+"Mayo 1989 final, recalibrado",7,,,,,,,,,
+"Mayo 1989 final, recalibrado",8,,,,,,,,,
+"Mayo 1989 final, recalibrado",9,,,,,,,,,
+"Mayo 1989 final, recalibrado",10,,,,,,,,,
+"Mayo 1989 final, recalibrado",11,,,,,,,,,
+"Mayo 1989 final, recalibrado",12,,,,,,,,,
+"Mayo 1989 final, recalibrado",13,,,,,,,,,
+"Mayo 1989 final, recalibrado",14,,,,,,,,,
+"Mayo 1989 final, recalibrado",15,,,,,,,,,
+"Mayo 1989 final, recalibrado",16,,,,,,,,,
+"Mayo 1989 final, recalibrado",17,,,,,,,,,
+"Mayo 1989 final, recalibrado",18,,,,,,,,,
+"Mayo 1989 final, recalibrado",19,,,,,,,,,
+"Mayo 1989 final, recalibrado",20,,,,,,,,,
+"Mayo 1989 final, recalibrado",21,,,,,,,,,
+"Mayo 1989 final, recalibrado",22,,,,,,,,,
+"Mayo 1989 final, recalibrado",23,,,,,,,,,
+"Mayo 1989 final, recalibrado",24,,,,,,,,,
+"RL, 5 var. (Mayo reestimado)",0,,,,,,,,,
+"RL, 5 var. (Mayo reestimado)",1,,,,,,,,,
+"RL, 5 var. (Mayo reestimado)",2,,,,,,,,,
+"RL, 5 var. (Mayo reestimado)",3,,,,,,,,,
+"RL, 5 var. (Mayo reestimado)",4,,,,,,,,,
+"RL, 5 var. (Mayo reestimado)",5,,,,,,,,,
+"RL, 5 var. (Mayo reestimado)",6,,,,,,,,,
+"RL, 5 var. (Mayo reestimado)",7,,,,,,,,,
+"RL, 5 var. (Mayo reestimado)",8,,,,,,,,,
+"RL, 5 var. (Mayo reestimado)",9,,,,,,,,,
+"RL, 5 var. (Mayo reestimado)",10,,,,,,,,,
+"RL, 5 var. (Mayo reestimado)",11,,,,,,,,,
+"RL, 5 var. (Mayo reestimado)",12,,,,,,,,,
+"RL, 5 var. (Mayo reestimado)",13,,,,,,,,,
+"RL, 5 var. (Mayo reestimado)",14,,,,,,,,,
+"RL, 5 var. (Mayo reestimado)",15,,,,,,,,,
+"RL, 5 var. (Mayo reestimado)",16,,,,,,,,,
+"RL, 5 var. (Mayo reestimado)",17,,,,,,,,,
+"RL, 5 var. (Mayo reestimado)",18,,,,,,,,,
+"RL, 5 var. (Mayo reestimado)",19,,,,,,,,,
+"RL, 5 var. (Mayo reestimado)",20,,,,,,,,,
+"RL, 5 var. (Mayo reestimado)",21,,,,,,,,,
+"RL, 5 var. (Mayo reestimado)",22,,,,,,,,,
+"RL, 5 var. (Mayo reestimado)",23,,,,,,,,,
+"RL, 5 var. (Mayo reestimado)",24,,,,,,,,,
+"RL penalizada, 17 var.",0,0.0,0.03,,,,,,,
+"RL penalizada, 17 var.",1,0.5,0.1,,,,,,,
+"RL penalizada, 17 var.",2,1.0,0.1,,,,,,,
+"RL penalizada, 17 var.",3,0.5,0.3,,,,,,,
+"RL penalizada, 17 var.",4,0.0,0.1,,,,,,,
+"RL penalizada, 17 var.",5,0.0,0.3,,,,,,,
+"RL penalizada, 17 var.",6,0.0,0.03,,,,,,,
+"RL penalizada, 17 var.",7,0.0,0.01,,,,,,,
+"RL penalizada, 17 var.",8,0.0,0.3,,,,,,,
+"RL penalizada, 17 var.",9,0.0,0.01,,,,,,,
+"RL penalizada, 17 var.",10,0.0,3.0,,,,,,,
+"RL penalizada, 17 var.",11,0.0,0.01,,,,,,,
+"RL penalizada, 17 var.",12,0.0,0.1,,,,,,,
+"RL penalizada, 17 var.",13,1.0,0.1,,,,,,,
+"RL penalizada, 17 var.",14,0.5,0.1,,,,,,,
+"RL penalizada, 17 var.",15,0.0,0.01,,,,,,,
+"RL penalizada, 17 var.",16,1.0,0.1,,,,,,,
+"RL penalizada, 17 var.",17,0.0,0.1,,,,,,,
+"RL penalizada, 17 var.",18,0.0,0.01,,,,,,,
+"RL penalizada, 17 var.",19,0.0,0.01,,,,,,,
+"RL penalizada, 17 var.",20,0.5,0.1,,,,,,,
+"RL penalizada, 17 var.",21,1.0,1.0,,,,,,,
+"RL penalizada, 17 var.",22,0.0,0.1,,,,,,,
+"RL penalizada, 17 var.",23,0.0,0.1,,,,,,,
+"RL penalizada, 17 var.",24,0.0,0.01,,,,,,,
+"Random forest, 5 var.",0,,,5.0,1.0,6.0,,,,
+"Random forest, 5 var.",1,,,10.0,sqrt,6.0,,,,
+"Random forest, 5 var.",2,,,5.0,sqrt,,,,,
+"Random forest, 5 var.",3,,,20.0,0.5,6.0,,,,
+"Random forest, 5 var.",4,,,10.0,1.0,4.0,,,,
+"Random forest, 5 var.",5,,,5.0,1.0,4.0,,,,
+"Random forest, 5 var.",6,,,5.0,sqrt,6.0,,,,
+"Random forest, 5 var.",7,,,3.0,1.0,,,,,
+"Random forest, 5 var.",8,,,5.0,1.0,,,,,
+"Random forest, 5 var.",9,,,3.0,sqrt,4.0,,,,
+"Random forest, 5 var.",10,,,3.0,1.0,4.0,,,,
+"Random forest, 5 var.",11,,,10.0,sqrt,6.0,,,,
+"Random forest, 5 var.",12,,,5.0,0.5,4.0,,,,
+"Random forest, 5 var.",13,,,20.0,sqrt,,,,,
+"Random forest, 5 var.",14,,,5.0,1.0,4.0,,,,
+"Random forest, 5 var.",15,,,3.0,0.5,4.0,,,,
+"Random forest, 5 var.",16,,,10.0,0.5,,,,,
+"Random forest, 5 var.",17,,,3.0,1.0,4.0,,,,
+"Random forest, 5 var.",18,,,20.0,0.5,4.0,,,,
+"Random forest, 5 var.",19,,,5.0,0.5,,,,,
+"Random forest, 5 var.",20,,,5.0,sqrt,6.0,,,,
+"Random forest, 5 var.",21,,,10.0,1.0,4.0,,,,
+"Random forest, 5 var.",22,,,3.0,1.0,4.0,,,,
+"Random forest, 5 var.",23,,,5.0,1.0,,,,,
+"Random forest, 5 var.",24,,,20.0,0.5,,,,,
+"Random forest, 17 var.",0,,,5.0,1.0,6.0,,,,
+"Random forest, 17 var.",1,,,3.0,0.5,4.0,,,,
+"Random forest, 17 var.",2,,,3.0,0.5,4.0,,,,
+"Random forest, 17 var.",3,,,20.0,sqrt,6.0,,,,
+"Random forest, 17 var.",4,,,20.0,0.5,6.0,,,,
+"Random forest, 17 var.",5,,,5.0,sqrt,4.0,,,,
+"Random forest, 17 var.",6,,,3.0,sqrt,,,,,
+"Random forest, 17 var.",7,,,3.0,sqrt,6.0,,,,
+"Random forest, 17 var.",8,,,3.0,sqrt,6.0,,,,
+"Random forest, 17 var.",9,,,3.0,sqrt,4.0,,,,
+"Random forest, 17 var.",10,,,3.0,0.5,6.0,,,,
+"Random forest, 17 var.",11,,,10.0,sqrt,6.0,,,,
+"Random forest, 17 var.",12,,,5.0,sqrt,4.0,,,,
+"Random forest, 17 var.",13,,,3.0,0.5,,,,,
+"Random forest, 17 var.",14,,,5.0,1.0,4.0,,,,
+"Random forest, 17 var.",15,,,20.0,sqrt,6.0,,,,
+"Random forest, 17 var.",16,,,3.0,sqrt,4.0,,,,
+"Random forest, 17 var.",17,,,3.0,1.0,4.0,,,,
+"Random forest, 17 var.",18,,,20.0,sqrt,,,,,
+"Random forest, 17 var.",19,,,3.0,sqrt,6.0,,,,
+"Random forest, 17 var.",20,,,5.0,sqrt,6.0,,,,
+"Random forest, 17 var.",21,,,5.0,0.5,6.0,,,,
+"Random forest, 17 var.",22,,,3.0,sqrt,,,,,
+"Random forest, 17 var.",23,,,5.0,sqrt,,,,,
+"Random forest, 17 var.",24,,,10.0,sqrt,,,,,
+"XGBoost, 5 var.",0,,,,,1.0,1.0,400.0,1.0,0.02
+"XGBoost, 5 var.",1,,,,,2.0,1.0,200.0,5.0,0.1
+"XGBoost, 5 var.",2,,,,,1.0,5.0,100.0,5.0,0.1
+"XGBoost, 5 var.",3,,,,,2.0,5.0,100.0,1.0,0.05
+"XGBoost, 5 var.",4,,,,,1.0,5.0,200.0,5.0,0.05
+"XGBoost, 5 var.",5,,,,,1.0,5.0,400.0,1.0,0.02
+"XGBoost, 5 var.",6,,,,,1.0,5.0,400.0,1.0,0.05
+"XGBoost, 5 var.",7,,,,,2.0,5.0,100.0,1.0,0.05
+"XGBoost, 5 var.",8,,,,,2.0,1.0,100.0,1.0,0.05
+"XGBoost, 5 var.",9,,,,,2.0,5.0,200.0,1.0,0.05
+"XGBoost, 5 var.",10,,,,,1.0,5.0,100.0,5.0,0.05
+"XGBoost, 5 var.",11,,,,,2.0,1.0,200.0,5.0,0.02
+"XGBoost, 5 var.",12,,,,,3.0,5.0,100.0,5.0,0.05
+"XGBoost, 5 var.",13,,,,,3.0,1.0,200.0,5.0,0.05
+"XGBoost, 5 var.",14,,,,,3.0,5.0,100.0,1.0,0.05
+"XGBoost, 5 var.",15,,,,,1.0,5.0,100.0,1.0,0.1
+"XGBoost, 5 var.",16,,,,,2.0,5.0,100.0,1.0,0.05
+"XGBoost, 5 var.",17,,,,,2.0,1.0,100.0,1.0,0.05
+"XGBoost, 5 var.",18,,,,,2.0,5.0,100.0,5.0,0.1
+"XGBoost, 5 var.",19,,,,,3.0,5.0,200.0,5.0,0.05
+"XGBoost, 5 var.",20,,,,,1.0,5.0,400.0,5.0,0.02
+"XGBoost, 5 var.",21,,,,,1.0,5.0,200.0,5.0,0.05
+"XGBoost, 5 var.",22,,,,,1.0,5.0,400.0,5.0,0.02
+"XGBoost, 5 var.",23,,,,,1.0,1.0,400.0,1.0,0.02
+"XGBoost, 5 var.",24,,,,,1.0,5.0,400.0,5.0,0.02
+"XGBoost, 17 var.",0,,,,,3.0,5.0,100.0,1.0,0.05
+"XGBoost, 17 var.",1,,,,,3.0,5.0,100.0,1.0,0.02
+"XGBoost, 17 var.",2,,,,,1.0,1.0,100.0,5.0,0.1
+"XGBoost, 17 var.",3,,,,,2.0,5.0,100.0,1.0,0.05
+"XGBoost, 17 var.",4,,,,,1.0,1.0,100.0,5.0,0.05
+"XGBoost, 17 var.",5,,,,,3.0,1.0,200.0,1.0,0.02
+"XGBoost, 17 var.",6,,,,,3.0,5.0,100.0,1.0,0.05
+"XGBoost, 17 var.",7,,,,,1.0,1.0,100.0,5.0,0.1
+"XGBoost, 17 var.",8,,,,,3.0,1.0,100.0,1.0,0.05
+"XGBoost, 17 var.",9,,,,,2.0,5.0,200.0,1.0,0.05
+"XGBoost, 17 var.",10,,,,,3.0,1.0,400.0,5.0,0.1
+"XGBoost, 17 var.",11,,,,,3.0,1.0,100.0,1.0,0.02
+"XGBoost, 17 var.",12,,,,,1.0,1.0,200.0,5.0,0.1
+"XGBoost, 17 var.",13,,,,,1.0,5.0,100.0,5.0,0.05
+"XGBoost, 17 var.",14,,,,,3.0,5.0,100.0,1.0,0.05
+"XGBoost, 17 var.",15,,,,,2.0,5.0,100.0,1.0,0.05
+"XGBoost, 17 var.",16,,,,,1.0,1.0,100.0,1.0,0.05
+"XGBoost, 17 var.",17,,,,,2.0,1.0,100.0,1.0,0.05
+"XGBoost, 17 var.",18,,,,,2.0,1.0,100.0,5.0,0.1
+"XGBoost, 17 var.",19,,,,,1.0,5.0,100.0,1.0,0.1
+"XGBoost, 17 var.",20,,,,,3.0,5.0,400.0,1.0,0.02
+"XGBoost, 17 var.",21,,,,,2.0,1.0,200.0,5.0,0.05
+"XGBoost, 17 var.",22,,,,,1.0,1.0,200.0,1.0,0.1
+"XGBoost, 17 var.",23,,,,,1.0,1.0,200.0,1.0,0.05
+"XGBoost, 17 var.",24,,,,,1.0,5.0,100.0,5.0,0.05
+"Random forest, 17 var., pré-proc. da RL",0,,,5.0,1.0,6.0,,,,
+"Random forest, 17 var., pré-proc. da RL",1,,,3.0,0.5,6.0,,,,
+"Random forest, 17 var., pré-proc. da RL",2,,,5.0,sqrt,4.0,,,,
+"Random forest, 17 var., pré-proc. da RL",3,,,3.0,sqrt,6.0,,,,
+"Random forest, 17 var., pré-proc. da RL",4,,,5.0,sqrt,4.0,,,,
+"Random forest, 17 var., pré-proc. da RL",5,,,3.0,0.5,,,,,
+"Random forest, 17 var., pré-proc. da RL",6,,,3.0,1.0,4.0,,,,
+"Random forest, 17 var., pré-proc. da RL",7,,,10.0,sqrt,6.0,,,,
+"Random forest, 17 var., pré-proc. da RL",8,,,3.0,sqrt,6.0,,,,
+"Random forest, 17 var., pré-proc. da RL",9,,,3.0,sqrt,6.0,,,,
+"Random forest, 17 var., pré-proc. da RL",10,,,3.0,0.5,6.0,,,,
+"Random forest, 17 var., pré-proc. da RL",11,,,3.0,sqrt,,,,,
+"Random forest, 17 var., pré-proc. da RL",12,,,5.0,sqrt,4.0,,,,
+"Random forest, 17 var., pré-proc. da RL",13,,,20.0,sqrt,,,,,
+"Random forest, 17 var., pré-proc. da RL",14,,,5.0,1.0,4.0,,,,
+"Random forest, 17 var., pré-proc. da RL",15,,,3.0,sqrt,,,,,
+"Random forest, 17 var., pré-proc. da RL",16,,,5.0,0.5,4.0,,,,
+"Random forest, 17 var., pré-proc. da RL",17,,,3.0,1.0,4.0,,,,
+"Random forest, 17 var., pré-proc. da RL",18,,,10.0,sqrt,6.0,,,,
+"Random forest, 17 var., pré-proc. da RL",19,,,20.0,sqrt,,,,,
+"Random forest, 17 var., pré-proc. da RL",20,,,5.0,sqrt,,,,,
+"Random forest, 17 var., pré-proc. da RL",21,,,5.0,sqrt,6.0,,,,
+"Random forest, 17 var., pré-proc. da RL",22,,,3.0,sqrt,,,,,
+"Random forest, 17 var., pré-proc. da RL",23,,,5.0,0.5,,,,,
+"Random forest, 17 var., pré-proc. da RL",24,,,5.0,sqrt,4.0,,,,
+"XGBoost, 17 var., pré-proc. da RL",0,,,,,2.0,5.0,400.0,1.0,0.05
+"XGBoost, 17 var., pré-proc. da RL",1,,,,,3.0,5.0,100.0,1.0,0.02
+"XGBoost, 17 var., pré-proc. da RL",2,,,,,2.0,1.0,100.0,5.0,0.1
+"XGBoost, 17 var., pré-proc. da RL",3,,,,,2.0,5.0,100.0,1.0,0.05
+"XGBoost, 17 var., pré-proc. da RL",4,,,,,1.0,1.0,400.0,1.0,0.05
+"XGBoost, 17 var., pré-proc. da RL",5,,,,,3.0,1.0,200.0,1.0,0.02
+"XGBoost, 17 var., pré-proc. da RL",6,,,,,3.0,5.0,100.0,1.0,0.05
+"XGBoost, 17 var., pré-proc. da RL",7,,,,,2.0,1.0,100.0,1.0,0.05
+"XGBoost, 17 var., pré-proc. da RL",8,,,,,3.0,5.0,400.0,1.0,0.05
+"XGBoost, 17 var., pré-proc. da RL",9,,,,,2.0,5.0,200.0,1.0,0.05
+"XGBoost, 17 var., pré-proc. da RL",10,,,,,1.0,1.0,400.0,1.0,0.1
+"XGBoost, 17 var., pré-proc. da RL",11,,,,,3.0,1.0,100.0,1.0,0.02
+"XGBoost, 17 var., pré-proc. da RL",12,,,,,3.0,5.0,400.0,5.0,0.05
+"XGBoost, 17 var., pré-proc. da RL",13,,,,,2.0,1.0,200.0,5.0,0.05
+"XGBoost, 17 var., pré-proc. da RL",14,,,,,3.0,5.0,100.0,1.0,0.05
+"XGBoost, 17 var., pré-proc. da RL",15,,,,,1.0,5.0,100.0,1.0,0.1
+"XGBoost, 17 var., pré-proc. da RL",16,,,,,2.0,1.0,100.0,1.0,0.02
+"XGBoost, 17 var., pré-proc. da RL",17,,,,,2.0,1.0,100.0,1.0,0.05
+"XGBoost, 17 var., pré-proc. da RL",18,,,,,3.0,1.0,400.0,1.0,0.02
+"XGBoost, 17 var., pré-proc. da RL",19,,,,,2.0,1.0,100.0,5.0,0.1
+"XGBoost, 17 var., pré-proc. da RL",20,,,,,3.0,5.0,100.0,1.0,0.05
+"XGBoost, 17 var., pré-proc. da RL",21,,,,,2.0,1.0,200.0,5.0,0.05
+"XGBoost, 17 var., pré-proc. da RL",22,,,,,2.0,1.0,400.0,1.0,0.02
+"XGBoost, 17 var., pré-proc. da RL",23,,,,,3.0,5.0,100.0,1.0,0.05
+"XGBoost, 17 var., pré-proc. da RL",24,,,,,2.0,5.0,100.0,1.0,0.1

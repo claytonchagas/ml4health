@@ -7,13 +7,13 @@ while true; do
   agora=$(date +%s); dec=$((agora - inicio))
   printf "\033[1m=== Auditoria ml4health ===\033[0m   %s   decorrido: %02d:%02d\n\n" "$(date +%H:%M:%S)" $((dec/60)) $((dec%60))
   echo "Relatórios:"
-  for r in A B C; do
+  for r in A A2 B C; do
     f="auditoria/relatorio_$r.md"
     if [ -f "$f" ]; then
       n=$(grep -c '^### ' "$f"); b=$(grep -ci 'Gravidade: bloqueante' "$f"); i=$(grep -ci 'Gravidade: importante' "$f")
-      printf "  %s  %6s bytes  achados: %-3s (bloqueantes: %s, importantes: %s)\n" "$r" "$(wc -c <"$f")" "$n" "$b" "$i"
+      printf "  %-2s %6s bytes  achados: %-3s (bloqueantes: %s, importantes: %s)\n" "$r" "$(wc -c <"$f")" "$n" "$b" "$i"
     else
-      printf "  %s  (ainda não iniciado)\n" "$r"
+      printf "  %-2s (ainda não iniciado)\n" "$r"
     fi
   done
   echo; echo "Arquivos alterados no repositório (não deveria haver nada além de auditoria/):"
