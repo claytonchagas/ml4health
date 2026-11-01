@@ -1,0 +1,11 @@
+Você é um auditor independente. NÃO edite nenhum arquivo, exceto o relatório. Trabalhe SOMENTE com os arquivos deste repositório: não liste, leia nem busque arquivos fora dele (nada de `rg` ou `find` no diretório pessoal). A consulta à web é permitida APENAS para os itens 2 e 3 (referências). Não reexecute o treinamento completo.
+
+Leia AUDITORIA.md, auditoria/relatorio_C.md, o artigo (artigo/main.tex, artigo/secoes/*.tex, artigo/referencias.bib e o PDF artigo/main.pdf), README.md e, quando necessário, resultados/ic_desempenho_oof.csv, ic_desempenho.py, auditoria/comparacao_uci_rdatasets.txt e auditoria/comparar_uci_rdatasets.py. Esta é uma reauditoria curta: não refaça as passadas anteriores.
+
+PASSADA C2: FECHAMENTO. Verifique, com evidência de arquivo e linha:
+1. Correções da passada C: classifique C-01 a C-07 como resolvido, parcialmente resolvido ou não resolvido. Confira os números novos do artigo e do README sobre intervalos de confiança (AUROC, CITL e inclinação) contra resultados/ic_desempenho_oof.csv e a comparação com o UCI contra auditoria/comparacao_uci_rdatasets.txt. Você pode executar `python ic_desempenho.py` (cerca de 1 minuto, não treina modelos) para confirmar o CSV, mas não grave nada além do relatório: rode-o numa cópia temporária fora do controle do git ou compare a saída impressa.
+2. Referências novas (web permitida): van den Goorbergh et al. (2022, JAMIA) e a Resolução CNS nº 510/2016. Confira metadados e se sustentam as frases em que são citadas.
+3. Pendências da passada C (web permitida): tente novamente verificar os pontos que ficaram "não foi possível verificar" no relatório C, em especial Shakir et al. (2025) (remoção de N_Days, três classes, dados do Kaggle, posição do balanceamento no fluxograma, ausência de calibração), Beuers et al. (2015) (justificativa da mudança de nome), Kaggle PS3E26 (presença de N_Days e origem sintética dos dados) e Gerussi et al. (2022) (objetivo declarado). Para cada um, registre a URL consultada e o resultado: confere, diverge (com a correção) ou continua sem verificação (com o motivo).
+4. Forma: o PDF não contém travessão (—), todas as citações estão resolvidas e o .bib não tem entradas sem citação.
+
+Grave o relatório em auditoria/relatorio_C2.md, no formato de AUDITORIA.md (achados C2-NN, tabela-resumo e veredito).

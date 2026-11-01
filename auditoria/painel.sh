@@ -7,7 +7,7 @@ while true; do
   agora=$(date +%s); dec=$((agora - inicio))
   printf "\033[1m=== Auditoria ml4health ===\033[0m   %s   decorrido: %02d:%02d\n\n" "$(date +%H:%M:%S)" $((dec/60)) $((dec%60))
   echo "Relatórios:"
-  for r in A A2 B C; do
+  for r in A A2 B C C2; do
     f="auditoria/relatorio_$r.md"
     if [ -f "$f" ]; then
       n=$(grep -c '^### ' "$f"); b=$(grep -ci 'Gravidade: bloqueante' "$f"); i=$(grep -ci 'Gravidade: importante' "$f")
