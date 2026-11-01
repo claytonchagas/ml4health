@@ -350,7 +350,7 @@ def valor_incremental(y, oof, folds, ref, comparacoes):
         df_ = (a - b).dropna()
         leitura = "maior" if lb > 0 else ("menor" if hb < 0 else "sem evidência de diferença")
         linhas.append({"Referência": ref, "Modelo": nome, "ΔAUROC": d, "IC95_inf": l95, "IC95_sup": h95,
-                       f"ICBonf{100 * nivel_b:.0f}_inf": lb, f"ICBonf{100 * nivel_b:.0f}_sup": hb,
+                       "Comparações (m)": m, "Nível Bonferroni": nivel_b, "ICBonf_inf": lb, "ICBonf_sup": hb,
                        "Leitura (Bonferroni)": leitura, "Δ fold a fold (média)": df_.mean(),
                        "Δ fold a fold (desvio)": df_.std(), "Folds com ganho (%)": 100 * (df_ > 0).mean()})
     return pd.DataFrame(linhas)
