@@ -1,11 +1,15 @@
-Você é um auditor independente. NÃO edite nenhum arquivo, exceto o relatório. Leia AUDITORIA.md, artigo/LEIA-ME.md (orientações do professor), artigo/main.tex, README.md e o enunciado abaixo.
+Você é um auditor independente. NÃO edite nenhum arquivo, exceto o relatório. Trabalhe SOMENTE com os arquivos deste repositório: não liste, leia nem busque arquivos fora dele (nada de `rg` ou `find` no diretório pessoal). A consulta à web é permitida APENAS para o item 3 (verificação das referências). Não reexecute o treinamento completo.
+
+Leia AUDITORIA.md, auditoria/relatorio_B.md, artigo/LEIA-ME.md (orientações do professor), o artigo (artigo/main.tex, as seções em artigo/secoes/*.tex, artigo/referencias.bib e o PDF artigo/main.pdf), README.md, o notebook ml4health_cbp_mayo.ipynb e o enunciado abaixo. O texto de Dickson et al. (1989) está em privado/ (fora do git); use-o para conferir afirmações sobre esse artigo, sem copiar trechos longos para o relatório.
 
 Enunciado da disciplina: repositório público com README.md contendo Motivação/Objetivo; Descrição do Dataset (descrição, preparação/pré-processamento, link para o dataset); Modelo (formalização matemática, método de validação, medidas de desempenho); Avaliação (amostras de treino, validação e teste; medidas de desempenho); Conclusão. Notebook .ipynb executável com: dependências do ambiente; bibliotecas; funções de apoio; carregamento e pré-processamento; hiperparâmetros; gráficos de iteração (perda ou acurácia por iteração); gráficos das medidas de desempenho.
 
-PASSADA C: CONFORMIDADE. Verifique:
+PASSADA C: CONFORMIDADE E REFERÊNCIAS. Verifique, com evidência de arquivo e linha:
 1. README e notebook: cada item do enunciado está presente? Aponte o que falta ou está incompleto.
 2. Artigo: cada orientação do LEIA-ME está atendida (introdução sem subdivisões, com contexto, problema, lacuna, pergunta, objetivo e contribuições; trabalhos relacionados com estratégia de busca declarada e comparação crítica; métodos com unidade de análise, critérios, alvo, pipeline, particionamento, ajuste, métricas, reprodutibilidade e ética; resultados reais com variabilidade; discussão com limitações; .bib só com referências citadas)?
-3. Itens essenciais do TRIPOD+AI para estudos de desenvolvimento e validação: fonte de dados, participantes, desfecho, preditores, tamanho amostral, dados ausentes, análise, desempenho (discriminação e calibração), limitações, disponibilidade de código e dados.
-4. O notebook abre e executa no Google Colab pelo badge do README?
+3. Referências (web permitida só aqui): para cada entrada de artigo/referencias.bib, confira na fonte (DOI, página do periódico, PubMed, repositório institucional ou página do conjunto de dados) autores, ano, título, veículo, volume, número, páginas e DOI, e se o trabalho sustenta a frase em que é citado no artigo (inclusive os números citados, como tamanhos de amostra, estatísticas C e acurácias). Para cada referência, registre a URL consultada e o resultado: confere, diverge (com a correção) ou não foi possível verificar (com o motivo).
+4. Itens essenciais do TRIPOD+AI para estudos de desenvolvimento e validação: fonte de dados, participantes, desfecho, preditores, tamanho amostral, dados ausentes, análise, desempenho (discriminação e calibração), limitações, disponibilidade de código e dados.
+5. Colab: o link do badge no README aponta para o caminho correto do notebook neste repositório? A primeira célula de código instala as dependências ausentes e cria as pastas necessárias? (A execução no Colab será testada manualmente pelo autor; não é preciso executá-la.)
+6. Correções da passada B: classifique B-01 a B-06 e a precisão sobre a origem dos dados (dois ensaios randomizados; 106 dos 112 que recusaram) como resolvido, parcialmente resolvido ou não resolvido, com evidência.
 
-Grave o relatório em auditoria/relatorio_C.md.
+Grave o relatório em auditoria/relatorio_C.md, no formato de AUDITORIA.md (achados C-NN, tabela-resumo e veredito).
