@@ -237,13 +237,17 @@ Os coeficientes finais de Mayo foram estimados com os 418 pacientes, inclusive o
 
 ## Como executar
 
+Requer **Python 3.11 ou mais novo** (a execução oficial usou o 3.13); com Python 3.10, as versões fixadas não instalam. Com o [`uv`](https://docs.astral.sh/uv/), que baixa o Python sozinho:
+
 ```bash
-python3 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
+uv venv --python 3.13 .venv && source .venv/bin/activate
+uv pip install -r requirements.txt
 jupyter nbconvert --to notebook --execute ml4health_cbp_mayo.ipynb
 ```
 
-Com as versões do `requirements.txt` e `FONTE_DADOS = "local"` (padrão), a execução reproduz os números deste documento. No Colab (botão no topo), a primeira célula instala apenas os pacotes ausentes e usa as versões do Colab, de modo que os resultados podem diferir na terceira casa decimal. Tempo de execução: cerca de 35 minutos em CPU com 2 núcleos; para um teste rápido, use `N_REP = 1`.
+Quem já tem o Python 3.13 pode usar `python3.13 -m venv .venv && source .venv/bin/activate` e `pip install -r requirements.txt`.
+
+Com as versões do `requirements.txt` e `FONTE_DADOS = "local"` (padrão), a execução reproduz os números deste documento. No Colab (botão no topo), a primeira célula instala apenas os pacotes ausentes e usa as versões do Colab, de modo que os resultados podem diferir na terceira casa decimal. Tempo de execução: cerca de 35 a 40 minutos em CPU com 2 núcleos; para um teste rápido, use `N_REP = 1`.
 
 ## Referências
 

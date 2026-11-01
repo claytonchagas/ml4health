@@ -25,7 +25,7 @@ C.append(md("""# Aprendizado de Máquina versus Escore de Mayo: qual vale mais a
 
 Notebook de demonstração do projeto. Pergunta: quanto o aprendizado de máquina acrescenta a um modelo de regressão com as 5 variáveis de rotina do Escore de Risco de Mayo (1989) na predição de óbito em até 5 anos, e a que custo? O desenho é 2 x 2: **regressão** e **aprendizado de máquina**, cada um com as **5 variáveis de Mayo** e com as **17 variáveis** do dataset, nos mesmos folds. A leitura vertical compara os pipelines de cada família com as mesmas variáveis (e uma análise de sensibilidade dá às árvores o mesmo pré-processamento da regressão, aproximando a comparação do efeito do algoritmo); a horizontal, o efeito das variáveis extras.
 
-Tempo de execução: cerca de 10 a 20 minutos em CPU (Colab gratuito serve). Para uma execução rápida de teste, mude `N_REP` para 1 na seção de hiperparâmetros."""))
+Tempo de execução: cerca de 35 a 40 minutos em CPU com 2 núcleos (o Colab gratuito serve). Para uma execução rápida de teste, mude `N_REP` para 1 na seção de hiperparâmetros."""))
 
 C.append(md("## 1. Dependências do ambiente de execução"))
 C.append(code("""# Instala apenas o que faltar (funciona no Colab e em ambiente local)
