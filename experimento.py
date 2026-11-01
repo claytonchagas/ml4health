@@ -48,7 +48,11 @@ def carregar_dados(fonte="local", caminho=CAMINHO_LOCAL):
     if fonte == "uci":
         from ucimlrepo import fetch_ucirepo
         ds = fetch_ucirepo(id=UCI_ID)
-        df = pd.concat([ds.data.ids, ds.data.features, ds.data.targets], axis=1)
+        # N_Days tem papel "Other" no UCI e so aparece na tabela original, nao em features/targets
+        df = ds.data.original.copy().replace({"NA": np.nan})
+        for c in ["N_Days", "Age", "Bilirubin", "Cholesterol", "Albumin", "Copper", "Alk_Phos", "SGOT",
+                  "Tryglicerides", "Platelets", "Prothrombin", "Stage"]:
+            df[c] = pd.to_numeric(df[c], errors="coerce")
         df["Age"] = df["Age"] / 365.25  # dias -> anos
         return df, "UCI 878 (ucimlrepo)"
     if fonte != "local":
