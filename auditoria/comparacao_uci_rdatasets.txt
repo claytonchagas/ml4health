@@ -1,0 +1,27 @@
+Comparação valor a valor: cópia local (Rdatasets) x UCI 878
+Local: copia local de survival::pbc (espelho do UCI 878), SHA-256 797ea9b6abfe...
+UCI:   UCI 878 (ucimlrepo)
+Pacientes: local 418, UCI 418; identificadores iguais: True
+
+variável          iguais diferentes  ausência diverge  dif. máx.
+Age                  418          0                 0   7.11e-15
+Sex_M                418          0                 0   0.00e+00
+Edema                418          0                 0   0.00e+00
+Ascites              418          0                 0   0.00e+00
+Hepatomegaly         418          0                 0   0.00e+00
+Spiders              418          0                 0   0.00e+00
+Drug_Dpen            418          0                 0   0.00e+00
+Bilirubin            418          0                 0   0.00e+00
+Cholesterol          418          0                 0   0.00e+00
+Albumin              418          0                 0   0.00e+00
+Copper               418          0                 0   0.00e+00
+Alk_Phos             418          0                 0   0.00e+00
+SGOT                 418          0                 0   0.00e+00
+Tryglicerides        418          0                 0   0.00e+00
+Platelets            418          0                 0   0.00e+00
+Prothrombin          418          0                 0   0.00e+00
+Stage                418          0                 0   0.00e+00
+N_Days               418          0                 0   0.00e+00
+Status               418          0                 0        nan
+
+RESULTADO: as duas versões são idênticas em todos os pacientes e variáveis usados no experimento (idade dentro de 0,01 ano).
