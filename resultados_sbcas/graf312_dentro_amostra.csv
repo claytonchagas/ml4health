@@ -1,0 +1,4 @@
+Modelo,C de Harrell dentro da amostra,C de Harrell fora da partição (média),Otimismo
+"Cox, 5 var. (referência)",0.8237956001113896,0.8238455330665266,-4.99329551369998e-05
+"Cox, 7 var. (conjunto final de Graf et al.)",0.8292606516290727,0.8233357123257359,0.005924939303336818
+"RSF, 17 var.",0.8594054580896686,0.8268872735944233,0.03251818449524535
