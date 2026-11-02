@@ -5,7 +5,7 @@ Este repositório é construído por um agente (Claude) e auditado por outro (Co
 ## Como rodar
 
 ```bash
-git clone https://github.com/claytonchagas/ml4health.git && cd ml4health
+git clone <endereço do repositório> && cd ml4health
 pip install -r requirements.txt
 # Em um terminal: o painel de acompanhamento
 bash auditoria/painel.sh

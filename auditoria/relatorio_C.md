@@ -100,7 +100,7 @@ Esta matriz examina os itens solicitados no prompt. Não representa certificaç�
 
 ## 5. Colab
 
-O badge em `README.md:7` aponta para `https://colab.research.google.com/github/claytonchagas/ml4health/blob/main/ml4health_cbp_mayo.ipynb`. Proprietário/repositório coincidem com o remote local e o notebook existe na raiz com esse nome. **Caminho correto na inspeção local**; não foi feito teste HTTP do badge nem execução Colab.
+O badge em `README.md:7` aponta para `https://colab.research.google.com/github/ANONIMO/ml4health/blob/main/ml4health_cbp_mayo.ipynb`. Proprietário/repositório coincidem com o remote local e o notebook existe na raiz com esse nome. **Caminho correto na inspeção local**; não foi feito teste HTTP do badge nem execução Colab.
 
 A primeira célula de código é a **célula 3**. Ela verifica os módulos `ucimlrepo`, `xgboost`, `sklearn`, `pandas`, `numpy`, `matplotlib`, instala os ausentes por `sys.executable -m pip` e mapeia `sklearn` para o nome de pacote `scikit-learn`. Cria `resultados/` e `figs/` com `exist_ok=True`. **Atende ao solicitado**. `data/` é criada sob demanda pela função da célula 8, antes do download do snapshot. Portanto, não depende de clone prévio para obter o CSV.
 

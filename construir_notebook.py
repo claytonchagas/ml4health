@@ -19,9 +19,9 @@ C = []
 
 C.append(md("""# Aprendizado de Máquina versus Escore de Mayo: qual vale mais a pena na predição de óbito em cirrose biliar primária?
 
-[![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/claytonchagas/ml4health/blob/main/ml4health_cbp_mayo.ipynb)
+[![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/ANONIMO/ml4health/blob/main/ml4health_cbp_mayo.ipynb)
 
-**TCC00367, Introdução ao Aprendizado de Máquina para Saúde (PGC/UFF).** Clayton Escouper das Chagas.
+Autoria omitida para revisão.
 
 Notebook de demonstração do projeto. Pergunta: quanto o aprendizado de máquina acrescenta a um modelo de regressão com as 5 variáveis de rotina do Escore de Risco de Mayo (1989) na predição de óbito em até 5 anos, e a que custo? O desenho é 2 x 2: **regressão** e **aprendizado de máquina**, cada um com as **5 variáveis de Mayo** e com as **17 variáveis** do dataset, nos mesmos folds. A leitura vertical compara os pipelines de cada família com as mesmas variáveis (e uma análise de sensibilidade dá às árvores o mesmo pré-processamento da regressão, aproximando a comparação do efeito do algoritmo); a horizontal, o efeito das variáveis extras.
 

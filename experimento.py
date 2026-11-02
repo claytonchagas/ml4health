@@ -34,7 +34,7 @@ UCI_ID = 878
 URL_ESPELHO = "https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/survival/pbc.csv"
 # Copia versionada no repositorio (mesmo conteudo do espelho Rdatasets), usada na execucao oficial
 CAMINHO_LOCAL = "data/pbc_rdatasets.csv"
-URL_REPO = "https://raw.githubusercontent.com/claytonchagas/ml4health/main/data/pbc_rdatasets.csv"
+URL_REPO = "https://raw.githubusercontent.com/ANONIMO/ml4health/main/data/pbc_rdatasets.csv"
 SHA256_LOCAL = "797ea9b6abfec34297ef07f361a2e0bfdd90c3c2def180adf8547ea30e75b613"
 
 # ----------------------------------------------------------------------------- dados
