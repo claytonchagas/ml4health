@@ -123,6 +123,15 @@ def macros():
         m[f"nbSup{k}"] = f(sup, 3)
         linhas_nb.append({"Modelo": nome, "Diferença média por partição": d.mean(), "EP corrigido": ep,
                           "IC Bonferroni inf": inf, "IC Bonferroni sup": sup})
+    # Mesmo teste na sensibilidade com óbito como evento (achado E1 da segunda revisão tripla)
+    foo = pd.read_csv(R / "folds_obito.csv").pivot(index="Fold", columns="Modelo", values="C de Uno (5 anos)")
+    for k, nome in zip("ABC", ORDEM[1:]):
+        d = foo[nome] - foo[ORDEM[0]]
+        ep = np.sqrt(1 / len(foo) + razao) * d.std(ddof=1)
+        inf, sup = d.mean() - tcrit * ep, d.mean() + tcrit * ep
+        m[f"nbSupObito{k}"] = f(sup, 3)
+        linhas_nb.append({"Modelo": nome + " (óbito)", "Diferença média por partição": d.mean(), "EP corrigido": ep,
+                          "IC Bonferroni inf": inf, "IC Bonferroni sup": sup})
     pd.DataFrame(linhas_nb).to_csv(R / "valor_incremental_t_corrigido.csv", index=False)
     with open(T / "numeros.tex", "w") as fh:
         fh.write("% Gerado por gerar_tabelas.py a partir de resultados_sbcas/. Não editar.\n")
