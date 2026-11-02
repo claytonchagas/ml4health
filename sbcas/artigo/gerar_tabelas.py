@@ -128,6 +128,13 @@ def macros():
         m[f"nbSup{k}"] = f(sup, 3)
         linhas_nb.append({"Modelo": nome, "Diferença média por partição": d.mean(), "EP corrigido": ep,
                           "IC Bonferroni inf": inf, "IC Bonferroni sup": sup})
+    # E3: mesmo teste para a AUC em 5 anos da RSF de 5 variáveis (única diferença demonstrada pelo bootstrap)
+    fa = pd.read_csv(R / "folds.csv").pivot(index="Fold", columns="Modelo", values="AUC (5 anos)")
+    d = fa["RSF, 5 var."] - fa[ORDEM[0]]
+    ep = np.sqrt(1 / len(fa) + razao) * d.std(ddof=1)
+    m["nbAucInfB"], m["nbAucSupB"] = f(d.mean() - tcrit * ep, 3), f(d.mean() + tcrit * ep, 3)
+    linhas_nb.append({"Modelo": "RSF, 5 var. (AUC 5 anos)", "Diferença média por partição": d.mean(), "EP corrigido": ep,
+                      "IC Bonferroni inf": d.mean() - tcrit * ep, "IC Bonferroni sup": d.mean() + tcrit * ep})
     # Mesmo teste na sensibilidade com óbito como evento (achado E1 da segunda revisão tripla)
     foo = pd.read_csv(R / "folds_obito.csv").pivot(index="Fold", columns="Modelo", values="C de Uno (5 anos)")
     for k, nome in zip("ABC", ORDEM[1:]):
