@@ -81,12 +81,12 @@ def painel(ax, tab, titulo, oe):
     ax.errorbar(tab["Previsto (média)"], tab["Observado (KM)"], yerr=err, fmt="o", ms=5, capsize=3,
                 color="#1f4e79", ecolor="#1f4e79", lw=1.2, zorder=2)
     ax.set_xlim(0, lim); ax.set_ylim(0, lim); ax.set_aspect("equal")
-    ax.set_title(titulo, fontsize=10)
-    ax.set_xlabel("Risco previsto em 5 anos", fontsize=9)
-    ax.set_ylabel("Risco observado em 5 anos (KM)", fontsize=9)
+    ax.set_title(titulo, fontsize=11)
+    ax.set_xlabel("Risco previsto em 5 anos", fontsize=10)
+    ax.set_ylabel("Risco observado em 5 anos (KM)", fontsize=10)
     ax.text(0.04, 0.93, f"O/E = {oe[0]:.2f} ({oe[1]:.2f} a {oe[2]:.2f})".replace(".", ","),
-            transform=ax.transAxes, fontsize=8)
-    ax.tick_params(labelsize=8)
+            transform=ax.transAxes, fontsize=9)
+    ax.tick_params(labelsize=9)
     ax.xaxis.set_major_formatter(VIRGULA); ax.yaxis.set_major_formatter(VIRGULA)
     ax.grid(alpha=0.25)
 
@@ -118,7 +118,7 @@ def main():
                        (f"figura_calibracao_suplementar{suf}", list(oof.columns))]:
         ncol = 2
         nlin = int(np.ceil(len(nomes) / ncol))
-        fig, axs = plt.subplots(nlin, ncol, figsize=(7, 3.6 * nlin))
+        fig, axs = plt.subplots(nlin, ncol, figsize=(6, 3.1 * nlin))
         for ax, nome in zip(np.atleast_1d(axs).ravel(), nomes):
             painel(ax, tab[tab.Modelo == nome], nome, oes[nome])
         fig.tight_layout()
