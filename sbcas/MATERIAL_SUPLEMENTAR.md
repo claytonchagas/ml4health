@@ -23,6 +23,7 @@ Detalhes técnicos que o artigo resume em linguagem direta. Cada item aponta o s
 - Distribuição de censura (G): nas métricas por partição, estimada por Kaplan-Meier no treino; no valor incremental, estimada na coorte inteira das predições fora da partição e reestimada em cada reamostragem *bootstrap* (desvio D10). G entra só no cálculo das métricas, não no ajuste dos modelos.
 - AUC dependente do tempo (cumulativa/dinâmica) em 5 anos; Brier em 5 anos; Brier integrado numa grade anual de 365 a 1.826 dias. AUC, Brier e Brier integrado só são calculados quando o seguimento do teste cobre de 1 a 5 anos (todas as partições cobrem; desvio D4).
 - Resultados por partição: `resultados_sbcas/folds.csv`; resumo: `resultados_sbcas/resumo_cv.csv`.
+- O Cox penalizado manteve entre 9 e 16 das 17 variáveis nos 25 modelos escolhidos (`hiperparametros.csv`). O C de Uno médio calculado sobre o escore nativo de cada modelo diferiu do calculado sobre o risco em 5 anos em até 0,0012 (coluna "C de Uno, escore nativo" de `resumo_cv.csv`; desvio D2).
 
 ## S4. Valor incremental (`sobrevivencia.py`)
 
