@@ -97,7 +97,12 @@ def macros():
     for v in ["Bilirubin", "Copper", "Albumin"]:
         m[f"imp{v}"] = f(imp[v])
     dc = pd.read_csv(R / "curva_decisao.csv")
-    m["dcMaxDif"] = f((dc["RSF, 17 var."] - dc["Cox, 5 var. (referência)"]).abs().max())
+    dif = dc["RSF, 17 var."] - dc["Cox, 5 var. (referência)"]
+    m["dcMaxDif"] = f(dif.abs().max())
+    # C6: sentido da maior diferença e em quantos limiares a RSF ficou à frente
+    m["dcMaxLimiar"] = f"{round(100 * dc.loc[dif.abs().idxmax(), 'Limiar'])}\\%"
+    m["dcMaxFavorece"] = "a referência" if dif[dif.abs().idxmax()] < 0 else "a RSF"
+    m["dcRSFmaior"], m["dcLimiares"] = str(int((dif > 0).sum())), str(len(dif))
     dco = pd.read_csv(R / "curva_decisao_obito.csv")
     m["dcMaxDifObito"] = f((dco["RSF, 17 var."] - dco["Cox, 5 var. (referência)"]).abs().max())
     h = pd.read_csv(R / "hiperparametros.csv")
