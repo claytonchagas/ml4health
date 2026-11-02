@@ -60,7 +60,7 @@ def tabela_leitura():
         for m in ORDEM[1:]:
             chave = m if suf == "" else m + " (óbito)"
             b_sup, t_sup = vi.loc[m, "ICBonf_sup"], tc.loc[chave, "IC Bonferroni sup"]
-            leitura = "sim" if (b_sup < 0.02 and t_sup < 0.02) else ("só no plano" if b_sup < 0.02 else "não")
+            leitura = "sim" if (b_sup < 0.02 and t_sup < 0.02) else ("não (só no plano)" if b_sup < 0.02 else "não")
             linhas.append(f"\\quad {m} & {f(vi.loc[m, 'Diferença'])} & {ic(vi.loc[m, 'ICBonf_inf'], b_sup, 4)} & "
                           f"{ic(tc.loc[chave, 'IC Bonferroni inf'], t_sup)} & {leitura} \\\\")
     return "\n".join(linhas)
@@ -165,6 +165,14 @@ def macros():
     alt = sem[sem.Semente != 2026]
     m["semAlt"], m["semNaoExclui"] = str(len(alt)), str(int((~alt["Exclui a margem"]).sum()))
     m["semMin"], m["semMax"] = f(alt.ICBonf_sup.min(), 4), f(alt.ICBonf_sup.max(), 4)
+    # F2: C de Uno da referência nas predições agregadas (base das diferenças), nos dois desfechos
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+    from sobrevivencia import REFERENCIA, _cuno, preparar
+    for suf, desf, nome in [("", "transplante_livre", "refAgr"), ("_obito", "obito", "refAgrObito")]:
+        _, _, y, _ = preparar(desf)
+        oof = pd.read_csv(R / f"oof_risco5{suf}.csv", index_col=0)
+        m[nome] = f(_cuno(y, oof[REFERENCIA].to_numpy()))
     with open(T / "numeros.tex", "w") as fh:
         fh.write("% Gerado por gerar_tabelas.py a partir de resultados_sbcas/. Não editar.\n")
         for k, v in m.items():
