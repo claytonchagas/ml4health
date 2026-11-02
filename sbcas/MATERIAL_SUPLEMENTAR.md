@@ -29,6 +29,7 @@ Detalhes técnicos que o artigo resume em linguagem direta. Cada item aponta o s
 
 - 2.000 reamostragens *bootstrap* pareadas de pacientes (semente 2026) sobre as predições fora da partição; IC 95% e IC de Bonferroni para 3 comparações (98,33%); reamostragens descartadas e motivos registrados (zero em todas as análises).
 - Resultados: `resultados_sbcas/valor_incremental.csv` e `valor_incremental_obito.csv`.
+- Primeira execução (desvio D1, busca sobre o escore nativo): o limite superior de Bonferroni da RSF de 17 variáveis foi 0,0209, contra 0,0197 na execução final. A diferença é da ordem do erro de Monte Carlo de um *bootstrap* com 2.000 reamostragens; por isso o artigo trata a exclusão da margem de +0,02 para essa floresta como limítrofe.
 
 ## S5. Calibração (`calibracao_figura.py`)
 
