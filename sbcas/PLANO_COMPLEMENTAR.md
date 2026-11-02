@@ -42,3 +42,11 @@ Ao preparar o script, conferiu-se em `experimento.py` e no relatório de auditor
 - A medida da vantagem de derivação nos 312 usa a fórmula **inicial** (estimada nos 312), avaliada nos 312, contra o Cox reestimado fora da partição nos mesmos 312; a final é relatada ao lado.
 - D15 (106 não randomizados) usa a fórmula **inicial**, que não viu esses pacientes: é a única comparação em que a fórmula publicada e os modelos treinados nos 312 são avaliados fora da amostra de estimação de ambos. A final é relatada ao lado, como contaminada.
 - Imputação dos 2 tempos de protrombina ausentes: mediana do treino de cada partição (D14) ou dos 312 (D15).
+
+## Emenda 2 (02/11/2026, após a auditoria independente de D14 a D16 e antes de qualquer texto do artigo)
+
+Correções de procedimento apontadas pela auditoria, aplicadas em `comparador_graf.py` e reexecutadas:
+- RSF de 17 variáveis em D16: os hiperparâmetros passam a ser, em cada partição, os escolhidos no treino da mesma partição da validação principal (`hiperparametros.csv`); antes vinham de uma busca nos mesmos 312 (vazamento leve, cerca de 0,003 no C).
+- Otimismo de avaliar dentro da amostra: C agregado fora da partição contra C dentro da amostra (mesma base de cálculo); antes comparava com a média de C por partição.
+- Vantagem de derivação: comparada com o Cox de Mayo reestimado só nos 312 (`graf312_derivacao.csv`); `mayo1989_derivacao.csv`, com o Cox treinado nas partições dos 418, fica como registro.
+A auditoria também fixou a leitura: (a) D14 mede o efeito de reestimar os coeficientes, não o da seleção das variáveis; (b) "nenhum ganho demonstrado sobre a fórmula", sem leitura de equivalência; (c) no óbito, a RSF de 5 variáveis abaixo da fórmula é só indício (o teste corrigido não confirma); (d) o otimismo medido aqui não explica o C de 0,855 de Graf et al., obtido por bootstrap .632+.
