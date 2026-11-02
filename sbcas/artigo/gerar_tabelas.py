@@ -20,6 +20,8 @@ def f(x, d=3):
     """Número com vírgula decimal e sinal de menos tipográfico."""
     if pd.isna(x):
         return "--"
+    if round(x, d) == 0:
+        x = 0.0  # evita "-0,000"
     s = f"{x:.{d}f}".replace(".", "{,}")
     return f"${s}$"
 
@@ -63,6 +65,16 @@ def tabela_leitura():
             leitura = "sim" if (b_sup < 0.02 and t_sup < 0.02) else ("não (só no plano)" if b_sup < 0.02 else "não")
             linhas.append(f"\\quad {m} & {f(vi.loc[m, 'Diferença'])} & {ic(vi.loc[m, 'ICBonf_inf'], b_sup, 4)} & "
                           f"{ic(tc.loc[chave, 'IC Bonferroni inf'], t_sup)} & {leitura} \\\\")
+    # G1 (D14): mesma leitura contra a fórmula de Mayo publicada em 1989 (final, sem reajuste), desfecho principal
+    mf = pd.read_csv(R / "mayo1989_coorte.csv")
+    linhas.append("\\multicolumn{5}{@{}l}{\\textit{Óbito ou transplante, contra a fórmula de 1989 sem reajuste}} \\\\")
+    for m in ORDEM:
+        r = mf[mf["Comparação"] == f"{m} menos fórmula"].iloc[0]
+        b_sup, t_sup = r["IC bootstrap sup"], r["IC teste corrigido sup"]
+        leitura = "sim" if (b_sup < 0.02 and t_sup < 0.02) else ("não (só no plano)" if b_sup < 0.02 else "não")
+        rot = "Cox, 5 var. (reestimado)$^{*}$" if m == ORDEM[0] else m
+        linhas.append(f"\\quad {rot} & {f(r['Diferença'])} & {ic(r['IC bootstrap inf'], b_sup, 4)} & "
+                      f"{ic(r['IC teste corrigido inf'], t_sup)} & {leitura} \\\\")
     return "\n".join(linhas)
 
 
@@ -163,6 +175,9 @@ def macros():
     # E2: estabilidade do limite de Bonferroni da RSF de 17 variáveis em 25 sementes alternativas do bootstrap
     sem = pd.read_csv(R / "sensibilidade_semente_bootstrap.csv")
     alt = sem[sem.Semente != 2026]
+    mf = pd.read_csv(R / "mayo1989_coorte.csv").set_index("Comparação")
+    m["formulaC"] = f(mf.loc["Fórmula de 1989 (final, n = 418)", "C de Uno agregado"])
+    m["refMenosFormula"] = f(mf.loc[f"{ORDEM[0]} menos fórmula", "Diferença"])
     m["semAlt"], m["semNaoExclui"] = str(len(alt)), str(int((~alt["Exclui a margem"]).sum()))
     m["semMin"], m["semMax"] = f(alt.ICBonf_sup.min(), 4), f(alt.ICBonf_sup.max(), 4)
     # F2: C de Uno da referência nas predições agregadas (base das diferenças), nos dois desfechos
