@@ -1,0 +1,18 @@
+Variável,Unidade ou codificação,Função,Ausentes (418),Ausentes nos 312 randomizados,Ausentes nos 106 não randomizados
+Age,anos,Mayo (5 e 17 variáveis),0,0,0
+Sex_M,0/1 (1 = masculino),Adicional (17 variáveis),0,0,0
+Drug_Dpen,"0/1 (1 = D-penicilamina, 0 = placebo)",Adicional (17 variáveis),106,0,106
+Ascites,0/1,Adicional (17 variáveis),106,0,106
+Hepatomegaly,0/1,Adicional (17 variáveis),106,0,106
+Spiders,0/1 (aranhas vasculares),Adicional (17 variáveis),106,0,106
+Edema,"0 / 0,5 / 1 (codificação de Mayo)",Mayo (5 e 17 variáveis),0,0,0
+Bilirubin,mg/dL,Mayo (5 e 17 variáveis),0,0,0
+Cholesterol,mg/dL,Adicional (17 variáveis),134,28,106
+Albumin,g/dL,Mayo (5 e 17 variáveis),0,0,0
+Copper,µg/dia (cobre urinário),Adicional (17 variáveis),108,2,106
+Alk_Phos,U/L (fosfatase alcalina),Adicional (17 variáveis),106,0,106
+SGOT,U/mL (AST),Adicional (17 variáveis),106,0,106
+Tryglicerides,mg/dL,Adicional (17 variáveis),136,30,106
+Platelets,contagem de plaquetas,Adicional (17 variáveis),11,4,7
+Prothrombin,segundos (tempo de protrombina),Mayo (5 e 17 variáveis),2,0,2
+Stage,"1 a 4 (estágio histológico, exige biópsia)",Adicional (17 variáveis),6,0,6
