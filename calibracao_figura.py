@@ -16,6 +16,8 @@ import argparse
 
 import matplotlib
 matplotlib.use("Agg")
+matplotlib.rcParams["pdf.fonttype"] = 42  # fontes TrueType embutidas (sem Type 3)
+matplotlib.rcParams["font.family"] = "DejaVu Sans"  # fonte TrueType pura, aceita por verificadores de PDF
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 import numpy as np

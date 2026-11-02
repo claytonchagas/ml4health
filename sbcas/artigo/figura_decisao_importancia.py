@@ -5,6 +5,8 @@ Uso (na raiz do repositório): python sbcas/artigo/figura_decisao_importancia.py
 Saída: sbcas/artigo/figuras/figura_decisao_importancia.pdf"""
 import matplotlib
 matplotlib.use("Agg")
+matplotlib.rcParams["pdf.fonttype"] = 42  # fontes TrueType embutidas (sem Type 3)
+matplotlib.rcParams["font.family"] = "DejaVu Sans"  # fonte TrueType pura, aceita por verificadores de PDF
 import matplotlib.pyplot as plt
 import pandas as pd
 from matplotlib.ticker import FuncFormatter
