@@ -64,7 +64,7 @@ Usamos essa coorte como estudo de caso de avaliação e perguntamos se modelos d
 Passo & Erro que evita & Neste artigo \\
 \midrule
 1. Registrar o plano, com margem de relevância e regra de leitura, antes dos resultados & Escolher métrica, modelo ou critério depois de ver os números & Seção~\ref{sec:metodos} \\
-2. Comparar com o modelo clínico disponível, nas mesmas partições e de forma pareada & Creditar ao AM um desempenho que o modelo atual já tem & Tabela~\ref{tab:desempenho} \\
+2. Comparar com o modelo clínico disponível, nas mesmas partições e de forma pareada & Creditar ao AM um desempenho que o modelo atual já tem & Tabela~\ref{tab:leitura} \\
 3. Tratar a censura como sobrevivência, sem excluir pacientes pelo horizonte & Amostra selecionada pelo próprio desfecho & Seção~\ref{sec:metodos}; Tabela~\ref{tab:enquadramentos}, descritiva \\
 4. Avaliar calibração e benefício líquido, além da discriminação & Modelo que ordena bem, mas erra o risco ou não muda decisões & Figuras~\ref{fig:calibracao} e~\ref{fig:decisao} \\
 5. Testar o efeito de variáveis indisponíveis no momento da predição & Vazamento que infla o desempenho & Tabela~\ref{tab:enquadramentos}, linha (d) \\
@@ -119,7 +119,7 @@ Treze desvios e complementações estão registrados, com data e motivo. O princ
 
 \subsection{Discriminação e valor incremental}
 
-Nenhum modelo apresentou superioridade demonstrada na discriminação (Tabela~\ref{tab:desempenho}). A referência teve C de Uno médio de 0,833 entre partições e de 0,831 nas predições agregadas, base das diferenças, que ficaram entre $-$0,014 e +0,015; entre as 25 partições, o desvio da diferença foi de \dispDifMin{} a \dispDifMax{} (descritivo, não um intervalo). A Tabela~\ref{tab:leitura} resume a leitura do valor incremental. Nenhuma diferença foi demonstrada, em nenhuma das duas inferências nem nos dois desfechos. Um ganho de 0,02 ou mais só pode ser descartado para a RSF de 5 variáveis. Na de 17, o plano o descarta por pouco (limite de 0,0197), mas isso não resiste ao teste corrigido nem a outras sementes do \textit{bootstrap}: o limite passou de 0,02 em \semNaoExclui{} de \semAlt. Na AUC em cinco anos, também calculada nas predições agregadas, a RSF de 5 variáveis foi menor que a referência ($-$0,024; intervalo de $-$0,047 a $-$0,001), mas não no teste corrigido (\nbAucInfB{} a \nbAucSupB); as demais não diferiram.
+Nenhum modelo apresentou superioridade demonstrada na discriminação (Tabelas~\ref{tab:desempenho} e~\ref{tab:leitura}). A referência teve C de Uno médio de 0,833 entre partições e de 0,831 nas predições agregadas, base das diferenças, que ficaram entre $-$0,014 e +0,015; entre as 25 partições, o desvio da diferença foi de \dispDifMin{} a \dispDifMax{} (descritivo, não um intervalo). A Tabela~\ref{tab:leitura} resume a leitura do valor incremental. Nenhuma diferença foi demonstrada, em nenhuma das duas inferências nem nos dois desfechos. Um ganho de 0,02 ou mais só pode ser descartado para a RSF de 5 variáveis. Na de 17, o plano o descarta por pouco (limite de 0,0197), mas isso não resiste ao teste corrigido nem a outras sementes do \textit{bootstrap}: o limite passou de 0,02 em \semNaoExclui{} de \semAlt. Na AUC em cinco anos, também calculada nas predições agregadas, a RSF de 5 variáveis foi menor que a referência ($-$0,024; intervalo de $-$0,047 a $-$0,001), mas não no teste corrigido (\nbAucInfB{} a \nbAucSupB); as demais não diferiram.
 
 \begin{table}[!t]
 \centering
