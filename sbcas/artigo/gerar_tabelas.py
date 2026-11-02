@@ -103,6 +103,13 @@ def macros():
     h = pd.read_csv(R / "hiperparametros.csv")
     nz = h[h.Modelo == "Cox penalizado, 17 var."]["coeficientes não nulos"]
     m["coxnetMin"], m["coxnetMax"] = str(int(nz.min())), str(int(nz.max()))
+    # B3-01: desvio da diferença entre partições (C de Uno) e maior diferença entre C de Uno nativo e por risco5
+    vi = pd.read_csv(R / "valor_incremental.csv")
+    dp = vi[vi["Métrica"] == "C de Uno (5 anos)"]["Δ por partição (desvio)"]
+    m["dispDifMin"], m["dispDifMax"] = f(dp.min()), f(dp.max())
+    res = pd.read_csv(R / "resumo_cv.csv", header=[0, 1], index_col=0)
+    nat = (res[("C de Uno, escore nativo (5 anos)", "mean")] - res[("C de Uno (5 anos)", "mean")]).abs().max()
+    m["nativoMax"] = f(nat, 4)
     with open(T / "numeros.tex", "w") as fh:
         fh.write("% Gerado por gerar_tabelas.py a partir de resultados_sbcas/. Não editar.\n")
         for k, v in m.items():
