@@ -14,6 +14,7 @@ import argparse
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
 import numpy as np
 import pandas as pd
 from sksurv.nonparametric import kaplan_meier_estimator
@@ -21,6 +22,9 @@ from sksurv.nonparametric import kaplan_meier_estimator
 from sobrevivencia import HORIZONTE, REFERENCIA, preparar
 
 LIMIARES = np.round(np.arange(0.05, 0.501, 0.01), 2)
+
+
+VIRGULA = FuncFormatter(lambda v, _: f"{v:g}".replace(".", ","))  # vírgula decimal (artigo em português)
 
 
 def risco_km(evento, tempo):
@@ -69,7 +73,8 @@ def main():
     topo = max(tab[[REFERENCIA, melhor_am]].max().max(), r_todos) * 1.1
     ax.set_ylim(-0.05, topo); ax.set_xlim(LIMIARES[0], LIMIARES[-1])
     ax.set_xlabel("Limiar de risco em 5 anos", fontsize=9); ax.set_ylabel("Benefício líquido", fontsize=9)
-    ax.tick_params(labelsize=8); ax.grid(alpha=0.25); ax.legend(fontsize=8, frameon=False)
+    ax.tick_params(labelsize=8)
+    ax.xaxis.set_major_formatter(VIRGULA); ax.yaxis.set_major_formatter(VIRGULA); ax.grid(alpha=0.25); ax.legend(fontsize=8, frameon=False)
     fig.tight_layout()
     fig.savefig(f"resultados_sbcas/figura_curva_decisao{suf}.pdf")
     fig.savefig(f"resultados_sbcas/figura_curva_decisao{suf}.png", dpi=200)

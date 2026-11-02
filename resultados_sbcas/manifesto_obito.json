@@ -1,0 +1,19 @@
+{
+  "comando": "sobrevivencia.py --desfecho obito",
+  "desfecho": "obito",
+  "n_rep": 5,
+  "commit": "ebcc88ca481424e601c5715fa65bc103f4b5d18d",
+  "código alterado em relação ao commit": false,
+  "dados": "copia local de survival::pbc (espelho do UCI 878), SHA-256 797ea9b6abfe...",
+  "segundos": 4478,
+  "python": "3.13.18",
+  "numpy": "2.5.3",
+  "pandas": "2.3.3",
+  "scikit-learn": "1.9.1",
+  "scikit-survival": "0.28.0",
+  "semente": 2026,
+  "horizonte (dias)": 1826,
+  "configurações RSF": 50,
+  "reamostragens bootstrap": 2000,
+  "margem": 0.02
+}

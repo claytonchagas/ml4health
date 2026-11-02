@@ -1,0 +1,5 @@
+Enquadramento,Papel,n,Eventos,Métrica,Referência,Comparação,Δ,IC_inf,IC_sup,Tipo de IC,Modelos de AM comparados
+"(a) Classificação, óbito até 5 anos, com exclusão",disciplina,312,115,AUROC,"RL, 5 var. (Mayo reestimado)","RL penalizada, 17 var.",0.008783932906643,-0.017084105391603,0.0354624690626879,"bootstrap pareado, Bonferroni m=5",5
+"(b) Sobrevivência, óbito ou transplante",principal,418,186,C de Uno (5 anos),"Cox, 5 var.","Cox penalizado, 17 var.",0.0148311301155377,-0.0041867978661945,0.0324226745120933,"bootstrap pareado, Bonferroni m=3",3
+"(c) Sobrevivência, só óbito (transplante censurado)",sensibilidade,418,161,C de Uno (5 anos),"Cox, 5 var.","Cox penalizado, 17 var.",0.0104576592635131,-0.006394842345571,0.0261106319845323,"bootstrap pareado, Bonferroni m=3",3
+"(d) Classificação C/CL/D, com contra sem N_Days na entrada",disciplina,418,161,AUROC macro (OvR),"XGBoost, 17 var., sem N_Days","XGBoost, 17 var., com N_Days",0.034291368243556726,,,sem IC; desvio entre partições 0.019; 96% das 25 partições com ganho,1

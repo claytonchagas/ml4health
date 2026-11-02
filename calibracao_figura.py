@@ -17,6 +17,7 @@ import argparse
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.ticker import FuncFormatter
 import numpy as np
 import pandas as pd
 from sksurv.nonparametric import kaplan_meier_estimator
@@ -24,6 +25,9 @@ from sksurv.nonparametric import kaplan_meier_estimator
 from sobrevivencia import HORIZONTE, REFERENCIA, SEMENTE, preparar
 
 N_BOOT = 2000
+
+
+VIRGULA = FuncFormatter(lambda v, _: f"{v:g}".replace(".", ","))  # vírgula decimal (artigo em português)
 
 
 def km_horizonte(evento, tempo):
@@ -83,6 +87,7 @@ def painel(ax, tab, titulo, oe):
     ax.text(0.04, 0.93, f"O/E = {oe[0]:.2f} ({oe[1]:.2f} a {oe[2]:.2f})".replace(".", ","),
             transform=ax.transAxes, fontsize=8)
     ax.tick_params(labelsize=8)
+    ax.xaxis.set_major_formatter(VIRGULA); ax.yaxis.set_major_formatter(VIRGULA)
     ax.grid(alpha=0.25)
 
 

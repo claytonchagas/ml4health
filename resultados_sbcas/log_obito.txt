@@ -1,22 +1,22 @@
 copia local de survival::pbc (espelho do UCI 878), SHA-256 797ea9b6abfe... | pacientes: 418 | eventos: 161 | desfecho: obito
   Cox, 5 var. (referência): C de Uno médio = 0.854 (1 s)
-  Cox penalizado, 17 var.: C de Uno médio = 0.864 (346 s)
-  RSF, 5 var.: C de Uno médio = 0.834 (1577 s)
-  RSF, 17 var.: C de Uno médio = 0.845 (2376 s)
-                         C de Uno (5 anos)        C de Harrell        AUC (5 anos)        Brier (5 anos)        Brier integrado (1 a 5 anos)       
-                                      mean    std         mean    std         mean    std           mean    std                         mean    std
-Modelo                                                                                                                                             
-Cox, 5 var. (referência)             0.854  0.032        0.835  0.032        0.905  0.033          0.113  0.020                        0.091  0.012
-Cox penalizado, 17 var.              0.864  0.026        0.844  0.026        0.917  0.026          0.114  0.017                        0.091  0.010
-RSF, 5 var.                          0.834  0.035        0.818  0.034        0.880  0.036          0.129  0.020                        0.098  0.013
-RSF, 17 var.                         0.845  0.028        0.827  0.026        0.898  0.028          0.124  0.013                        0.097  0.010
+  Cox penalizado, 17 var.: C de Uno médio = 0.864 (363 s)
+  RSF, 5 var.: C de Uno médio = 0.832 (1641 s)
+  RSF, 17 var.: C de Uno médio = 0.845 (2419 s)
+                         C de Uno (5 anos)        C de Harrell (risco em 5 anos)        AUC (5 anos)        Brier (5 anos)        Brier integrado (1 a 5 anos)        C de Uno, escore nativo (5 anos)       
+                                      mean    std                           mean    std         mean    std           mean    std                         mean    std                             mean    std
+Modelo                                                                                                                                                                                                       
+Cox, 5 var. (referência)             0.854  0.032                          0.835  0.032        0.905  0.033          0.113  0.020                        0.091  0.012                            0.854  0.032
+Cox penalizado, 17 var.              0.864  0.026                          0.844  0.026        0.917  0.026          0.114  0.017                        0.091  0.010                            0.864  0.026
+RSF, 5 var.                          0.832  0.033                          0.816  0.033        0.877  0.033          0.132  0.018                        0.100  0.012                            0.832  0.031
+RSF, 17 var.                         0.845  0.028                          0.827  0.026        0.896  0.027          0.123  0.014                        0.096  0.011                            0.845  0.026
                     Modelo            Métrica  Diferença  ICBonf_inf  ICBonf_sup                                                             Leitura
 0  Cox penalizado, 17 var.  C de Uno (5 anos)      0.010      -0.006       0.026                                          sem evidência de diferença
 1  Cox penalizado, 17 var.       AUC (5 anos)      0.009      -0.012       0.029                                          sem evidência de diferença
-2              RSF, 5 var.  C de Uno (5 anos)     -0.013      -0.034       0.006  sem evidência de diferença; ganho ≥ 0.02 incompatível com os dados
-3              RSF, 5 var.       AUC (5 anos)     -0.019      -0.044       0.004                                          sem evidência de diferença
-4             RSF, 17 var.  C de Uno (5 anos)     -0.008      -0.031       0.015  sem evidência de diferença; ganho ≥ 0.02 incompatível com os dados
-5             RSF, 17 var.       AUC (5 anos)     -0.007      -0.037       0.021                                          sem evidência de diferença
-avisos na validação cruzada: 25
-tempo 4352 s
+2              RSF, 5 var.  C de Uno (5 anos)     -0.013      -0.031       0.003  sem evidência de diferença; ganho ≥ 0.02 incompatível com os dados
+3              RSF, 5 var.       AUC (5 anos)     -0.020      -0.043      -0.000                                                               menor
+4             RSF, 17 var.  C de Uno (5 anos)     -0.007      -0.029       0.014  sem evidência de diferença; ganho ≥ 0.02 incompatível com os dados
+5             RSF, 17 var.       AUC (5 anos)     -0.008      -0.035       0.018                                          sem evidência de diferença
+avisos na validação cruzada (ocorrências): 375 | partições sem suporte completo de 1 a 5 anos: 0
+tempo 4478 s
 exit 0
