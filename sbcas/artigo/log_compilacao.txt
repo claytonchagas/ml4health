@@ -1,4 +1,4 @@
-Compilação do artigo SBCAS (2026-11-02 12:48)
+Compilação do artigo SBCAS (2026-11-02 12:50)
 TeX: pdfTeX 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian)
 Código de saída do latexmk: 0
 Páginas: 12
