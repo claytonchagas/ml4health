@@ -123,7 +123,7 @@ Nenhum modelo apresentou superioridade demonstrada na discriminação (Tabelas~\
 
 \begin{table}[!t]
 \centering
-\caption{Desempenho na validação cruzada 5$\times$5, desfecho principal (418 pacientes, 186 eventos): média (desvio entre partições); O/E com IC 95\%.}
+\caption{Desempenho, desfecho principal (418 pacientes, 186 eventos): média (desvio) nas 25 partições; O/E (IC 95\%) nas predições agregadas.}
 \label{tab:desempenho}
 \footnotesize
 \setlength{\tabcolsep}{1.3pt}
@@ -181,7 +181,7 @@ A Tabela~\ref{tab:enquadramentos} compara de forma descritiva quatro maneiras de
 
 \begin{table}[!t]
 \centering
-\caption{Conclusões em quatro enquadramentos (comparação descritiva). (a) a (c): modelo com maior diferença contra a referência (em (a), os 312 pacientes com rótulo em cinco anos, não os 312 randomizados), IC de Bonferroni de 99\% em (a) e de 98,3\% em (b) e (c). (d): o mesmo XGBoost com e sem \texttt{N\_Days}, diferença pareada por partição, em três classes (232 censuras, 25 transplantes, 161 óbitos).}
+\caption{Conclusões em quatro enquadramentos (comparação descritiva). (a) a (c): modelo com maior diferença contra a referência (em (a), os 312 pacientes com rótulo em cinco anos, não os 312 randomizados), IC de Bonferroni: 99\% em (a), 5 comparações; 98,3\% em (b) e (c), 3. (d): o mesmo XGBoost com e sem \texttt{N\_Days}, diferença pareada por partição, em três classes (232 censuras, 25 transplantes, 161 óbitos).}
 \label{tab:enquadramentos}
 \footnotesize
 \setlength{\tabcolsep}{3pt}
