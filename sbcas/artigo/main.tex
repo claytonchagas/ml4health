@@ -72,7 +72,6 @@ Passo & Erro que evita & Neste artigo \\
 \end{tabularx}
 \end{table}
 
-
 % =====================================================================================================
 \section{Trabalhos relacionados}\label{sec:relacionados}
 
@@ -113,35 +112,48 @@ Cada modelo é comparado à referência nos mesmos 418 pacientes: em 2.000 reamo
 
 \subsection{Desvios do plano e reprodutibilidade}\label{subsec:desvios}
 
-Doze desvios e complementações estão registrados, com data e motivo. O principal veio de uma auditoria feita por outro agente de IA, sem permissão para alterar o repositório: na primeira execução, as florestas eram ajustadas com uma saída de risco diferente da usada na avaliação, que ordena os pacientes de outra forma; o procedimento foi corrigido e a análise repetida, e a primeira execução é citada como sensibilidade. Os demais são complementações: D2 a D8, fixados após os resultados da primeira execução e antes dos finais, pela mesma auditoria; D9 a D12, após os finais (regra de escolha da Tabela~\ref{tab:enquadramentos}, documentação de entregas parciais, teste corrigido e outras sementes). Ficaram aquém do plano os intervalos do subgrupo (só C de Uno e AUC, sem intervalo pareado) e a importância por permutação (só a RSF de 17 variáveis, na primeira repetição). O experimento usa Python 3.13 e scikit-survival 0.28.0 \cite{polsterl2020sksurv}; versões, sementes e manifestos estão no material suplementar. Código, dados, plano, desvios, resultados, auditorias e material suplementar estão em um repositório público, com endereço anonimizado para a revisão (\url{https://anonymous.4open.science/r/ml4health-sbcas}). Os dados são públicos e anonimizados; é uma análise secundária, sem contato com participantes.
+Doze desvios e complementações estão registrados, com data e motivo. O principal veio de uma auditoria feita por outro agente de IA, sem permissão para alterar o repositório: na primeira execução, as florestas eram ajustadas com uma saída de risco diferente da usada na avaliação, que ordena os pacientes de outra forma; o procedimento foi corrigido e a análise repetida, e a primeira execução é citada como sensibilidade. Os demais são complementações: D2 a D8, fixados após os resultados da primeira execução e antes dos finais, pela mesma auditoria; D9 a D12, após os finais (regra de escolha da Tabela~\ref{tab:enquadramentos}, documentação de entregas parciais, teste corrigido e outras sementes). Ficaram aquém do plano os intervalos do subgrupo (só C de Uno e AUC, sem intervalo pareado) e a importância por permutação (só a RSF de 17 variáveis, na primeira repetição). O experimento usa Python 3.13 e scikit-survival 0.28.0 \cite{polsterl2020sksurv}; versões, sementes e manifestos estão no material suplementar. Código, dados, plano, desvios, resultados, auditorias e material suplementar estão em um repositório público, com endereço anonimizado para a revisão (\url{https://anonymous.4open.science/r/ml4health-sbcas}). Os dados são públicos e anonimizados; é uma análise secundária, sem contato com pacientes.
 
 % =====================================================================================================
 \section{Resultados}\label{sec:resultados}
 
 \subsection{Discriminação e valor incremental}
 
-Nenhum modelo apresentou superioridade demonstrada na discriminação. A Tabela~\ref{tab:desempenho} resume o desempenho. A referência teve C de Uno médio de 0,833, e as diferenças em relação a ela ficaram entre $-$0,014 e +0,015; entre as 25 partições, o desvio da diferença foi de \dispDifMin{} a \dispDifMax{} (descritivo, não um intervalo). Nenhuma das duas inferências demonstrou diferença. Na principal, a do plano, ganhos de 0,02 ou mais foram excluídos para as duas RSF, mas, na de 17 variáveis, de forma instável: o limite foi de 0,0197 e, com outras \semAlt{} sementes do \textit{bootstrap}, passou de 0,02 em \semNaoExclui{} delas. No teste corrigido, a exclusão se manteve só para a RSF de 5 variáveis (\nbSupB), e não para a de 17 (\nbSupC) nem para o Cox penalizado (\nbSupA). Pela regra da Seção~\ref{subsec:incremental}, só para a RSF de 5 variáveis um ganho relevante é descartado. O Cox penalizado teve a maior diferença nominal (+0,015), sem superioridade demonstrada nem exclusão de ganho de 0,02. Na AUC em cinco anos, também calculada nas predições agregadas, a RSF de 5 variáveis foi menor que a referência ($-$0,024; intervalo de $-$0,047 a $-$0,001), mas não no teste corrigido (\nbAucInfB{} a \nbAucSupB); as demais não diferiram.
+Nenhum modelo apresentou superioridade demonstrada na discriminação (Tabela~\ref{tab:desempenho}). A referência teve C de Uno médio de 0,833, e as diferenças em relação a ela ficaram entre $-$0,014 e +0,015; entre as 25 partições, o desvio da diferença foi de \dispDifMin{} a \dispDifMax{} (descritivo, não um intervalo). A Tabela~\ref{tab:leitura} resume a leitura do valor incremental. Nenhuma diferença foi demonstrada, em nenhuma das duas inferências nem nos dois desfechos. Um ganho de 0,02 ou mais só pode ser descartado para a RSF de 5 variáveis. Na de 17, o plano o descarta por pouco (limite de 0,0197), mas isso não resiste ao teste corrigido nem a outras sementes do \textit{bootstrap}: o limite passou de 0,02 em \semNaoExclui{} de \semAlt. Na AUC em cinco anos, também calculada nas predições agregadas, a RSF de 5 variáveis foi menor que a referência ($-$0,024; intervalo de $-$0,047 a $-$0,001), mas não no teste corrigido (\nbAucInfB{} a \nbAucSupB); as demais não diferiram.
 
 \begin{table}[!t]
 \centering
-\caption{Desempenho na validação cruzada 5$\times$5, desfecho principal (418 pacientes, 186 eventos). Média (desvio entre as 25 partições); O/E com IC 95\% por \textit{bootstrap}; $\Delta$C: diferença no C de Uno contra a referência, calculada sobre as predições agregadas dos 418 pacientes (nelas, a referência tem C de 0,831), com IC de Bonferroni (98,3\%); teste corrigido: limites \nbSupA, \nbSupB{} e \nbSupC.}
+\caption{Desempenho na validação cruzada 5$\times$5, desfecho principal (418 pacientes, 186 eventos): média (desvio entre partições); O/E com IC 95\%.}
 \label{tab:desempenho}
 \footnotesize
 \setlength{\tabcolsep}{1.3pt}
-\begin{tabular}{@{}lcccccc@{}}
+\begin{tabular}{@{}lccccc@{}}
 \toprule
-Modelo & C de Uno & AUC 5 anos & Brier 5 anos & Brier integr. & O/E 5 anos & $\Delta$C de Uno \\
+Modelo & C de Uno & AUC 5 anos & Brier 5 anos & Brier integr. & O/E 5 anos \\
 \midrule
 \linhas{tabelas/desempenho.tex}
 \bottomrule
 \end{tabular}
 \end{table}
 
-Na sensibilidade com óbito como evento, o padrão se repetiu: a referência teve C de Uno de 0,854, e as diferenças foram de +0,010 ($-$0,006 a 0,026) no Cox penalizado, $-$0,013 ($-$0,031 a 0,003) na RSF de 5 variáveis e $-$0,007 ($-$0,029 a 0,014) na de 17. Ganhos de 0,02 foram excluídos para as duas florestas na inferência principal, mas, com o teste corrigido, só para a de 5 variáveis (limites de \nbSupObitoB{} e \nbSupObitoC).
+\begin{table}[!t]
+\centering
+\caption{Valor incremental no C de Uno em cinco anos. $\Delta$C nas predições agregadas (nelas, a referência tem C de 0,831; só com óbito, 0,854). IC de Bonferroni (98,3\%) pelo \textit{bootstrap} do plano e pelo teste corrigido (este, centrado na diferença média por partição). Ganho descartado: limite superior abaixo de 0,02 nas duas.}
+\label{tab:leitura}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Desfecho e modelo & $\Delta$C & IC, plano & IC, teste corrigido & Ganho de 0,02 descartado? \\
+\midrule
+\linhas{tabelas/leitura.tex}
+\bottomrule
+\end{tabular}
+\end{table}
 
 \subsection{Calibração e utilidade clínica}
 
-Calibração e benefício líquido, avaliados de forma descritiva, não mostraram vantagem clara do AM. A razão O/E ficou próxima de 1 em todos os modelos (0,93 a 0,99), mas esse resumo global pode esconder erros em sentidos opostos, como superestimar o risco dos pacientes menos graves e subestimar o dos mais graves. Nos quintis (Figura~\ref{fig:calibracao}; os quatro modelos estão no suplementar), os desvios da referência ficaram dentro dos intervalos, e a RSF de 17 variáveis previu 0,712 no quintil mais alto contra 0,808 observado, praticamente no limite do intervalo, o que sugere compressão das probabilidades nos riscos altos. O desvio mais nítido foi o do Cox penalizado: nos dois quintis mais baixos, o risco previsto (0,127 e 0,202) ficou acima do limite superior do observado (0,054 e 0,171), e no mais alto (0,738), abaixo do limite inferior (0,748). Na curva de decisão (Figura~\ref{fig:decisao}a), referência e RSF de 17 variáveis tiveram benefício líquido próximo nos 46 limiares (a maior diferença, de \dcMaxDif{} ou 1,5 verdadeiro positivo líquido por 100 pacientes no limiar de \dcMaxLimiar, favoreceu \dcMaxFavorece; a RSF ficou à frente, por menos, em \dcRSFmaior{} dos \dcLimiares), ambas acima de tratar todos e de não tratar ninguém; sem intervalo para a diferença nem margem de equivalência, isso não demonstra utilidade igual.
+Calibração e benefício líquido, avaliados de forma descritiva, não mostraram vantagem clara do AM. A razão O/E ficou próxima de 1 em todos os modelos (0,93 a 0,99), mas esse resumo global pode esconder erros em sentidos opostos, como superestimar o risco dos pacientes menos graves e subestimar o dos mais graves. Nos quintis (Figura~\ref{fig:calibracao}; os quatro modelos estão no suplementar), os desvios da referência ficaram dentro dos intervalos, e a RSF de 17 variáveis previu 0,712 no quintil mais alto contra 0,808 observado, praticamente no limite do intervalo, o que sugere compressão das probabilidades nos riscos altos. O desvio mais nítido foi o do Cox penalizado, que superestimou o risco nos dois quintis mais baixos e o subestimou no mais alto, fora dos intervalos. Na curva de decisão (Figura~\ref{fig:decisao}a), referência e RSF de 17 variáveis tiveram benefício líquido próximo nos 46 limiares (a maior diferença, de \dcMaxDif{} ou 1,5 verdadeiro positivo líquido por 100 pacientes no limiar de \dcMaxLimiar, favoreceu \dcMaxFavorece; a RSF ficou à frente, por menos, em \dcRSFmaior{} dos \dcLimiares), ambas acima de tratar todos e de não tratar ninguém; sem intervalo para a diferença nem margem de equivalência, isso não demonstra utilidade igual.
 
 \begin{figure}[!t]
 \centering
@@ -191,7 +203,6 @@ Para além do caso, o trabalho ilustra como o protocolo condiciona a conclusão 
 
 O contraste com \cite{graf2026coxrsf} é instrutivo. Aqui, o C de Harrell, a métrica usada lá, do Cox de referência foi de 0,814, e o da RSF de 17 variáveis, de 0,815. Os protocolos diferem em amostra, referência, métrica e validação, e não é possível dizer qual fator explica a diferença; o que se mostra é que, sob plano prévio e comparação pareada, a vantagem da RSF não aparece nestes dados. As acurácias próximas de 90\% do enquadramento do Kaggle \cite{shakir2025cirrhosis,tu2025cirrhosis} também não são comparáveis: outro desfecho, dados sintéticos e vazamento \cite{kapoor2023leakage} (balanceamento antes da divisão; teste nos pacientes que geraram os dados de treino).
 
-Vale notar que o melhor resultado nominal veio sempre de uma regressão penalizada com 17 variáveis, para a qual um ganho relevante não foi excluído; o estudo, porém, não demonstra superioridade de nenhuma família de modelos.
 
 \textbf{Limitações.} Os dados vêm de um único centro, de 1974 a 1984, antes do ácido ursodesoxicólico, e não representam os pacientes atuais; não houve coorte externa. A ponderação pela censura supõe censura independente, estimada por Kaplan-Meier marginal, sem verificação de dependência em relação aos preditores. Na sensibilidade com óbito, os transplantados foram censurados; o resultado não é, portanto, a probabilidade observável de morrer antes de um transplante, que exigiria tratar o transplante como evento competitivo \cite{putter2007competing}. O desenho não é equilibrado (Seção~\ref{subsec:modelos}), e as famílias também diferem no pré-processamento. Por fim, a conclusão vale para os modelos, as grades e o orçamento de ajuste avaliados; na sobrevivência, não testamos \textit{boosting} nem redes neurais.
 

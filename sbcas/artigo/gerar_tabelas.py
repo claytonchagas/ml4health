@@ -44,11 +44,25 @@ def tabela_desempenho(suf=""):
             lin2.append(f"({f(r[(met, 'std')])})")
         lin.append(f(c['O/E (5 anos)'], 2))
         lin2.append(f"({ic(c['O/E IC95_inf'], c['O/E IC95_sup'], 2)})")
-        v = vi[(vi.Modelo == m) & (vi["Métrica"] == "C de Uno (5 anos)")]
-        lin.append("--" if v.empty else f(v['Diferença'].iloc[0], 4))
-        lin2.append("" if v.empty else f"({ic(v['ICBonf_inf'].iloc[0], v['ICBonf_sup'].iloc[0], 4)})")
         linhas.append(" & ".join(lin) + r" \\")
         linhas.append(" & ".join(lin2) + (r" \\[2pt]" if m != ORDEM[-1] else r" \\"))
+    return "\n".join(linhas)
+
+
+def tabela_leitura():
+    """Leitura do valor incremental no C de Uno: bootstrap do plano e teste t corrigido (D11), regra combinada."""
+    tc = pd.read_csv(R / "valor_incremental_t_corrigido.csv").set_index("Modelo")
+    linhas = []
+    for suf, rotulo in [("", "Óbito ou transplante (principal)"), ("_obito", "Só óbito (sensibilidade)")]:
+        vi = pd.read_csv(R / f"valor_incremental{suf}.csv")
+        vi = vi[vi["Métrica"] == "C de Uno (5 anos)"].set_index("Modelo")
+        linhas.append(f"\\multicolumn{{5}}{{@{{}}l}}{{\\textit{{{rotulo}}}}} \\\\")
+        for m in ORDEM[1:]:
+            chave = m if suf == "" else m + " (óbito)"
+            b_sup, t_sup = vi.loc[m, "ICBonf_sup"], tc.loc[chave, "IC Bonferroni sup"]
+            leitura = "sim" if (b_sup < 0.02 and t_sup < 0.02) else ("só no plano" if b_sup < 0.02 else "não")
+            linhas.append(f"\\quad {m} & {f(vi.loc[m, 'Diferença'])} & {ic(vi.loc[m, 'ICBonf_inf'], b_sup, 4)} & "
+                          f"{ic(tc.loc[chave, 'IC Bonferroni inf'], t_sup)} & {leitura} \\\\")
     return "\n".join(linhas)
 
 
@@ -157,9 +171,11 @@ def macros():
 
 
 def main():
+    macros()  # grava valor_incremental_t_corrigido.csv, usado pela tabela de leitura
     (T / "desempenho.tex").write_text(tabela_desempenho("") + "\n")
     (T / "desempenho_obito.tex").write_text(tabela_desempenho("_obito") + "\n")
     (T / "enquadramentos.tex").write_text(tabela_enquadramentos() + "\n")
+    (T / "leitura.tex").write_text(tabela_leitura() + "\n")
     (T / "cox.tex").write_text(tabela_cox() + "\n")
     macros()
     for p in sorted(T.glob("*.tex")):
