@@ -16,6 +16,8 @@ import argparse
 
 import matplotlib
 matplotlib.use("Agg")
+matplotlib.rcParams["pdf.fonttype"] = 42  # fontes TrueType embutidas (sem Type 3)
+matplotlib.rcParams["font.family"] = "DejaVu Sans"  # fonte TrueType pura, aceita por verificadores de PDF
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 import numpy as np
@@ -118,7 +120,7 @@ def main():
                        (f"figura_calibracao_suplementar{suf}", list(oof.columns))]:
         ncol = 2
         nlin = int(np.ceil(len(nomes) / ncol))
-        fig, axs = plt.subplots(nlin, ncol, figsize=(6, 3.1 * nlin))
+        fig, axs = plt.subplots(nlin, ncol, figsize=(5.2, 2.75 * nlin))
         for ax, nome in zip(np.atleast_1d(axs).ravel(), nomes):
             painel(ax, tab[tab.Modelo == nome], nome, oes[nome])
         fig.tight_layout()

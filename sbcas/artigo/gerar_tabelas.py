@@ -110,6 +110,20 @@ def macros():
     res = pd.read_csv(R / "resumo_cv.csv", header=[0, 1], index_col=0)
     nat = (res[("C de Uno, escore nativo (5 anos)", "mean")] - res[("C de Uno (5 anos)", "mean")]).abs().max()
     m["nativoMax"] = f(nat, 4)
+    # D11: teste t corrigido para validação cruzada repetida (Nadeau e Bengio, 2003), nível de Bonferroni (3 comparações)
+    from scipy import stats
+    fo = pd.read_csv(R / "folds.csv").pivot(index="Fold", columns="Modelo", values="C de Uno (5 anos)")
+    n_part, razao = len(fo), 1 / 4  # 25 partições; teste/treino = 1/4 na validação 5 x 5
+    tcrit = stats.t.ppf(1 - 0.05 / 3 / 2, n_part - 1)
+    linhas_nb = []
+    for k, nome in zip("ABC", ORDEM[1:]):
+        d = fo[nome] - fo[ORDEM[0]]
+        ep = np.sqrt(1 / n_part + razao) * d.std(ddof=1)
+        inf, sup = d.mean() - tcrit * ep, d.mean() + tcrit * ep
+        m[f"nbSup{k}"] = f(sup, 3)
+        linhas_nb.append({"Modelo": nome, "Diferença média por partição": d.mean(), "EP corrigido": ep,
+                          "IC Bonferroni inf": inf, "IC Bonferroni sup": sup})
+    pd.DataFrame(linhas_nb).to_csv(R / "valor_incremental_t_corrigido.csv", index=False)
     with open(T / "numeros.tex", "w") as fh:
         fh.write("% Gerado por gerar_tabelas.py a partir de resultados_sbcas/. Não editar.\n")
         for k, v in m.items():
