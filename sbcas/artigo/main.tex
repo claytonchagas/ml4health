@@ -135,21 +135,7 @@ A razão O/E ficou próxima de 1 em todos os modelos (0,93 a 0,99), mas esse res
 
 No teste nos 106 pacientes não randomizados, o C de Uno foi de \subUnoA{} (\subUnoInfA{} a \subUnoSupA{}) na referência, \subUnoB{} no Cox penalizado, \subUnoC{} na RSF de 5 variáveis e \subUnoD{} na de 17, com intervalos amplamente sobrepostos. As razões O/E foram de \subOEA{}, \subOEB{}, \subOEC{} e \subOED, respectivamente: as florestas subestimaram mais o risco nesse grupo. Como os intervalos não são pareados, esses números não sustentam comparações de superioridade.
 
-A Tabela~\ref{tab:cox} mostra o ajuste descritivo da referência. As cinco variáveis se associaram ao desfecho na direção esperada. Houve evidência contra a proporcionalidade dos riscos para o tempo de protrombina, também dentro de cinco anos; para as demais variáveis, o teste não a detectou, o que não demonstra que o pressuposto valha para elas. A referência tem, portanto, ao menos uma variável cujo efeito parece variar no tempo e, mesmo assim, não foi superada pelas florestas, que não dependem desse pressuposto. Na importância por permutação da RSF de 17 variáveis, a bilirrubina dominou (queda de \impBilirubin{} no C de Uno), seguida de longe por cobre (\impCopper) e albumina (\impAlbumin); o tratamento não teve contribuição preditiva positiva, o que nada diz sobre sua eficácia.
-
-\begin{table}[ht]
-\centering
-\caption{Ajuste descritivo do Cox de referência nos 418 pacientes: razão de risco (IC 95\%) e valor $p$ do teste de riscos proporcionais de Grambsch-Therneau (tempo transformado por Kaplan-Meier), corrigido por Bonferroni para 5 testes.}
-\label{tab:cox}
-\footnotesize
-\begin{tabular}{@{}lccc@{}}
-\toprule
-Variável & Razão de risco & $p$, todo o seguimento & $p$, até 5 anos \\
-\midrule
-\linhas{tabelas/cox.tex}
-\bottomrule
-\end{tabular}
-\end{table}
+No ajuste descritivo da referência, as cinco variáveis se associaram ao desfecho na direção esperada; por exemplo, cada duplicação da bilirrubina multiplicou o risco instantâneo por 1,79 (razões de risco e testes no material suplementar). Houve evidência contra a proporcionalidade dos riscos para o tempo de protrombina, também dentro de cinco anos; para as demais variáveis, o teste não a detectou, o que não demonstra que o pressuposto valha para elas. A referência tem, portanto, ao menos uma variável cujo efeito parece variar no tempo e, mesmo assim, não foi superada pelas florestas, que não dependem desse pressuposto. Na importância por permutação da RSF de 17 variáveis, a bilirrubina dominou (queda de \impBilirubin{} no C de Uno), seguida de longe por cobre (\impCopper) e albumina (\impAlbumin); o tratamento não teve contribuição preditiva positiva, o que nada diz sobre sua eficácia.
 
 \subsection{O enquadramento muda a conclusão?}
 
