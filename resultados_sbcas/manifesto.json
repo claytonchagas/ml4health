@@ -1,0 +1,19 @@
+{
+  "comando": "sobrevivencia.py",
+  "desfecho": "transplante_livre",
+  "n_rep": 5,
+  "commit": "012bfaafd9c058c00784db8f6e19a46905f3ebcf",
+  "código alterado em relação ao commit": false,
+  "dados": "copia local de survival::pbc (espelho do UCI 878), SHA-256 797ea9b6abfe...",
+  "segundos": 4558,
+  "python": "3.13.18",
+  "numpy": "2.5.3",
+  "pandas": "3.0.5",
+  "scikit-learn": "1.9.1",
+  "scikit-survival": "0.28.0",
+  "semente": 2026,
+  "horizonte (dias)": 1826,
+  "configurações RSF": 50,
+  "reamostragens bootstrap": 2000,
+  "margem": 0.02
+}
