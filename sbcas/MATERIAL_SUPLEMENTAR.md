@@ -30,7 +30,8 @@ Detalhes técnicos que o artigo resume em linguagem direta. Cada item aponta o s
 
 - 2.000 reamostragens *bootstrap* pareadas de pacientes (semente 2026) sobre as predições fora da partição; IC 95% e IC de Bonferroni para 3 comparações (98,33%); reamostragens descartadas e motivos registrados (zero em todas as análises).
 - Resultados: `resultados_sbcas/valor_incremental.csv` e `valor_incremental_obito.csv`.
-- Primeira execução (desvio D1, busca sobre o escore nativo): o limite superior de Bonferroni da RSF de 17 variáveis foi 0,0209, contra 0,0197 na execução final. A diferença é da ordem do erro de Monte Carlo de um *bootstrap* com 2.000 reamostragens; por isso o artigo trata a exclusão da margem de +0,02 para essa floresta como limítrofe.
+- Primeira execução (desvio D1, busca sobre o escore nativo): o limite superior de Bonferroni da RSF de 17 variáveis foi 0,0209, contra 0,0197 na execução final. A diferença é da ordem do erro de Monte Carlo de um *bootstrap* com 2.000 reamostragens; por isso o artigo trata a exclusão da margem de +0,02 para essa floresta como instável.
+- Estabilidade à semente (`sensibilidade_semente.py`): o mesmo *bootstrap* refeito com as sementes 1 a 25 deu limites de 0,0188 a 0,0212 para a RSF de 17 variáveis (média 0,0199, desvio 0,0007); a margem não foi excluída em 10 das 25. Resultado em `resultados_sbcas/sensibilidade_semente_bootstrap.csv`.
 
 ## S5. Calibração (`calibracao_figura.py`)
 

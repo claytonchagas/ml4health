@@ -138,6 +138,11 @@ def macros():
         linhas_nb.append({"Modelo": nome + " (óbito)", "Diferença média por partição": d.mean(), "EP corrigido": ep,
                           "IC Bonferroni inf": inf, "IC Bonferroni sup": sup})
     pd.DataFrame(linhas_nb).to_csv(R / "valor_incremental_t_corrigido.csv", index=False)
+    # E2: estabilidade do limite de Bonferroni da RSF de 17 variáveis em 25 sementes alternativas do bootstrap
+    sem = pd.read_csv(R / "sensibilidade_semente_bootstrap.csv")
+    alt = sem[sem.Semente != 2026]
+    m["semAlt"], m["semNaoExclui"] = str(len(alt)), str(int((~alt["Exclui a margem"]).sum()))
+    m["semMin"], m["semMax"] = f(alt.ICBonf_sup.min(), 4), f(alt.ICBonf_sup.max(), 4)
     with open(T / "numeros.tex", "w") as fh:
         fh.write("% Gerado por gerar_tabelas.py a partir de resultados_sbcas/. Não editar.\n")
         for k, v in m.items():
