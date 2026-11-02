@@ -1,7 +1,7 @@
 # Notas de literatura para a versão SBCAS
 
 ## Trabalho diretamente comparável, a citar e contrastar
-- Graf, R.; Todd, S.; Baksh, M. F. "Comparison of the Cox proportional hazards model and Random Survival Forest algorithm for predicting patient-specific survival probabilities in clinical trial data". arXiv:2502.03119 (2025). Veículo final a confirmar.
+- Graf, R.; Todd, S.; Baksh, M. F. "Comparison of the Cox proportional hazards model and Random Survival Forest algorithm for predicting patient-specific survival probabilities in clinical trial data". arXiv:2502.03119 (2025). Publicado: Biometrical Journal 68(5):e70171, 2026, DOI 10.1002/bimj.70171 (título e periódico confirmados na Wiley; volume, fascículo e número segundo o PubMed, conferidos pelo auditor na C3). Texto final não lido; números citados do preprint.
   - Usa os 312 pacientes randomizados da Mayo (CBP) e um ensaio de câncer de próstata.
   - CBP: C de Cox 0,776 (0,735 a 0,817) contra RSF com divisão log-rank 0,855 (0,778 a 0,932); IBS 0,131 contra 0,116. Intervalos com sobreposição.
   - Simulações: Cox melhor calibrado, sobretudo com riscos não proporcionais; RSF com curvas de calibração muito inclinadas.
