@@ -5,6 +5,7 @@ Detalhes técnicos que o artigo resume em linguagem direta. Cada item aponta o s
 ## S1. Dados, variáveis e seguimento
 
 - Coorte: 418 pacientes da Mayo Clinic (cópia de `survival::pbc`, idêntica ao UCI 878, verificada por SHA-256 em `experimento.py`).
+- Os 106 não randomizados são 106 dos 112 pacientes elegíveis que recusaram a randomização; os demais foram perdidos no seguimento (Dickson et al., 1989; Fleming e Harrington, 1991).
 - Variáveis, unidades, codificação e ausências por subgrupo (312 randomizados e 106 não randomizados): `resultados_sbcas/suplementar_variaveis.csv`.
 - Eventos, eventos até 5 anos e seguimento mediano por Kaplan-Meier reverso, por desfecho: `resultados_sbcas/suplementar_seguimento.csv`.
 - Gerados por `sbcas/artigo/gerar_suplementar.py`.
