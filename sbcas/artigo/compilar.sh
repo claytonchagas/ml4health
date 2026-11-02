@@ -6,8 +6,12 @@
 set -u
 cd "$(dirname "$0")"
 T=$(mktemp -d)
-latexmk -pdf -interaction=nonstopmode -outdir="$T" main.tex >/dev/null 2>&1
-saida=$?
+# Copia as fontes para o diretório temporário e compila lá (BibTeX não grava fora do diretório de trabalho)
+rm -f main.bbl main.aux main.blg
+cp -r main.tex referencias.bib sbc-template.sty sbc.bst tabelas figuras "$T"/
+saida=0
+(cd "$T" && pdflatex -interaction=nonstopmode main.tex >/dev/null 2>&1; bibtex main >bibtex.out 2>&1 || exit 1;
+ pdflatex -interaction=nonstopmode main.tex >/dev/null 2>&1; pdflatex -interaction=nonstopmode main.tex >/dev/null 2>&1) || saida=$?
 L="$T/main.log"
 contar() { grep -cE "$1" "$L" 2>/dev/null || true; }
 linhas_bloco() {  # linhas de um bloco da página 1, de "$1" até a primeira linha em branco
@@ -17,7 +21,8 @@ linhas_bloco() {  # linhas de um bloco da página 1, de "$1" até a primeira lin
 {
   echo "Compilação do artigo SBCAS ($(date '+%Y-%m-%d %H:%M'))"
   echo "TeX: $(pdflatex --version | head -1)"
-  echo "Código de saída do latexmk: $saida"
+  echo "Código de saída (pdflatex/bibtex): $saida"
+  echo "Avisos e erros do BibTeX: $(grep -ciE 'warning|error' "$T/bibtex.out")"
   echo "Páginas: $(pdfinfo "$T/main.pdf" 2>/dev/null | awk '/^Pages/ {print $2}')"
   echo "Erros (linhas iniciadas por !): $(contar '^!')"
   echo "Citações indefinidas: $(contar 'Citation .* undefined')"
