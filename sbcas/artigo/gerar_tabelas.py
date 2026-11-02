@@ -81,7 +81,8 @@ def tabela_enquadramentos():
             icx = r"sem IC; ganho em 96\% das partições" if "96%" in r["Tipo de IC"] else r["Tipo de IC"]
         else:
             icx = ic(r["IC_inf"], r["IC_sup"])
-        linhas.append(f"{curto[k]} & {int(r['n'])} / {int(r['Eventos'])} & {met} & {comp} & {f(r['Δ'])} & {icx}" + r" \\")
+        ev = f"{int(r['Eventos'])} óbitos" if k == "(d)" else str(int(r['Eventos']))  # (d): três classes; 161 são só os óbitos
+        linhas.append(f"{curto[k]} & {int(r['n'])} / {ev} & {met} & {comp} & {f(r['Δ'])} & {icx}" + r" \\")
     return "\n".join(linhas)
 
 
