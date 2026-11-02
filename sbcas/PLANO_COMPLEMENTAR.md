@@ -33,3 +33,20 @@ Data: 02/11/2026. Origem: terceira revisão tripla e consulta independente (mode
 - Tabela 4 passa a "Fontes de ganho aparente medidas neste conjunto": vazamento (linha d atual), classificação com exclusão de censurados (linha a atual), reajuste da referência (D14), comparador alternativo e avaliação dentro da amostra (D16), semente do bootstrap (D12). Cada linha diz como foi medida e o tamanho; métricas em escalas diferentes não são somadas nem comparadas.
 - Seção 3.4 ou 4.1: frase sobre a precisão alcançada (meia-largura dos intervalos pareados da ordem da margem).
 - Tudo gerado por script a partir de CSV, com macros; auditoria independente antes de entrar no texto.
+
+## Emenda 1 (02/11/2026, antes de executar D14 e D15)
+
+Ao preparar o script, conferiu-se em `experimento.py` e no relatório de auditoria A (verificado contra o artigo original) que Dickson et al. (1989) publicam duas versões: o modelo **final**, cuja fórmula de uso (p. 6) foi estimada com os **418** pacientes desta coorte, e o modelo **inicial** (Tabela 2, p. 4), estimado só com os **312** randomizados. Isso corrige a premissa do consultor de que a fórmula de uso foi derivada nos 312. Consequências, fixadas antes de rodar:
+
+- D14 na coorte inteira usa a fórmula **final** (a que a clínica usa). Ela é avaliada dentro da própria amostra de estimação, logo seu C é otimista; os modelos de AM e o Cox reestimado são avaliados fora da partição. A comparação favorece a fórmula e será descrita assim.
+- A medida da vantagem de derivação nos 312 usa a fórmula **inicial** (estimada nos 312), avaliada nos 312, contra o Cox reestimado fora da partição nos mesmos 312; a final é relatada ao lado.
+- D15 (106 não randomizados) usa a fórmula **inicial**, que não viu esses pacientes: é a única comparação em que a fórmula publicada e os modelos treinados nos 312 são avaliados fora da amostra de estimação de ambos. A final é relatada ao lado, como contaminada.
+- Imputação dos 2 tempos de protrombina ausentes: mediana do treino de cada partição (D14) ou dos 312 (D15).
+
+## Emenda 2 (02/11/2026, após a auditoria independente de D14 a D16 e antes de qualquer texto do artigo)
+
+Correções de procedimento apontadas pela auditoria, aplicadas em `comparador_graf.py` e reexecutadas:
+- RSF de 17 variáveis em D16: os hiperparâmetros passam a ser, em cada partição, os escolhidos no treino da mesma partição da validação principal (`hiperparametros.csv`); antes vinham de uma busca nos mesmos 312 (vazamento leve, cerca de 0,003 no C).
+- Otimismo de avaliar dentro da amostra: C agregado fora da partição contra C dentro da amostra (mesma base de cálculo); antes comparava com a média de C por partição.
+- Vantagem de derivação: comparada com o Cox de Mayo reestimado só nos 312 (`graf312_derivacao.csv`); `mayo1989_derivacao.csv`, com o Cox treinado nas partições dos 418, fica como registro.
+A auditoria também fixou a leitura: (a) D14 mede o efeito de reestimar os coeficientes, não o da seleção das variáveis; (b) "nenhum ganho demonstrado sobre a fórmula", sem leitura de equivalência; (c) no óbito, a RSF de 5 variáveis abaixo da fórmula é só indício (o teste corrigido não confirma); (d) o otimismo medido aqui não explica o C de 0,855 de Graf et al., obtido por bootstrap .632+.
