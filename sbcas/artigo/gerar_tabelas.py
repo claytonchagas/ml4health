@@ -2,6 +2,7 @@
 
 Uso (na raiz do repositório): python sbcas/artigo/gerar_tabelas.py
 Saída: sbcas/artigo/tabelas/*.tex e sbcas/artigo/tabelas/numeros.tex (macros com os números citados no texto)."""
+import re
 from pathlib import Path
 
 import numpy as np
@@ -14,6 +15,7 @@ T.mkdir(parents=True, exist_ok=True)
 ROTULO = {"Cox, 5 var. (referência)": "Cox, 5 var. (referência)", "Cox penalizado, 17 var.": "Cox penalizado, 17 var.",
           "RSF, 5 var.": "RSF, 5 var.", "RSF, 17 var.": "RSF, 17 var."}
 ORDEM = list(ROTULO)
+REF_COX = "Cox, 5 var. (referência)"
 
 
 def f(x, d=3):
@@ -98,6 +100,35 @@ def tabela_enquadramentos():
     return "\n".join(linhas)
 
 
+def tabela_fontes():
+    """G2: fontes de ganho aparente medidas nestes dados (cada linha muda uma só escolha de avaliação)."""
+    da = pd.read_csv(R / "graf312_dentro_amostra.csv").set_index("Modelo")
+    dv = pd.read_csv(R / "graf312_derivacao.csv").set_index("Fórmula").loc["inicial, n = 312"]
+    gc = pd.read_csv(R / "graf312_comparacoes.csv")
+    gc = gc[(gc["Métrica"] == "C de Uno (5 anos)") & gc["Comparação"].str.startswith("Cox, 7 var.")].iloc[0]
+    en = pd.read_csv(R / "tabela_enquadramentos.csv")
+    vz = en[en["Enquadramento"].str.startswith("(d)")].iloc[0]
+    se = pd.read_csv(R / "sensibilidade_semente_bootstrap.csv")
+    alt = se[se.Semente != 2026]
+    mais = lambda x, d=3: ("+" if round(x, d) > 0 else "") + f(x, d)
+    pct = int(re.search(r"(\d+)%", vz["Tipo de IC"]).group(1))  # "96% das 25 partições com ganho"
+    n_ganho = round(pct * 25 / 100)
+    L = [
+        ("Avaliar no próprio treino", "RSF, 17 var., treinada e avaliada nos mesmos 312, contra fora da partição", "C de Uno",
+         mais(da.loc["RSF, 17 var.", "Otimismo (Uno)"])),
+        ("", "Cox de Mayo, idem", "C de Uno", mais(da.loc[REF_COX, "Otimismo (Uno)"])),
+        ("Vazamento do desfecho", r"XGBoost, 17 var., com e sem o tempo de seguimento (\texttt{N\_Days}) na entrada, 418",
+         "AUROC macro", mais(vz["Δ"]) + f" ({n_ganho} de 25 partições)"),
+        ("Referência avaliada onde foi estimada", "Fórmula de 1989 (estimada nos 312) contra o mesmo Cox reestimado fora da partição, 312",
+         "C de Uno", f"{mais(-dv['Diferença (Cox menos fórmula)'])} ({ic(-dv['IC95 sup'], -dv['IC95 inf'])})"),
+        ("Outras variáveis no comparador", "Cox com as 7 variáveis de Graf et al. contra Cox de Mayo, 312",
+         "C de Uno", f"{mais(gc['Diferença'])} ({ic(gc['IC95 inf'], gc['IC95 sup'])})"),
+        (r"Sorteio do \textit{bootstrap}", "Limite superior da RSF, 17 var., com 25 sementes alternativas",
+         "C de Uno", f"{f(alt.ICBonf_sup.min(), 4)} a {f(alt.ICBonf_sup.max(), 4)}; acima de 0,02 em {int((~alt['Exclui a margem']).sum())}"),
+    ]
+    return "\n".join(" & ".join(l) + r" \\" for l in L)
+
+
 def tabela_cox():
     hr = pd.read_csv(R / "cox5_razoes_risco.csv")
     ph = pd.read_csv(R / "cox5_riscos_proporcionais.csv")
@@ -178,6 +209,8 @@ def macros():
     mf = pd.read_csv(R / "mayo1989_coorte.csv").set_index("Comparação")
     m["formulaC"] = f(mf.loc["Fórmula de 1989 (final, n = 418)", "C de Uno agregado"])
     m["refMenosFormula"] = f(mf.loc[f"{ORDEM[0]} menos fórmula", "Diferença"])
+    da = pd.read_csv(R / "graf312_dentro_amostra.csv").set_index("Modelo")
+    m["otimRSF"], m["otimCox"] = f(da.loc["RSF, 17 var.", "Otimismo (Uno)"]), f(da.loc[REF_COX, "Otimismo (Uno)"])
     m["semAlt"], m["semNaoExclui"] = str(len(alt)), str(int((~alt["Exclui a margem"]).sum()))
     m["semMin"], m["semMax"] = f(alt.ICBonf_sup.min(), 4), f(alt.ICBonf_sup.max(), 4)
     # F2: C de Uno da referência nas predições agregadas (base das diferenças), nos dois desfechos
@@ -200,6 +233,7 @@ def main():
     (T / "desempenho_obito.tex").write_text(tabela_desempenho("_obito") + "\n")
     (T / "enquadramentos.tex").write_text(tabela_enquadramentos() + "\n")
     (T / "leitura.tex").write_text(tabela_leitura() + "\n")
+    (T / "fontes.tex").write_text(tabela_fontes() + "\n")
     (T / "cox.tex").write_text(tabela_cox() + "\n")
     macros()
     for p in sorted(T.glob("*.tex")):
