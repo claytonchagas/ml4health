@@ -30,7 +30,7 @@ Detalhes técnicos que o artigo resume em linguagem direta. Cada item aponta o s
 
 - 2.000 reamostragens *bootstrap* pareadas de pacientes (semente 2026) sobre as predições fora da partição; IC 95% e IC de Bonferroni para 3 comparações (98,33%); reamostragens descartadas e motivos registrados (zero em todas as análises).
 - Resultados: `resultados_sbcas/valor_incremental.csv` e `valor_incremental_obito.csv`.
-- Leitura da sensibilidade só óbito (bootstrap do plano, teste corrigido e regra combinada), nos mesmos moldes da Tabela 3 do artigo: `sbcas/artigo/tabelas/leitura_obito.tex`, gerada por `gerar_tabelas.py`. O artigo a resume no texto da Seção 4.1.
+- Leitura da sensibilidade só óbito (bootstrap do plano, teste corrigido e regra combinada): desde a versão de junção, é o segundo bloco da Tabela 3 do artigo (`sbcas/artigo/tabelas/leitura.tex`, gerada por `gerar_tabelas.py`); o arquivo `leitura_obito.tex` deixou de ser gerado. O quarto bloco da mesma tabela traz a comparação com a fórmula de 1989 no desfecho só óbito (`resultados_sbcas/mayo1989_coorte_obito.csv`). Quando o arredondamento a quatro casas esconderia de que lado da margem de 0,02 está um limite (caso 0,01996), a tabela mostra cinco casas.
 - Primeira execução (desvio D1, busca sobre o escore nativo): o limite superior de Bonferroni da RSF de 17 variáveis foi 0,0209, contra 0,0197 na execução final. A diferença é da ordem do erro de Monte Carlo de um *bootstrap* com 2.000 reamostragens; por isso o artigo trata a exclusão da margem de +0,02 para essa floresta como instável.
 - Estabilidade à semente (`sensibilidade_semente.py`): o mesmo *bootstrap* refeito com as sementes 1 a 25 deu limites de 0,0188 a 0,0212 para a RSF de 17 variáveis (média 0,0199, desvio 0,0007); a margem não foi excluída em 10 das 25. Resultado em `resultados_sbcas/sensibilidade_semente_bootstrap.csv`.
 
@@ -39,6 +39,7 @@ Detalhes técnicos que o artigo resume em linguagem direta. Cada item aponta o s
 - Quintis de risco previsto; risco observado por Kaplan-Meier com IC 95% de Greenwood, transformação log-log; num quintil sem eventos até 5 anos, limite superior binomial exato (Clopper-Pearson, 97,5%) com o número em risco aos 5 anos.
 - Razão O/E em 5 anos com IC 95% por *bootstrap* de pacientes (2.000, semente 2026).
 - Os 4 modelos: `resultados_sbcas/figura_calibracao_suplementar.pdf` e `calibracao_quintis_ic.csv`.
+- Figura 1 do artigo, painéis (a) a (c): referência, Cox penalizado de 17 variáveis e RSF de maior C de Uno médio, redesenhados a partir de `calibracao_quintis_ic.csv` por `sbcas/artigo/figuras_artigo.py`, no tamanho impresso. O painel do Cox penalizado foi acrescentado depois dos resultados, por ser o desvio de calibração mais nítido; a legenda do artigo declara isso.
 
 ## S6. Curva de decisão (`curva_decisao.py`)
 
@@ -53,7 +54,7 @@ Detalhes técnicos que o artigo resume em linguagem direta. Cada item aponta o s
 
 ## S8. Importância por permutação (`importancia_permutacao.py`)
 
-- RSF de 17 variáveis, reajustada no treino de cada uma das 5 partições da primeira repetição com os hiperparâmetros escolhidos naquela partição; queda média do C de Uno no teste em 30 permutações por variável (semente 2026): `resultados_sbcas/importancia_permutacao_rsf17.csv`. Figura com as oito maiores quedas (ao lado da curva de decisão): `sbcas/artigo/figuras/figura_decisao_importancia.pdf`, gerada por `sbcas/artigo/figura_decisao_importancia.py`; o artigo cita os valores no texto.
+- RSF de 17 variáveis, reajustada no treino de cada uma das 5 partições da primeira repetição com os hiperparâmetros escolhidos naquela partição; queda média do C de Uno no teste em 30 permutações por variável (semente 2026): `resultados_sbcas/importancia_permutacao_rsf17.csv`. Figura com as oito maiores quedas: painel (e) da Figura 1 do artigo (`sbcas/artigo/figuras/figura_painel.pdf`, gerada por `sbcas/artigo/figuras_artigo.py`, que também desenha a calibração e a curva de decisão, painel (d), só a partir dos CSVs). A legenda declara que a importância foi calculada só nas 5 partições da primeira repetição, e o texto só interpreta a dominância da bilirrubina.
 
 ## S9. Sensibilidade com óbito como evento
 
