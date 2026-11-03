@@ -152,3 +152,15 @@ Marcos: plano registrado em `677a281`; primeira execução em `70cc304` e `859b3
 | `c376d2e` | 2026-11-02 21:35 | G4: Discussão com a fórmula de 1989, o subgrupo, a precisão alcançada e Graf com números próprios (inclui F7, F8 e F10) |
 | `fca51d8` | 2026-11-02 21:47 | G5: métodos e desvios do plano complementar (D14 a D17), Brier nos resultados (F9) e Conclusão atualizada |
 | `bf10357` | 2026-11-02 21:57 | G6: de volta às 12 páginas (cortes de repetição, coerência do subgrupo com D15, classificação sem letras antigas, declaração de IA completa) |
+| `db553d5` | 2026-11-02 21:57 | Cronologia atualizada |
+| `f6dd430` | 2026-11-02 23:36 | Macros novas para todos os números do texto, fórmula de 1989 no óbito e Tabela 4 em três blocos |
+| `7cee588` | 2026-11-02 23:54 | Reescrita do artigo para o SBCAS 2027: argumento reorganizado em três leituras, análises posteriores separadas do plano, série H resolvida |
+| `28ddaa9` | 2026-11-03 00:03 | Fecha a revisão Fable: changelog por seção, propostas de análises não executadas, desvios D14 e D16 complementados e suplementar atualizado |
+| `0952f56` | 2026-11-03 00:41 | Plano da versão de junção: itens dos quatro pareceres, decisões sobre os conflitos e orçamento de páginas |
+| `79c0e70` | 2026-11-03 01:07 | Junção: Métodos na ordem de A, Tabela 3 com os quatro blocos, figura composta legível, correções e enxertos dos quatro pareceres |
+| `b6b8da5` | 2026-11-03 01:13 | Ajuste de páginas: figura composta no tamanho impresso, cortes compensatórios, limite colado à margem com cinco casas na Tabela 3 |
+| `7ae06d3` | 2026-11-03 01:27 | Fecha a junção: changelog antes/depois por mudança, pendências para o autor, desvio D6 complementado e suplementar atualizado |
+| `8caf5cd` | 2026-11-03 01:29 | J1: Tabela 3 com quatro casas em todos os IC do plano; adaga e valor exato na legenda quando o arredondamento esconde o lado da margem |
+| `ea31f33` | 2026-11-03 01:33 | J2 e J3: classificação com as cinco alternativas nomeadas e a melhor identificada; classificação descrita como executada antes do plano e incluída nele |
+| `a6b531b` | 2026-11-03 01:36 | J4 a J9: legenda da curva de decisão, ΔC antes de arredondar, resumo com ganho demonstrado e otimismo nos 312, limites do plano na abertura dos Métodos, Harrell restaurado, resultado nulo sem probabilidade; cortes compensatórios |
+| `f81d9e9` | 2026-11-03 01:39 | Rastreabilidade do registro: a cronologia, com os identificadores dos commits, está no repositório anonimizado (decisão do autor sobre a pendência 1) |
