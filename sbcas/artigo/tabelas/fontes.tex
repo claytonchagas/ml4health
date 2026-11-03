@@ -1,6 +1,6 @@
-Avaliar no próprio treino & RSF, 17 var., treinada e avaliada nos mesmos 312, contra fora da partição & C de Uno & +$0{,}043$ \\
- & Cox de Mayo, idem & C de Uno & +$0{,}007$ \\
-Vazamento do desfecho & XGBoost, 17 var., com e sem o tempo de seguimento (\texttt{N\_Days}) na entrada, 418 & AUROC macro & +$0{,}034$ (24 de 25 partições) \\
-Referência avaliada onde foi estimada & Fórmula de 1989 (estimada nos 312) contra o mesmo Cox reestimado fora da partição, 312 & C de Uno & +$0{,}005$ ($-0{,}001$ a $0{,}011$) \\
-Outras variáveis no comparador & Cox com as 7 variáveis de Graf et al. contra Cox de Mayo, 312 & C de Uno & +$0{,}001$ ($-0{,}012$ a $0{,}013$) \\
-Sorteio do \textit{bootstrap} & Limite superior da RSF, 17 var., com 25 sementes alternativas & C de Uno & $0{,}0188$ a $0{,}0212$; acima de 0,02 em 10 \\
+Avaliar no próprio treino & RSF, 17 var.: no próprio treino contra fora da partição (312) & C de Uno & +$0{,}043$ \\
+ & Cox de Mayo: idem & C de Uno & +$0{,}007$ \\
+Vazamento do desfecho & XGBoost, 17 var., com e sem o tempo de seguimento na entrada (418) & AUROC macro & +$0{,}034$ (24 de 25 partições) \\
+Referência avaliada onde foi estimada & Fórmula de 1989 (estimada nos 312) contra Cox reestimado fora da partição (312) & C de Uno & +$0{,}005$ ($-0{,}001$ a $0{,}011$) \\
+Outras variáveis no comparador & Cox com as 7 variáveis de Graf et al. contra Cox de Mayo (312) & C de Uno & +$0{,}001$ ($-0{,}012$ a $0{,}013$) \\
+Sorteio do \textit{bootstrap} & Limite superior da RSF, 17 var., em 25 sementes & C de Uno & $0{,}0188$ a $0{,}0212$; acima de 0,02 em 10 \\

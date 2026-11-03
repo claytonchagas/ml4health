@@ -114,16 +114,16 @@ def tabela_fontes():
     pct = int(re.search(r"(\d+)%", vz["Tipo de IC"]).group(1))  # "96% das 25 partições com ganho"
     n_ganho = round(pct * 25 / 100)
     L = [
-        ("Avaliar no próprio treino", "RSF, 17 var., treinada e avaliada nos mesmos 312, contra fora da partição", "C de Uno",
+        ("Avaliar no próprio treino", "RSF, 17 var.: no próprio treino contra fora da partição (312)", "C de Uno",
          mais(da.loc["RSF, 17 var.", "Otimismo (Uno)"])),
-        ("", "Cox de Mayo, idem", "C de Uno", mais(da.loc[REF_COX, "Otimismo (Uno)"])),
-        ("Vazamento do desfecho", r"XGBoost, 17 var., com e sem o tempo de seguimento (\texttt{N\_Days}) na entrada, 418",
+        ("", "Cox de Mayo: idem", "C de Uno", mais(da.loc[REF_COX, "Otimismo (Uno)"])),
+        ("Vazamento do desfecho", r"XGBoost, 17 var., com e sem o tempo de seguimento na entrada (418)",
          "AUROC macro", mais(vz["Δ"]) + f" ({n_ganho} de 25 partições)"),
-        ("Referência avaliada onde foi estimada", "Fórmula de 1989 (estimada nos 312) contra o mesmo Cox reestimado fora da partição, 312",
+        ("Referência avaliada onde foi estimada", "Fórmula de 1989 (estimada nos 312) contra Cox reestimado fora da partição (312)",
          "C de Uno", f"{mais(-dv['Diferença (Cox menos fórmula)'])} ({ic(-dv['IC95 sup'], -dv['IC95 inf'])})"),
-        ("Outras variáveis no comparador", "Cox com as 7 variáveis de Graf et al. contra Cox de Mayo, 312",
+        ("Outras variáveis no comparador", "Cox com as 7 variáveis de Graf et al. contra Cox de Mayo (312)",
          "C de Uno", f"{mais(gc['Diferença'])} ({ic(gc['IC95 inf'], gc['IC95 sup'])})"),
-        (r"Sorteio do \textit{bootstrap}", "Limite superior da RSF, 17 var., com 25 sementes alternativas",
+        (r"Sorteio do \textit{bootstrap}", "Limite superior da RSF, 17 var., em 25 sementes",
          "C de Uno", f"{f(alt.ICBonf_sup.min(), 4)} a {f(alt.ICBonf_sup.max(), 4)}; acima de 0,02 em {int((~alt['Exclui a margem']).sum())}"),
     ]
     return "\n".join(" & ".join(l) + r" \\" for l in L)
@@ -215,6 +215,7 @@ def macros():
     sg = pd.read_csv(R / "mayo1989_subgrupo.csv").set_index("Modelo")
     m["subDifFormMax"] = f(sg.loc[["Cox penalizado, 17 var.", "RSF, 17 var."], "Dif. contra fórmula inicial (312)"].max())
     m["subEventos"] = str(int(sg["Eventos (106)"].iloc[0]))
+    m["subFormulaIni"] = f(sg.loc["fórmula inicial (312)", "C de Uno (106)"])
     gc = pd.read_csv(R / "graf312_comparacoes.csv")
     gh = gc[gc["Métrica"] == "C de Harrell"]
     m["harrellGraf"] = f(gh[gh["Comparação"].str.startswith("Cox, 7 var.")]["C de a"].iloc[0])
