@@ -58,6 +58,11 @@ def tabela_desempenho(suf=""):
     return "\n".join(linhas)
 
 
+def casas_ic(sup, margem=0.02):
+    """4 casas, salvo quando o arredondamento esconderia de que lado da margem está o limite (ex.: 0,01996 -> 0,0200)."""
+    return 5 if (sup < margem) != (round(sup, 4) < margem) else 4
+
+
 def tabela_leitura(desfechos=(("", "Óbito ou transplante, contra o Cox de Mayo reestimado (referência do plano)"),
                               ("_obito", "Só óbito, contra o Cox reestimado (sensibilidade)")), formula=True):
     """Leitura do valor incremental no C de Uno: bootstrap do plano e teste t corrigido (D11), regra combinada.
@@ -73,7 +78,7 @@ def tabela_leitura(desfechos=(("", "Óbito ou transplante, contra o Cox de Mayo 
             chave = m if suf == "" else m + " (óbito)"
             b_sup, t_sup = vi.loc[m, "ICBonf_sup"], tc.loc[chave, "IC Bonferroni sup"]
             leitura = "sim" if (b_sup < 0.02 and t_sup < 0.02) else ("não (só no plano)" if b_sup < 0.02 else "não")
-            linhas.append(f"\\quad {m} & {f(vi.loc[m, 'Diferença'])} & {ic(vi.loc[m, 'ICBonf_inf'], b_sup, 4)} & "
+            linhas.append(f"\\quad {m} & {f(vi.loc[m, 'Diferença'])} & {ic(vi.loc[m, 'ICBonf_inf'], b_sup, casas_ic(b_sup))} & "
                           f"{ic(tc.loc[chave, 'IC Bonferroni inf'], t_sup)} & {leitura} \\\\")
     if not formula:
         return "\n".join(linhas)
@@ -89,7 +94,7 @@ def tabela_leitura(desfechos=(("", "Óbito ou transplante, contra o Cox de Mayo 
             b_sup, t_sup = r["IC bootstrap sup"], r["IC teste corrigido sup"]
             leitura = "sim" if (b_sup < 0.02 and t_sup < 0.02) else ("não (só no plano)" if b_sup < 0.02 else "não")
             rot = "Cox, 5 var. (reestimado)$^{*}$" if m == ORDEM[0] else m
-            linhas.append(f"\\quad {rot} & {f(r['Diferença'])} & {ic(r['IC bootstrap inf'], b_sup, 4)} & "
+            linhas.append(f"\\quad {rot} & {f(r['Diferença'])} & {ic(r['IC bootstrap inf'], b_sup, casas_ic(b_sup))} & "
                           f"{ic(r['IC teste corrigido inf'], t_sup)} & {leitura} \\\\")
     return "\n".join(linhas)
 
