@@ -49,24 +49,22 @@ def tabela_desempenho(suf=""):
     for m in ORDEM:
         r = res.loc[m]
         c = cal.loc[m]
-        # Duas linhas por modelo: valores na primeira; desvio entre partições e intervalos na segunda.
-        lin = [ROTULO[m].replace(" (referência)", "")]
-        lin2 = ["\\quad (referência)" if m == ORDEM[0] else ""]
+        # Fable: uma linha por modelo, "média (desvio)"; O/E com IC 95% (compacta a tabela)
+        lin = [ROTULO[m]]
         for met in ["C de Uno (5 anos)", "AUC (5 anos)", "Brier (5 anos)", "Brier integrado (1 a 5 anos)"]:
-            lin.append(f(r[(met, 'mean')]))
-            lin2.append(f"({f(r[(met, 'std')])})")
-        lin.append(f(c['O/E (5 anos)'], 2))
-        lin2.append(f"({ic(c['O/E IC95_inf'], c['O/E IC95_sup'], 2)})")
+            lin.append(f"{f(r[(met, 'mean')])} ({f(r[(met, 'std')])})")
+        lin.append(f"{f(c['O/E (5 anos)'], 2)} ({ic(c['O/E IC95_inf'], c['O/E IC95_sup'], 2)})")
         linhas.append(" & ".join(lin) + r" \\")
-        linhas.append(" & ".join(lin2) + (r" \\[2pt]" if m != ORDEM[-1] else r" \\"))
     return "\n".join(linhas)
 
 
-def tabela_leitura():
-    """Leitura do valor incremental no C de Uno: bootstrap do plano e teste t corrigido (D11), regra combinada."""
+def tabela_leitura(desfechos=(("", "Óbito ou transplante (principal)"), ("_obito", "Só óbito (sensibilidade)")), formula=True):
+    """Leitura do valor incremental no C de Uno: bootstrap do plano e teste t corrigido (D11), regra combinada.
+    Fable: o artigo mostra o desfecho principal e a fórmula de 1989; o bloco só óbito vai para leitura_obito.tex
+    (suplementar) e é resumido no texto por macros (parecer 2, motivo 3)."""
     tc = pd.read_csv(R / "valor_incremental_t_corrigido.csv").set_index("Modelo")
     linhas = []
-    for suf, rotulo in [("", "Óbito ou transplante (principal)"), ("_obito", "Só óbito (sensibilidade)")]:
+    for suf, rotulo in desfechos:
         vi = pd.read_csv(R / f"valor_incremental{suf}.csv")
         vi = vi[vi["Métrica"] == "C de Uno (5 anos)"].set_index("Modelo")
         linhas.append(f"\\multicolumn{{5}}{{@{{}}l}}{{\\textit{{{rotulo}}}}} \\\\")
@@ -76,6 +74,8 @@ def tabela_leitura():
             leitura = "sim" if (b_sup < 0.02 and t_sup < 0.02) else ("não (só no plano)" if b_sup < 0.02 else "não")
             linhas.append(f"\\quad {m} & {f(vi.loc[m, 'Diferença'])} & {ic(vi.loc[m, 'ICBonf_inf'], b_sup, 4)} & "
                           f"{ic(tc.loc[chave, 'IC Bonferroni inf'], t_sup)} & {leitura} \\\\")
+    if not formula:
+        return "\n".join(linhas)
     # G1 (D14): mesma leitura contra a fórmula de Mayo publicada em 1989 (final, sem reajuste), desfecho principal
     mf = pd.read_csv(R / "mayo1989_coorte.csv")
     linhas.append("\\multicolumn{5}{@{}l}{\\textit{Óbito ou transplante, contra a fórmula de 1989 sem reajuste}} \\\\")
@@ -131,11 +131,11 @@ def tabela_fontes():
         ("Avaliar no próprio treino", "RSF, 17 var.: no próprio treino contra fora da partição (312)", "C de Uno",
          mais(da.loc["RSF, 17 var.", "Otimismo (Uno)"])),
         ("", "Cox de Mayo: idem (312)", "C de Uno", mais(da.loc[REF_COX, "Otimismo (Uno)"])),
-        ("Vazamento do desfecho", r"XGBoost, 17 var., com e sem o tempo de seguimento na entrada (418; classificação)",
+        ("Vazamento do desfecho", r"XGBoost, 17 var., com e sem o tempo de seguimento (418; classificação)",
          "AUROC macro", mais(vz["Δ"]) + f" ({n_ganho} de 25 partições)"),
         bloco("Escolhas que pouco mudaram o resultado (IC 95\\% pareado)"),
         ("Fórmula avaliada onde foi estimada (muda também o modelo)",
-         "Fórmula de 1989 (estimada nos 312) contra Cox de Mayo reestimado só nos 312, fora da partição",
+         "Fórmula de 1989 (estimada nos 312) contra Cox de Mayo fora da partição (312)",
          "C de Uno", f"{mais(-dv['Diferença (Cox menos fórmula)'])} ({ic(-dv['IC95 sup'], -dv['IC95 inf'])})"),
         ("Outras variáveis no comparador", "Cox com as 7 variáveis de Graf et al. contra Cox de Mayo (312)",
          "C de Uno", f"{mais(gc['Diferença'])} ({ic(gc['IC95 inf'], gc['IC95 sup'])})"),
@@ -296,6 +296,12 @@ def macros():
     # H6: otimismo também em C de Harrell, a métrica prevista no plano complementar
     m["otimRSFHarrell"] = f(da.loc["RSF, 17 var.", "Otimismo (Harrell)"])
     m["otimRSFEN"] = fe(da.loc["RSF, 17 var.", "Otimismo (Uno)"])
+    # Sensibilidade só óbito, resumida no texto: limites superiores pelo plano e pelo teste corrigido
+    vio = pd.read_csv(R / "valor_incremental_obito.csv")
+    vio = vio[vio["Métrica"] == "C de Uno (5 anos)"].set_index("Modelo")
+    for k, nome in zip("ABC", ORDEM[1:]):
+        m[f"obitoDif{k}"] = f(vio.loc[nome, "Diferença"])
+        m[f"obitoSupPlano{k}"] = f(vio.loc[nome, "ICBonf_sup"])
     m["otimRSFdentro"], m["otimRSFfora"] = f(da.loc["RSF, 17 var.", "C de Uno dentro da amostra"]), f(da.loc["RSF, 17 var.", "C de Uno fora da partição (agregado)"])
     with open(T / "numeros.tex", "w") as fh:
         fh.write("% Gerado por gerar_tabelas.py a partir de resultados_sbcas/. Não editar.\n")
@@ -308,7 +314,8 @@ def main():
     (T / "desempenho.tex").write_text(tabela_desempenho("") + "\n")
     (T / "desempenho_obito.tex").write_text(tabela_desempenho("_obito") + "\n")
     (T / "enquadramentos.tex").write_text(tabela_enquadramentos() + "\n")
-    (T / "leitura.tex").write_text(tabela_leitura() + "\n")
+    (T / "leitura.tex").write_text(tabela_leitura(desfechos=(("", "Óbito ou transplante (principal)"),)) + "\n")
+    (T / "leitura_obito.tex").write_text(tabela_leitura(desfechos=(("_obito", "Só óbito (sensibilidade)"),), formula=False) + "\n")
     (T / "fontes.tex").write_text(tabela_fontes() + "\n")
     (T / "cox.tex").write_text(tabela_cox() + "\n")
     macros()
