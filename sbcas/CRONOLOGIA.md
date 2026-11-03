@@ -132,3 +132,23 @@ Marcos: plano registrado em `677a281`; primeira execução em `70cc304` e `859b3
 | `66fd9f9` | 2026-11-02 17:58 | E7: Bonferroni no teste de proporcionalidade, regra da Figura 1 após a primeira execução, rótulo de óbitos na Tabela 4(d) |
 | `ff0b8cb` | 2026-11-02 17:59 | E8: referência na mesma base das diferenças (0,831 nas predições agregadas) no resumo, abstract e 4.1 |
 | `979ba5d` | 2026-11-02 18:03 | E9: D13 (pergunta do plano não respondida) e cronologia dos commits para o espelho anônimo |
+| `113a8a2` | 2026-11-02 18:03 | Cronologia dos commits gerada (sbcas/CRONOLOGIA.md) |
+| `fa58f20` | 2026-11-02 18:13 | R1 (recuperação): coorte como exemplo no artigo que propôs a RSF (Ishwaran et al., 2008) |
+| `d10c3ec` | 2026-11-02 19:06 | F1: remissões para a Tabela 3 (comparação pareada) |
+| `75f2585` | 2026-11-02 19:07 | F2 e F3: C da referência nas predições agregadas como macro (óbito 0,850); rótulo 'não (só no plano)' na Tabela 3 |
+| `36b8ea8` | 2026-11-02 19:09 | F4: D3 anterior a qualquer resultado na cronologia dos desvios |
+| `57116de` | 2026-11-02 19:09 | F5: resumo e abstract sem sugerir Cox penalizado com 5 variáveis |
+| `79a7214` | 2026-11-02 19:17 | F6: legendas das Tabelas 2 (bases de cálculo) e 4 (número de comparações) |
+| `5e69da4` | 2026-11-02 19:21 | Plano complementar (D14 a D17) registrado antes da execução; decisão sobre o parágrafo Brasil/SUS |
+| `5c9d40e` | 2026-11-02 19:22 | Plano complementar, emenda 1: fórmula final (418) e inicial (312) de Dickson et al., antes de executar D14 e D15 |
+| `86a5386` | 2026-11-02 19:24 | Scripts de D14/D15 (fórmula de Mayo de 1989) e D16 (comparador alternativo nos 312), conforme o plano complementar |
+| `db7950b` | 2026-11-02 19:26 | Resultados de D16 (comparador alternativo e avaliação dentro da amostra nos 312) |
+| `acd6fca` | 2026-11-02 19:27 | Resultados de D14 e D15 (fórmula de Mayo de 1989 na coorte, na derivação e no subgrupo dos 106) |
+| `134a052` | 2026-11-02 19:43 | D16 corrigido pela auditoria (hiperparâmetros da RSF sem vazamento, otimismo na mesma base, derivação contra o Cox dos 312); emenda 2 do plano complementar |
+| `212487b` | 2026-11-02 19:43 | Relatório da auditoria independente de D14 a D16 |
+| `50e4924` | 2026-11-02 19:59 | G1: fórmula de Mayo de 1989 como segunda referência na Tabela 3 e na Seção 4.1 (D14) |
+| `7915a7c` | 2026-11-02 20:05 | G2: Seção 4.4 e Tabela 4 como fontes de ganho aparente medidas nestes dados (D12, D14, D16 e vazamento) |
+| `98fc5c8` | 2026-11-02 21:28 | G3: resumo, abstract e contribuições com a fórmula de 1989 e as fontes de ganho aparente |
+| `c376d2e` | 2026-11-02 21:35 | G4: Discussão com a fórmula de 1989, o subgrupo, a precisão alcançada e Graf com números próprios (inclui F7, F8 e F10) |
+| `fca51d8` | 2026-11-02 21:47 | G5: métodos e desvios do plano complementar (D14 a D17), Brier nos resultados (F9) e Conclusão atualizada |
+| `bf10357` | 2026-11-02 21:57 | G6: de volta às 12 páginas (cortes de repetição, coerência do subgrupo com D15, classificação sem letras antigas, declaração de IA completa) |

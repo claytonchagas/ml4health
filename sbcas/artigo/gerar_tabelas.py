@@ -2,6 +2,7 @@
 
 Uso (na raiz do repositório): python sbcas/artigo/gerar_tabelas.py
 Saída: sbcas/artigo/tabelas/*.tex e sbcas/artigo/tabelas/numeros.tex (macros com os números citados no texto)."""
+import re
 from pathlib import Path
 
 import numpy as np
@@ -14,12 +15,15 @@ T.mkdir(parents=True, exist_ok=True)
 ROTULO = {"Cox, 5 var. (referência)": "Cox, 5 var. (referência)", "Cox penalizado, 17 var.": "Cox penalizado, 17 var.",
           "RSF, 5 var.": "RSF, 5 var.", "RSF, 17 var.": "RSF, 17 var."}
 ORDEM = list(ROTULO)
+REF_COX = "Cox, 5 var. (referência)"
 
 
 def f(x, d=3):
     """Número com vírgula decimal e sinal de menos tipográfico."""
     if pd.isna(x):
         return "--"
+    if round(x, d) == 0:
+        x = 0.0  # evita "-0,000"
     s = f"{x:.{d}f}".replace(".", "{,}")
     return f"${s}$"
 
@@ -63,6 +67,16 @@ def tabela_leitura():
             leitura = "sim" if (b_sup < 0.02 and t_sup < 0.02) else ("não (só no plano)" if b_sup < 0.02 else "não")
             linhas.append(f"\\quad {m} & {f(vi.loc[m, 'Diferença'])} & {ic(vi.loc[m, 'ICBonf_inf'], b_sup, 4)} & "
                           f"{ic(tc.loc[chave, 'IC Bonferroni inf'], t_sup)} & {leitura} \\\\")
+    # G1 (D14): mesma leitura contra a fórmula de Mayo publicada em 1989 (final, sem reajuste), desfecho principal
+    mf = pd.read_csv(R / "mayo1989_coorte.csv")
+    linhas.append("\\multicolumn{5}{@{}l}{\\textit{Óbito ou transplante, contra a fórmula de 1989 sem reajuste}} \\\\")
+    for m in ORDEM:
+        r = mf[mf["Comparação"] == f"{m} menos fórmula"].iloc[0]
+        b_sup, t_sup = r["IC bootstrap sup"], r["IC teste corrigido sup"]
+        leitura = "sim" if (b_sup < 0.02 and t_sup < 0.02) else ("não (só no plano)" if b_sup < 0.02 else "não")
+        rot = "Cox, 5 var. (reestimado)$^{*}$" if m == ORDEM[0] else m
+        linhas.append(f"\\quad {rot} & {f(r['Diferença'])} & {ic(r['IC bootstrap inf'], b_sup, 4)} & "
+                      f"{ic(r['IC teste corrigido inf'], t_sup)} & {leitura} \\\\")
     return "\n".join(linhas)
 
 
@@ -84,6 +98,35 @@ def tabela_enquadramentos():
         ev = f"{int(r['Eventos'])} óbitos" if k == "(d)" else str(int(r['Eventos']))  # (d): três classes; 161 são só os óbitos
         linhas.append(f"{curto[k]} & {int(r['n'])} / {ev} & {met} & {comp} & {f(r['Δ'])} & {icx}" + r" \\")
     return "\n".join(linhas)
+
+
+def tabela_fontes():
+    """G2: fontes de ganho aparente medidas nestes dados (cada linha muda uma só escolha de avaliação)."""
+    da = pd.read_csv(R / "graf312_dentro_amostra.csv").set_index("Modelo")
+    dv = pd.read_csv(R / "graf312_derivacao.csv").set_index("Fórmula").loc["inicial, n = 312"]
+    gc = pd.read_csv(R / "graf312_comparacoes.csv")
+    gc = gc[(gc["Métrica"] == "C de Uno (5 anos)") & gc["Comparação"].str.startswith("Cox, 7 var.")].iloc[0]
+    en = pd.read_csv(R / "tabela_enquadramentos.csv")
+    vz = en[en["Enquadramento"].str.startswith("(d)")].iloc[0]
+    se = pd.read_csv(R / "sensibilidade_semente_bootstrap.csv")
+    alt = se[se.Semente != 2026]
+    mais = lambda x, d=3: ("+" if round(x, d) > 0 else "") + f(x, d)
+    pct = int(re.search(r"(\d+)%", vz["Tipo de IC"]).group(1))  # "96% das 25 partições com ganho"
+    n_ganho = round(pct * 25 / 100)
+    L = [
+        ("Avaliar no próprio treino", "RSF, 17 var.: no próprio treino contra fora da partição (312)", "C de Uno",
+         mais(da.loc["RSF, 17 var.", "Otimismo (Uno)"])),
+        ("", "Cox de Mayo: idem", "C de Uno", mais(da.loc[REF_COX, "Otimismo (Uno)"])),
+        ("Vazamento do desfecho", r"XGBoost, 17 var., com e sem o tempo de seguimento na entrada (418)",
+         "AUROC macro", mais(vz["Δ"]) + f" ({n_ganho} de 25 partições)"),
+        ("Referência avaliada onde foi estimada", "Fórmula de 1989 (estimada nos 312) contra Cox reestimado fora da partição (312)",
+         "C de Uno", f"{mais(-dv['Diferença (Cox menos fórmula)'])} ({ic(-dv['IC95 sup'], -dv['IC95 inf'])})"),
+        ("Outras variáveis no comparador", "Cox com as 7 variáveis de Graf et al. contra Cox de Mayo (312)",
+         "C de Uno", f"{mais(gc['Diferença'])} ({ic(gc['IC95 inf'], gc['IC95 sup'])})"),
+        (r"Sorteio do \textit{bootstrap}", "Limite superior da RSF, 17 var., em 25 sementes",
+         "C de Uno", f"{f(alt.ICBonf_sup.min(), 4)} a {f(alt.ICBonf_sup.max(), 4)}; acima de 0,02 em {int((~alt['Exclui a margem']).sum())}"),
+    ]
+    return "\n".join(" & ".join(l) + r" \\" for l in L)
 
 
 def tabela_cox():
@@ -163,6 +206,21 @@ def macros():
     # E2: estabilidade do limite de Bonferroni da RSF de 17 variáveis em 25 sementes alternativas do bootstrap
     sem = pd.read_csv(R / "sensibilidade_semente_bootstrap.csv")
     alt = sem[sem.Semente != 2026]
+    mf = pd.read_csv(R / "mayo1989_coorte.csv").set_index("Comparação")
+    m["formulaC"] = f(mf.loc["Fórmula de 1989 (final, n = 418)", "C de Uno agregado"])
+    m["refMenosFormula"] = f(mf.loc[f"{ORDEM[0]} menos fórmula", "Diferença"])
+    da = pd.read_csv(R / "graf312_dentro_amostra.csv").set_index("Modelo")
+    m["otimRSF"], m["otimCox"] = f(da.loc["RSF, 17 var.", "Otimismo (Uno)"]), f(da.loc[REF_COX, "Otimismo (Uno)"])
+    # G4: subgrupo contra a fórmula inicial (D15) e C de Harrell nos 312 (D16)
+    sg = pd.read_csv(R / "mayo1989_subgrupo.csv").set_index("Modelo")
+    m["subDifFormMax"] = f(sg.loc[["Cox penalizado, 17 var.", "RSF, 17 var."], "Dif. contra fórmula inicial (312)"].max())
+    m["subEventos"] = str(int(sg["Eventos (106)"].iloc[0]))
+    m["subFormulaIni"] = f(sg.loc["fórmula inicial (312)", "C de Uno (106)"])
+    gc = pd.read_csv(R / "graf312_comparacoes.csv")
+    gh = gc[gc["Métrica"] == "C de Harrell"]
+    m["harrellGraf"] = f(gh[gh["Comparação"].str.startswith("Cox, 7 var.")]["C de a"].iloc[0])
+    m["harrellMayo"] = f(gh[gh["Comparação"].str.startswith("Cox, 7 var.")]["C de b"].iloc[0])
+    m["harrellRSF"] = f(gh[gh["Comparação"].str.startswith("RSF, 17 var. menos Cox, 5")]["C de a"].iloc[0])
     m["semAlt"], m["semNaoExclui"] = str(len(alt)), str(int((~alt["Exclui a margem"]).sum()))
     m["semMin"], m["semMax"] = f(alt.ICBonf_sup.min(), 4), f(alt.ICBonf_sup.max(), 4)
     # F2: C de Uno da referência nas predições agregadas (base das diferenças), nos dois desfechos
@@ -185,6 +243,7 @@ def main():
     (T / "desempenho_obito.tex").write_text(tabela_desempenho("_obito") + "\n")
     (T / "enquadramentos.tex").write_text(tabela_enquadramentos() + "\n")
     (T / "leitura.tex").write_text(tabela_leitura() + "\n")
+    (T / "fontes.tex").write_text(tabela_fontes() + "\n")
     (T / "cox.tex").write_text(tabela_cox() + "\n")
     macros()
     for p in sorted(T.glob("*.tex")):
