@@ -24,7 +24,7 @@ Objetivo: evitar idas e vindas entre rodadas de revisão. As decisões abaixo s�
 
 - Lição do protocolo: "replicável" (reforço 1, L8) retirado na C3; a frase "Mostramos quais alegações [...] se sustentam" (C3) foi apontada como exagero.
 - Vazamento como "o único" ganho: "Só o vazamento mudou a conclusão" (L6) retirado na R3; variante "único aumento consistente" ainda na Discussão.
-- Título: original, C2 (L2), T1 (R10), "plano registrado e desvios declarados" (rodada de fluidez, 03/11/2026), e por fim "O aprendizado de máquina realmente supera o modelo clínico? Um estudo de caso na colangite biliar primária" (03/11/2026, decisão do autor, com recomendação do Opus e do Fable: a ressalva sobre o plano fica no resumo e na Seção 3).
+- Título: original, C2 (L2), T1 (R10), "plano registrado e desvios declarados" (rodada de fluidez, 03/11/2026), depois "O aprendizado de máquina realmente supera o modelo clínico? Um estudo de caso na colangite biliar primária" e, por fim, "O aprendizado de máquina supera o modelo clínico? Um estudo de caso em colangite biliar primária" (03/11/2026, decisão do autor: pergunta inteira na primeira linha, "em" no lugar de "na") (03/11/2026, decisão do autor, com recomendação do Opus e do Fable: a ressalva sobre o plano fica no resumo e na Seção 3).
 - Ênfase da margem: bootstrap até R1; leitura conservadora desde R1/R2.
 
 ## Plano complementar
