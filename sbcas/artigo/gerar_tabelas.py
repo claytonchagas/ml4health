@@ -63,6 +63,19 @@ def casas_ic(sup, margem=0.02):
     return 5 if (sup < margem) != (round(sup, 4) < margem) else 4
 
 
+def ic_plano(inf, sup, margem=0.02):
+    """J1: IC do plano sempre com 4 casas; quando o arredondamento esconderia de que lado da margem está o limite
+    superior (ex.: 0,01996 -> 0,0200), marca com adaga e a legenda da Tabela 3 dá o valor exato (macro supAdaga)."""
+    txt = ic(inf, sup, 4)
+    if casas_ic(sup, margem) == 5:
+        txt += r"$^{\dagger}$"
+        ADAGA.append(sup)
+    return txt
+
+
+ADAGA = []
+
+
 def tabela_leitura(desfechos=(("", "Óbito ou transplante, contra o Cox de Mayo reestimado (referência do plano)"),
                               ("_obito", "Só óbito, contra o Cox reestimado (sensibilidade)")), formula=True):
     """Leitura do valor incremental no C de Uno: bootstrap do plano e teste t corrigido (D11), regra combinada.
@@ -78,7 +91,7 @@ def tabela_leitura(desfechos=(("", "Óbito ou transplante, contra o Cox de Mayo 
             chave = m if suf == "" else m + " (óbito)"
             b_sup, t_sup = vi.loc[m, "ICBonf_sup"], tc.loc[chave, "IC Bonferroni sup"]
             leitura = "sim" if (b_sup < 0.02 and t_sup < 0.02) else ("não (só no plano)" if b_sup < 0.02 else "não")
-            linhas.append(f"\\quad {m} & {f(vi.loc[m, 'Diferença'])} & {ic(vi.loc[m, 'ICBonf_inf'], b_sup, casas_ic(b_sup))} & "
+            linhas.append(f"\\quad {m} & {f(vi.loc[m, 'Diferença'])} & {ic_plano(vi.loc[m, 'ICBonf_inf'], b_sup)} & "
                           f"{ic(tc.loc[chave, 'IC Bonferroni inf'], t_sup)} & {leitura} \\\\")
     if not formula:
         return "\n".join(linhas)
@@ -94,7 +107,7 @@ def tabela_leitura(desfechos=(("", "Óbito ou transplante, contra o Cox de Mayo 
             b_sup, t_sup = r["IC bootstrap sup"], r["IC teste corrigido sup"]
             leitura = "sim" if (b_sup < 0.02 and t_sup < 0.02) else ("não (só no plano)" if b_sup < 0.02 else "não")
             rot = "Cox, 5 var. (reestimado)$^{*}$" if m == ORDEM[0] else m
-            linhas.append(f"\\quad {rot} & {f(r['Diferença'])} & {ic(r['IC bootstrap inf'], b_sup, casas_ic(b_sup))} & "
+            linhas.append(f"\\quad {rot} & {f(r['Diferença'])} & {ic_plano(r['IC bootstrap inf'], b_sup)} & "
                           f"{ic(r['IC teste corrigido inf'], t_sup)} & {leitura} \\\\")
     return "\n".join(linhas)
 
@@ -313,6 +326,9 @@ def macros():
         m[f"obitoDif{k}"] = f(vio.loc[nome, "Diferença"])
         m[f"obitoSupPlano{k}"] = f(vio.loc[nome, "ICBonf_sup"])
     m["otimRSFdentro"], m["otimRSFfora"] = f(da.loc["RSF, 17 var.", "C de Uno dentro da amostra"]), f(da.loc["RSF, 17 var.", "C de Uno fora da partição (agregado)"])
+    # J1: valor exato do limite marcado com adaga na Tabela 3 (preenchido por tabela_leitura, que roda antes da 2a chamada)
+    assert len(set(ADAGA)) <= 1, "mais de um limite com adaga: a legenda da Tabela 3 precisa citar todos"
+    m["supAdaga"] = f(ADAGA[0], 5) if ADAGA else "--"
     with open(T / "numeros.tex", "w") as fh:
         fh.write("% Gerado por gerar_tabelas.py a partir de resultados_sbcas/. Não editar.\n")
         for k, v in m.items():
