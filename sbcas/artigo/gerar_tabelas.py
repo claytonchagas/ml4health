@@ -58,10 +58,11 @@ def tabela_desempenho(suf=""):
     return "\n".join(linhas)
 
 
-def tabela_leitura(desfechos=(("", "Contra o Cox de Mayo reestimado (referência do plano)"), ("_obito", "Só óbito (sensibilidade)")), formula=True):
+def tabela_leitura(desfechos=(("", "Óbito ou transplante, contra o Cox de Mayo reestimado (referência do plano)"),
+                              ("_obito", "Só óbito, contra o Cox reestimado (sensibilidade)")), formula=True):
     """Leitura do valor incremental no C de Uno: bootstrap do plano e teste t corrigido (D11), regra combinada.
-    Fable: o artigo mostra o desfecho principal e a fórmula de 1989; o bloco só óbito vai para leitura_obito.tex
-    (suplementar) e é resumido no texto por macros (parecer 2, motivo 3)."""
+    Junção: a Tabela 3 volta a ter os três blocos (principal, só óbito, fórmula de 1989), como na versão A,
+    porque os quatro pareceres comparativos pediram a sensibilidade só óbito na tabela principal."""
     tc = pd.read_csv(R / "valor_incremental_t_corrigido.csv").set_index("Modelo")
     linhas = []
     for suf, rotulo in desfechos:
@@ -76,16 +77,20 @@ def tabela_leitura(desfechos=(("", "Contra o Cox de Mayo reestimado (referência
                           f"{ic(tc.loc[chave, 'IC Bonferroni inf'], t_sup)} & {leitura} \\\\")
     if not formula:
         return "\n".join(linhas)
-    # G1 (D14): mesma leitura contra a fórmula de Mayo publicada em 1989 (final, sem reajuste), desfecho principal
-    mf = pd.read_csv(R / "mayo1989_coorte.csv")
-    linhas.append("\\multicolumn{5}{@{}l}{\\textit{Contra a fórmula de 1989 sem reajuste (análise posterior)}} \\\\")
-    for m in ORDEM:
-        r = mf[mf["Comparação"] == f"{m} menos fórmula"].iloc[0]
-        b_sup, t_sup = r["IC bootstrap sup"], r["IC teste corrigido sup"]
-        leitura = "sim" if (b_sup < 0.02 and t_sup < 0.02) else ("não (só no plano)" if b_sup < 0.02 else "não")
-        rot = "Cox, 5 var. (reestimado)$^{*}$" if m == ORDEM[0] else m
-        linhas.append(f"\\quad {rot} & {f(r['Diferença'])} & {ic(r['IC bootstrap inf'], b_sup, 4)} & "
-                      f"{ic(r['IC teste corrigido inf'], t_sup)} & {leitura} \\\\")
+    # G1 (D14): mesma leitura contra a fórmula de Mayo publicada em 1989 (final, sem reajuste), nos dois desfechos.
+    # Junção: o bloco só óbito (mayo1989_coorte_obito.csv, complemento H1 de D14) sai do texto e entra na tabela,
+    # porque o Opus apontou que a frase com cinco intervalos era ilegível para o público do evento.
+    for suf, rotulo in [("", "Óbito ou transplante, contra a fórmula de 1989 sem reajuste (análise posterior)"),
+                        ("_obito", "Só óbito, contra a fórmula de 1989 sem reajuste (análise posterior)")]:
+        mf = pd.read_csv(R / f"mayo1989_coorte{suf}.csv")
+        linhas.append(f"\\multicolumn{{5}}{{@{{}}l}}{{\\textit{{{rotulo}}}}} \\\\")
+        for m in ORDEM:
+            r = mf[mf["Comparação"] == f"{m} menos fórmula"].iloc[0]
+            b_sup, t_sup = r["IC bootstrap sup"], r["IC teste corrigido sup"]
+            leitura = "sim" if (b_sup < 0.02 and t_sup < 0.02) else ("não (só no plano)" if b_sup < 0.02 else "não")
+            rot = "Cox, 5 var. (reestimado)$^{*}$" if m == ORDEM[0] else m
+            linhas.append(f"\\quad {rot} & {f(r['Diferença'])} & {ic(r['IC bootstrap inf'], b_sup, 4)} & "
+                          f"{ic(r['IC teste corrigido inf'], t_sup)} & {leitura} \\\\")
     return "\n".join(linhas)
 
 
@@ -134,7 +139,7 @@ def tabela_fontes():
         ("Vazamento do desfecho", r"XGBoost, 17 var., com e sem o tempo de seguimento (418; classificação)",
          "AUROC macro", mais(vz["Δ"]) + f" ({n_ganho} de 25 partições)"),
         bloco("Escolhas que pouco mudaram o resultado (IC 95\\% pareado)"),
-        ("Fórmula avaliada onde foi estimada (muda também o modelo)",
+        ("Fórmula avaliada onde foi estimada",
          "Fórmula de 1989 (estimada nos 312) contra Cox de Mayo ajustado só nos 312, fora da partição",
          "C de Uno", f"{mais(-dv['Diferença (Cox menos fórmula)'])} ({ic(-dv['IC95 sup'], -dv['IC95 inf'])})"),
         ("Outras variáveis no comparador", "Cox com as 7 variáveis de Graf et al. contra Cox de Mayo (312)",
@@ -314,8 +319,8 @@ def main():
     (T / "desempenho.tex").write_text(tabela_desempenho("") + "\n")
     (T / "desempenho_obito.tex").write_text(tabela_desempenho("_obito") + "\n")
     (T / "enquadramentos.tex").write_text(tabela_enquadramentos() + "\n")
-    (T / "leitura.tex").write_text(tabela_leitura(desfechos=(("", "Contra o Cox de Mayo reestimado (referência do plano)"),)) + "\n")
-    (T / "leitura_obito.tex").write_text(tabela_leitura(desfechos=(("_obito", "Só óbito (sensibilidade)"),), formula=False) + "\n")
+    (T / "leitura.tex").write_text(tabela_leitura() + "\n")
+    (T / "leitura_obito.tex").unlink(missing_ok=True)  # o bloco só óbito voltou à Tabela 3 do artigo
     (T / "fontes.tex").write_text(tabela_fontes() + "\n")
     (T / "cox.tex").write_text(tabela_cox() + "\n")
     macros()
