@@ -32,6 +32,15 @@ def ic(a, b, d=3):
     return f"{f(a, d)} a {f(b, d)}"
 
 
+def fe(x, d=3):
+    """Mesmo que f, com ponto decimal (abstract em inglês)."""
+    if pd.isna(x):
+        return "--"
+    if round(x, d) == 0:
+        x = 0.0
+    return f"${x:.{d}f}$"
+
+
 def tabela_desempenho(suf=""):
     res = pd.read_csv(R / f"resumo_cv{suf}.csv", header=[0, 1], index_col=0)
     vi = pd.read_csv(R / f"valor_incremental{suf}.csv")
@@ -40,24 +49,41 @@ def tabela_desempenho(suf=""):
     for m in ORDEM:
         r = res.loc[m]
         c = cal.loc[m]
-        # Duas linhas por modelo: valores na primeira; desvio entre partições e intervalos na segunda.
-        lin = [ROTULO[m].replace(" (referência)", "")]
-        lin2 = ["\\quad (referência)" if m == ORDEM[0] else ""]
+        # Fable: uma linha por modelo, "média (desvio)"; O/E com IC 95% (compacta a tabela)
+        lin = [ROTULO[m]]
         for met in ["C de Uno (5 anos)", "AUC (5 anos)", "Brier (5 anos)", "Brier integrado (1 a 5 anos)"]:
-            lin.append(f(r[(met, 'mean')]))
-            lin2.append(f"({f(r[(met, 'std')])})")
-        lin.append(f(c['O/E (5 anos)'], 2))
-        lin2.append(f"({ic(c['O/E IC95_inf'], c['O/E IC95_sup'], 2)})")
+            lin.append(f"{f(r[(met, 'mean')])} ({f(r[(met, 'std')])})")
+        lin.append(f"{f(c['O/E (5 anos)'], 2)} ({ic(c['O/E IC95_inf'], c['O/E IC95_sup'], 2)})")
         linhas.append(" & ".join(lin) + r" \\")
-        linhas.append(" & ".join(lin2) + (r" \\[2pt]" if m != ORDEM[-1] else r" \\"))
     return "\n".join(linhas)
 
 
-def tabela_leitura():
-    """Leitura do valor incremental no C de Uno: bootstrap do plano e teste t corrigido (D11), regra combinada."""
+def casas_ic(sup, margem=0.02):
+    """4 casas, salvo quando o arredondamento esconderia de que lado da margem está o limite (ex.: 0,01996 -> 0,0200)."""
+    return 5 if (sup < margem) != (round(sup, 4) < margem) else 4
+
+
+def ic_plano(inf, sup, margem=0.02):
+    """J1: IC do plano sempre com 4 casas; quando o arredondamento esconderia de que lado da margem está o limite
+    superior (ex.: 0,01996 -> 0,0200), marca com adaga e a legenda da Tabela 3 dá o valor exato (macro supAdaga)."""
+    txt = ic(inf, sup, 4)
+    if casas_ic(sup, margem) == 5:
+        txt += r"$^{\dagger}$"
+        ADAGA.append(sup)
+    return txt
+
+
+ADAGA = []
+
+
+def tabela_leitura(desfechos=(("", "Óbito ou transplante, contra o Cox de Mayo reestimado (referência do plano)"),
+                              ("_obito", "Só óbito, contra o Cox reestimado (sensibilidade)")), formula=True):
+    """Leitura do valor incremental no C de Uno: bootstrap do plano e teste t corrigido (D11), regra combinada.
+    Junção: a Tabela 3 volta a ter os três blocos (principal, só óbito, fórmula de 1989), como na versão A,
+    porque os quatro pareceres comparativos pediram a sensibilidade só óbito na tabela principal."""
     tc = pd.read_csv(R / "valor_incremental_t_corrigido.csv").set_index("Modelo")
     linhas = []
-    for suf, rotulo in [("", "Óbito ou transplante (principal)"), ("_obito", "Só óbito (sensibilidade)")]:
+    for suf, rotulo in desfechos:
         vi = pd.read_csv(R / f"valor_incremental{suf}.csv")
         vi = vi[vi["Métrica"] == "C de Uno (5 anos)"].set_index("Modelo")
         linhas.append(f"\\multicolumn{{5}}{{@{{}}l}}{{\\textit{{{rotulo}}}}} \\\\")
@@ -65,18 +91,24 @@ def tabela_leitura():
             chave = m if suf == "" else m + " (óbito)"
             b_sup, t_sup = vi.loc[m, "ICBonf_sup"], tc.loc[chave, "IC Bonferroni sup"]
             leitura = "sim" if (b_sup < 0.02 and t_sup < 0.02) else ("não (só no plano)" if b_sup < 0.02 else "não")
-            linhas.append(f"\\quad {m} & {f(vi.loc[m, 'Diferença'])} & {ic(vi.loc[m, 'ICBonf_inf'], b_sup, 4)} & "
+            linhas.append(f"\\quad {m} & {f(vi.loc[m, 'Diferença'])} & {ic_plano(vi.loc[m, 'ICBonf_inf'], b_sup)} & "
                           f"{ic(tc.loc[chave, 'IC Bonferroni inf'], t_sup)} & {leitura} \\\\")
-    # G1 (D14): mesma leitura contra a fórmula de Mayo publicada em 1989 (final, sem reajuste), desfecho principal
-    mf = pd.read_csv(R / "mayo1989_coorte.csv")
-    linhas.append("\\multicolumn{5}{@{}l}{\\textit{Óbito ou transplante, contra a fórmula de 1989 sem reajuste}} \\\\")
-    for m in ORDEM:
-        r = mf[mf["Comparação"] == f"{m} menos fórmula"].iloc[0]
-        b_sup, t_sup = r["IC bootstrap sup"], r["IC teste corrigido sup"]
-        leitura = "sim" if (b_sup < 0.02 and t_sup < 0.02) else ("não (só no plano)" if b_sup < 0.02 else "não")
-        rot = "Cox, 5 var. (reestimado)$^{*}$" if m == ORDEM[0] else m
-        linhas.append(f"\\quad {rot} & {f(r['Diferença'])} & {ic(r['IC bootstrap inf'], b_sup, 4)} & "
-                      f"{ic(r['IC teste corrigido inf'], t_sup)} & {leitura} \\\\")
+    if not formula:
+        return "\n".join(linhas)
+    # G1 (D14): mesma leitura contra a fórmula de Mayo publicada em 1989 (final, sem reajuste), nos dois desfechos.
+    # Junção: o bloco só óbito (mayo1989_coorte_obito.csv, complemento H1 de D14) sai do texto e entra na tabela,
+    # porque o Opus apontou que a frase com cinco intervalos era ilegível para o público do evento.
+    for suf, rotulo in [("", "Óbito ou transplante, contra a fórmula de 1989 sem reajuste (análise posterior)"),
+                        ("_obito", "Só óbito, contra a fórmula de 1989 sem reajuste (análise posterior)")]:
+        mf = pd.read_csv(R / f"mayo1989_coorte{suf}.csv")
+        linhas.append(f"\\multicolumn{{5}}{{@{{}}l}}{{\\textit{{{rotulo}}}}} \\\\")
+        for m in ORDEM:
+            r = mf[mf["Comparação"] == f"{m} menos fórmula"].iloc[0]
+            b_sup, t_sup = r["IC bootstrap sup"], r["IC teste corrigido sup"]
+            leitura = "sim" if (b_sup < 0.02 and t_sup < 0.02) else ("não (só no plano)" if b_sup < 0.02 else "não")
+            rot = "Cox, 5 var. (reestimado)$^{*}$" if m == ORDEM[0] else m
+            linhas.append(f"\\quad {rot} & {f(r['Diferença'])} & {ic_plano(r['IC bootstrap inf'], b_sup)} & "
+                          f"{ic(r['IC teste corrigido inf'], t_sup)} & {leitura} \\\\")
     return "\n".join(linhas)
 
 
@@ -113,20 +145,28 @@ def tabela_fontes():
     mais = lambda x, d=3: ("+" if round(x, d) > 0 else "") + f(x, d)
     pct = int(re.search(r"(\d+)%", vz["Tipo de IC"]).group(1))  # "96% das 25 partições com ganho"
     n_ganho = round(pct * 25 / 100)
+    # Fable (H2, parecer 1 item 6.5; parecer 4 item 2.3): três blocos, para que a legenda não prometa
+    # "uma só escolha" nem "IC pareado" para linhas que não têm isso. A linha da fórmula muda também o
+    # modelo (contraste não isolado); a do sorteio é sensibilidade da inferência, não ganho.
+    bloco = lambda t: r"\multicolumn{4}{@{}l}{\textit{" + t + r"}} \\"
     L = [
+        bloco("Fontes de ganho aparente (sem intervalo pareado)"),
         ("Avaliar no próprio treino", "RSF, 17 var.: no próprio treino contra fora da partição (312)", "C de Uno",
          mais(da.loc["RSF, 17 var.", "Otimismo (Uno)"])),
-        ("", "Cox de Mayo: idem", "C de Uno", mais(da.loc[REF_COX, "Otimismo (Uno)"])),
-        ("Vazamento do desfecho", r"XGBoost, 17 var., com e sem o tempo de seguimento na entrada (418)",
+        ("", "Cox de Mayo: idem (312)", "C de Uno", mais(da.loc[REF_COX, "Otimismo (Uno)"])),
+        ("Vazamento do desfecho", r"XGBoost, 17 var., com e sem o tempo de seguimento (418; classificação)",
          "AUROC macro", mais(vz["Δ"]) + f" ({n_ganho} de 25 partições)"),
-        ("Referência avaliada onde foi estimada", "Fórmula de 1989 (estimada nos 312) contra Cox reestimado fora da partição (312)",
+        bloco("Escolhas que pouco mudaram o resultado (IC 95\\% pareado)"),
+        ("Fórmula avaliada onde foi estimada",
+         "Fórmula de 1989 (estimada nos 312) contra Cox de Mayo ajustado só nos 312, fora da partição",
          "C de Uno", f"{mais(-dv['Diferença (Cox menos fórmula)'])} ({ic(-dv['IC95 sup'], -dv['IC95 inf'])})"),
         ("Outras variáveis no comparador", "Cox com as 7 variáveis de Graf et al. contra Cox de Mayo (312)",
          "C de Uno", f"{mais(gc['Diferença'])} ({ic(gc['IC95 inf'], gc['IC95 sup'])})"),
-        (r"Sorteio do \textit{bootstrap}", "Limite superior da RSF, 17 var., em 25 sementes",
+        bloco("Sensibilidade da inferência (não é ganho)"),
+        (r"Sorteio do \textit{bootstrap}", "Limite superior do IC da RSF, 17 var., em 25 sementes (418)",
          "C de Uno", f"{f(alt.ICBonf_sup.min(), 4)} a {f(alt.ICBonf_sup.max(), 4)}; acima de 0,02 em {int((~alt['Exclui a margem']).sum())}"),
     ]
-    return "\n".join(" & ".join(l) + r" \\" for l in L)
+    return "\n".join(l if isinstance(l, str) else " & ".join(l) + r" \\" for l in L)
 
 
 def tabela_cox():
@@ -231,6 +271,64 @@ def macros():
         _, _, y, _ = preparar(desf)
         oof = pd.read_csv(R / f"oof_risco5{suf}.csv", index_col=0)
         m[nome] = f(_cuno(y, oof[REFERENCIA].to_numpy()))
+        m[nome + "EN"] = fe(_cuno(y, oof[REFERENCIA].to_numpy()))
+    # ---- Fable (revisão SBCAS 2027): números que o texto ainda trazia digitados à mão ----
+    viC = vi[vi["Métrica"] == "C de Uno (5 anos)"].set_index("Modelo")
+    m["difMin"], m["difMax"] = f(viC["Diferença"].min()), f(viC["Diferença"].max())
+    m["difMinEN"], m["difMaxEN"] = fe(viC["Diferença"].min()), fe(viC["Diferença"].max())
+    m["refMedio"] = f(res.loc[ORDEM[0], ("C de Uno (5 anos)", "mean")])
+    m["coxpenDif"] = f(viC.loc["Cox penalizado, 17 var.", "Diferença"])
+    m["coxpenSupPlano"] = f(viC.loc["Cox penalizado, 17 var.", "ICBonf_sup"])
+    m["rsfDezLimitePlano"] = f(viC.loc["RSF, 17 var.", "ICBonf_sup"], 4)
+    viA = vi[vi["Métrica"] == "AUC (5 anos)"].set_index("Modelo")
+    m["aucRSFcinco"] = f(viA.loc["RSF, 5 var.", "Diferença"])
+    m["aucRSFcincoInf"], m["aucRSFcincoSup"] = f(viA.loc["RSF, 5 var.", "ICBonf_inf"]), f(viA.loc["RSF, 5 var.", "ICBonf_sup"])
+    # H9 (parecer 1, item 3): precisão alcançada, como meia-largura dos IC pareados do desfecho principal
+    ml = (viC["ICBonf_sup"] - viC["ICBonf_inf"]) / 2
+    m["meiaLargPlanoMin"], m["meiaLargPlanoMax"] = f(ml.min()), f(ml.max())
+    tc = pd.read_csv(R / "valor_incremental_t_corrigido.csv").set_index("Modelo").loc[ORDEM[1:]]
+    mlt = (tc["IC Bonferroni sup"] - tc["IC Bonferroni inf"]) / 2
+    m["meiaLargTcMin"], m["meiaLargTcMax"] = f(mlt.min()), f(mlt.max())
+    # Calibração: faixa do O/E e quintil mais alto da RSF de 17 variáveis
+    cal = pd.read_csv(R / "calibracao_quintis_ic.csv")
+    oe = cal.groupby("Modelo").first()["O/E (5 anos)"]
+    m["oeMin"], m["oeMax"] = f(oe.min(), 2), f(oe.max(), 2)
+    q5 = cal[(cal.Modelo == "RSF, 17 var.") & (cal.Quintil == 5)].iloc[0]
+    m["rsfDezQuintilPrev"], m["rsfDezQuintilObs"] = f(q5["Previsto (média)"]), f(q5["Observado (KM)"])
+    # Curva de decisão: maior diferença por 100 pacientes
+    m["dcMaxDifPorCem"] = f(100 * dif.abs().max(), 1)
+    # Vazamento (linha d) e classificação com exclusão (linha a), com o nível do IC (parecer 3, item 3.i)
+    en = pd.read_csv(R / "tabela_enquadramentos.csv")
+    vz = en[en["Enquadramento"].str.startswith("(d)")].iloc[0]
+    m["vazamentoAUROC"] = f(vz["Δ"])
+    ca = en[en["Enquadramento"].str.startswith("(a)")].iloc[0]
+    m["classifDif"], m["classifInf"], m["classifSup"] = f(ca["Δ"]), f(ca["IC_inf"]), f(ca["IC_sup"])
+    m["classifComparacoes"] = re.search(r"m=(\d+)", ca["Tipo de IC"]).group(1)
+    # H1: fórmula de 1989 no desfecho só óbito (mayo1989_coorte_obito.csv), relatada no texto
+    mfo = pd.read_csv(R / "mayo1989_coorte_obito.csv").set_index("Comparação")
+    m["formulaCObito"] = f(mfo.loc["Fórmula de 1989 (final, n = 418)", "C de Uno agregado"])
+    for pref, comp in [("refMenosFormulaObito", f"{ORDEM[0]} menos fórmula"), ("rsfCincoMenosFormulaObito", "RSF, 5 var. menos fórmula")]:
+        r = mfo.loc[comp]
+        m[pref] = f(r["Diferença"])
+        m[pref + "Inf"], m[pref + "Sup"] = f(r["IC bootstrap inf"]), f(r["IC bootstrap sup"])
+        m[pref + "TcInf"], m[pref + "TcSup"] = f(r["IC teste corrigido inf"]), f(r["IC teste corrigido sup"])
+    outros = mfo.loc[["Cox penalizado, 17 var. menos fórmula", "RSF, 17 var. menos fórmula"]]
+    m["outrosFormulaObitoCruzamZero"] = "sim" if ((outros["IC bootstrap inf"] < 0) & (outros["IC bootstrap sup"] > 0)).all() else "não"
+    # H4: subgrupo, maior diferença dos modelos de 17 variáveis contra o Cox reestimado (não contra a fórmula)
+    m["subDifRefMax"] = f(sg.loc[["Cox penalizado, 17 var.", "RSF, 17 var."], "Dif. contra Cox, 5 var. (referência)"].max())
+    # H6: otimismo também em C de Harrell, a métrica prevista no plano complementar
+    m["otimRSFHarrell"] = f(da.loc["RSF, 17 var.", "Otimismo (Harrell)"])
+    m["otimRSFEN"] = fe(da.loc["RSF, 17 var.", "Otimismo (Uno)"])
+    # Sensibilidade só óbito, resumida no texto: limites superiores pelo plano e pelo teste corrigido
+    vio = pd.read_csv(R / "valor_incremental_obito.csv")
+    vio = vio[vio["Métrica"] == "C de Uno (5 anos)"].set_index("Modelo")
+    for k, nome in zip("ABC", ORDEM[1:]):
+        m[f"obitoDif{k}"] = f(vio.loc[nome, "Diferença"])
+        m[f"obitoSupPlano{k}"] = f(vio.loc[nome, "ICBonf_sup"])
+    m["otimRSFdentro"], m["otimRSFfora"] = f(da.loc["RSF, 17 var.", "C de Uno dentro da amostra"]), f(da.loc["RSF, 17 var.", "C de Uno fora da partição (agregado)"])
+    # J1: valor exato do limite marcado com adaga na Tabela 3 (preenchido por tabela_leitura, que roda antes da 2a chamada)
+    assert len(set(ADAGA)) <= 1, "mais de um limite com adaga: a legenda da Tabela 3 precisa citar todos"
+    m["supAdaga"] = f(ADAGA[0], 5) if ADAGA else "--"
     with open(T / "numeros.tex", "w") as fh:
         fh.write("% Gerado por gerar_tabelas.py a partir de resultados_sbcas/. Não editar.\n")
         for k, v in m.items():
@@ -243,6 +341,7 @@ def main():
     (T / "desempenho_obito.tex").write_text(tabela_desempenho("_obito") + "\n")
     (T / "enquadramentos.tex").write_text(tabela_enquadramentos() + "\n")
     (T / "leitura.tex").write_text(tabela_leitura() + "\n")
+    (T / "leitura_obito.tex").unlink(missing_ok=True)  # o bloco só óbito voltou à Tabela 3 do artigo
     (T / "fontes.tex").write_text(tabela_fontes() + "\n")
     (T / "cox.tex").write_text(tabela_cox() + "\n")
     macros()
