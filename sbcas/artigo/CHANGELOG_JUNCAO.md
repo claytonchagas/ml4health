@@ -258,3 +258,18 @@ Saíram do texto, e portanto da lista de referências, cinco citações de apoio
 - Assimetrias do desenho na Seção 3.2: mantidas, com D13 explicado.
 - Escopo dos modelos (sem boosting nem redes neurais na sobrevivência): mantido nas Limitações.
 - Sem dados nem análises novas: a Tabela 3 e a Figura 1 só redesenham resultados já existentes em `resultados_sbcas/`; nenhum número de resultado foi digitado à mão (os únicos decimais literais do `main.tex` são os de Graf et al., 0,855 e 0,776, a margem 0,02, o nível 98,3% e os parâmetros de leiaute).
+
+## Série J (Opus, após a comparação cega junção contra B, com aprovação do autor)
+
+Quatro leitores cegos (Sonnet 36% contra 33%, Opus 35% contra 30%, ChatGPT 48% contra 42%, Gemini 55 a 60% contra 40 a 45%) preferiram a junção a B. Ajustes triados pela regra de `sbcas/DECISOES_REVISAO.md`:
+
+- J1 (os quatro): Tabela 3 com quatro casas em todos os IC do plano; adaga e valor exato (macro `supAdaga`) quando o arredondamento esconde o lado da margem.
+- J2 e J3 (Gemini, Sonnet, Opus): classificação com as cinco alternativas nomeadas (por isso Bonferroni com 5 comparações) e a melhor identificada (logística penalizada); classificação descrita como executada antes do plano e incluída nele.
+- J4 (Sonnet, Opus): legenda do painel (d) da Figura 1 numa faixa livre no alto, sem cobrir "Tratar nenhum".
+- J5 (Opus): legenda da Tabela 3 diz que o ΔC é calculado antes de arredondar.
+- J6 (Opus, Gemini, ChatGPT): resumo e abstract com "ganho demonstrado" no lugar de "superou"; otimismo de treino qualificado como medido nos 312, sem intervalo; a comparação com as diferenças entre modelos fica só no corpo, com a ressalva.
+- J7 (ChatGPT, Opus): dois limites do plano movidos da 3.6 para a abertura da Seção 3, sem mudar a ordem das subseções (preferida pelo Gemini).
+- J8 (Gemini, Sonnet, Opus): citação de Harrell et al. (1982) restaurada; Cox (1972) segue fora por espaço.
+- J9 (ChatGPT): "um resultado nulo era o mais provável" passa a "um resultado nulo não surpreende".
+- Descartado: J10 (justificar a regra conjunta), pedido de um só leitor e já coberto pela Seção 3.4 e pela Discussão.
+- Cortes compensatórios sem perda de conteúdo: "nesta coorte" na contribuição (i), "escolhidos ou aprendidos" para "ajustados" na 3.2, "regressão" repetido na 3.5.

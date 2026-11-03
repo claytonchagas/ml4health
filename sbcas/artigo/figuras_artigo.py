@@ -84,11 +84,11 @@ def painel_decisao(a, dc, am, titulo):
     a.axhline(0, color="0.3", lw=0.9, label="Tratar nenhum")
     a.plot(dc["Limiar"], dc[REF], color=AZUL, lw=1.6, label=REF)
     a.plot(dc["Limiar"], dc[am], color=LARANJA, lw=1.6, ls="--", label=am)
-    a.set_ylim(-0.03, max(dc[[REF, am]].max().max(), dc["Tratar todos"].max()) * 1.12)
+    a.set_ylim(-0.03, max(dc[[REF, am]].max().max(), dc["Tratar todos"].max()) * 1.5)  # J4: faixa livre no alto para a legenda
     a.set_xlim(dc["Limiar"].min(), dc["Limiar"].max())
     a.set_xlabel("Limiar de risco em 5 anos", fontsize=7.5); a.set_ylabel("Benefício líquido", fontsize=7.5)
     a.set_title(titulo, fontsize=8, loc="left")
-    a.legend(fontsize=6.8, frameon=True, framealpha=1, edgecolor="white", loc="lower right", ncol=2, columnspacing=0.8, handlelength=1.8, handletextpad=0.5, borderpad=0.2)
+    a.legend(fontsize=6.8, frameon=True, framealpha=1, edgecolor="white", loc="upper right", ncol=2, columnspacing=0.8, handlelength=1.8, handletextpad=0.5, borderpad=0.2)
     a.tick_params(labelsize=7)
     a.xaxis.set_major_formatter(VIRGULA); a.yaxis.set_major_formatter(VIRGULA)
     a.grid(alpha=0.25)
