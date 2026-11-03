@@ -154,7 +154,7 @@ def tabela_fontes():
         ("Avaliar no próprio treino", "RSF, 17 var.: no próprio treino contra fora da partição (312)", "C de Uno",
          mais(da.loc["RSF, 17 var.", "Otimismo (Uno)"])),
         ("", "Cox de Mayo: idem (312)", "C de Uno", mais(da.loc[REF_COX, "Otimismo (Uno)"])),
-        ("Vazamento do desfecho", r"XGBoost, 17 var., com e sem o tempo de seguimento (418; classificação)",
+        ("Vazamento do desfecho", r"XGBoost, 17 var., com e sem o tempo de seguimento (418; classificação em três classes)",
          "AUROC macro", mais(vz["Δ"]) + f" ({n_ganho} de 25 partições)"),
         bloco("Escolhas que pouco mudaram o resultado (IC 95\\% pareado)"),
         ("Fórmula avaliada onde foi estimada",
@@ -304,6 +304,10 @@ def macros():
     ca = en[en["Enquadramento"].str.startswith("(a)")].iloc[0]
     m["classifDif"], m["classifInf"], m["classifSup"] = f(ca["Δ"]), f(ca["IC_inf"]), f(ca["IC_sup"])
     m["classifComparacoes"] = re.search(r"m=(\d+)", ca["Tipo de IC"]).group(1)
+    # K3 (rodada de fluidez): denominador da classificação binária em cinco anos, após excluir os censurados
+    # antes do prazo. São 312 pacientes com 115 óbitos; o 312 coincide com o número de randomizados, mas o
+    # conjunto é outro (244 randomizados e 68 não randomizados), e o texto diz isso.
+    m["classifN"], m["classifEventos"] = str(int(ca["n"])), str(int(ca["Eventos"]))
     # H1: fórmula de 1989 no desfecho só óbito (mayo1989_coorte_obito.csv), relatada no texto
     mfo = pd.read_csv(R / "mayo1989_coorte_obito.csv").set_index("Comparação")
     m["formulaCObito"] = f(mfo.loc["Fórmula de 1989 (final, n = 418)", "C de Uno agregado"])

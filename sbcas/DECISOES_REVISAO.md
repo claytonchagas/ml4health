@@ -12,7 +12,7 @@ Objetivo: evitar idas e vindas entre rodadas de revisão. As decisões abaixo s�
 
 | Decisão | Desde | Motivo |
 |---|---|---|
-| Título T1: "O aprendizado de máquina realmente supera o modelo clínico? Um estudo de caso com plano prévio na colangite biliar primária" | R10 | Já mudou três vezes; o ChatGPT recomenda mantê-lo se a Seção 3 esclarecer o momento do registro. |
+| Título T1: "O aprendizado de máquina realmente supera o modelo clínico? Um estudo de caso com plano prévio na colangite biliar primária" | R10 | Já mudou três vezes; o ChatGPT recomenda mantê-lo se a Seção 3 esclarecer o momento do registro. **Reaberta em 03/11/2026 por decisão do autor**, depois que os quatro pareceres isolados da versão `7c1e9ed` apontaram "plano prévio" como mais forte que a cronologia. Título vigente: "O aprendizado de máquina realmente supera o modelo clínico? Um estudo de caso com plano registrado e desvios declarados na colangite biliar primária" (macro `\titulo` em `main.tex`; alternativas e prós e contras em `sbcas/artigo/PROPOSTA_TITULO.md`). A pergunta inicial foi mantida; só o subtítulo mudou. |
 | Leitura da margem de +0,02: resumo, discussão e conclusão destacam a leitura conservadora (exclusão só para a RSF de 5 variáveis); a leitura do plano (exclusão para as duas RSF) continua relatada na Seção 4.1 | R1, R2, C2, C9 | Coerente em todo o texto; inverter a ênfase reabriria R1 a C2. |
 | Parágrafo Brasil/SUS na Introdução | L3 | Responde ao escopo do SBCAS. Atualização (02/11, decisão do autor): pode ser encolhido, sem ser removido, se faltar espaço para as análises do plano complementar. |
 | Os cinco passos (Tabela 1) como boas práticas conhecidas, não como método novo; sem "replicável" nem "se aplica a outros conjuntos" | C3 | Reivindicar o protocolo como lição geral foi criticado em duas rodadas. |
@@ -24,7 +24,7 @@ Objetivo: evitar idas e vindas entre rodadas de revisão. As decisões abaixo s�
 
 - Lição do protocolo: "replicável" (reforço 1, L8) retirado na C3; a frase "Mostramos quais alegações [...] se sustentam" (C3) foi apontada como exagero.
 - Vazamento como "o único" ganho: "Só o vazamento mudou a conclusão" (L6) retirado na R3; variante "único aumento consistente" ainda na Discussão.
-- Título: original, C2 (L2), T1 (R10).
+- Título: original, C2 (L2), T1 (R10), "plano registrado e desvios declarados" (rodada de fluidez, 03/11/2026, decisão do autor).
 - Ênfase da margem: bootstrap até R1; leitura conservadora desde R1/R2.
 
 ## Plano complementar
