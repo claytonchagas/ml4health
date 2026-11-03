@@ -211,6 +211,15 @@ def macros():
     m["refMenosFormula"] = f(mf.loc[f"{ORDEM[0]} menos fórmula", "Diferença"])
     da = pd.read_csv(R / "graf312_dentro_amostra.csv").set_index("Modelo")
     m["otimRSF"], m["otimCox"] = f(da.loc["RSF, 17 var.", "Otimismo (Uno)"]), f(da.loc[REF_COX, "Otimismo (Uno)"])
+    # G4: subgrupo contra a fórmula inicial (D15) e C de Harrell nos 312 (D16)
+    sg = pd.read_csv(R / "mayo1989_subgrupo.csv").set_index("Modelo")
+    m["subDifFormMax"] = f(sg.loc[["Cox penalizado, 17 var.", "RSF, 17 var."], "Dif. contra fórmula inicial (312)"].max())
+    m["subEventos"] = str(int(sg["Eventos (106)"].iloc[0]))
+    gc = pd.read_csv(R / "graf312_comparacoes.csv")
+    gh = gc[gc["Métrica"] == "C de Harrell"]
+    m["harrellGraf"] = f(gh[gh["Comparação"].str.startswith("Cox, 7 var.")]["C de a"].iloc[0])
+    m["harrellMayo"] = f(gh[gh["Comparação"].str.startswith("Cox, 7 var.")]["C de b"].iloc[0])
+    m["harrellRSF"] = f(gh[gh["Comparação"].str.startswith("RSF, 17 var. menos Cox, 5")]["C de a"].iloc[0])
     m["semAlt"], m["semNaoExclui"] = str(len(alt)), str(int((~alt["Exclui a margem"]).sum()))
     m["semMin"], m["semMax"] = f(alt.ICBonf_sup.min(), 4), f(alt.ICBonf_sup.max(), 4)
     # F2: C de Uno da referência nas predições agregadas (base das diferenças), nos dois desfechos
