@@ -295,6 +295,16 @@ def macros():
     m["oeMin"], m["oeMax"] = f(oe.min(), 2), f(oe.max(), 2)
     q5 = cal[(cal.Modelo == "RSF, 17 var.") & (cal.Quintil == 5)].iloc[0]
     m["rsfDezQuintilPrev"], m["rsfDezQuintilObs"] = f(q5["Previsto (média)"]), f(q5["Observado (KM)"])
+    # Migração (leitura cega, pedida por três leitores): quintis do Cox penalizado citados na Seção 4.2. Nos dois
+    # quintis mais baixos o previsto passa do limite superior do observado (o 1º não tem eventos até 5 anos e usa o
+    # limite binomial exato, como registra a coluna Nota); no mais alto fica abaixo do limite inferior.
+    cp = cal[cal.Modelo == "Cox penalizado, 17 var."].set_index("Quintil")
+    for q, nome in [(1, "Um"), (2, "Dois"), (5, "Cinco")]:
+        m[f"coxpenQuint{nome}Prev"] = f(cp.loc[q, "Previsto (média)"])
+        m[f"coxpenQuint{nome}ObsInf"] = f(cp.loc[q, "Observado IC95_inf"])
+        m[f"coxpenQuint{nome}ObsSup"] = f(cp.loc[q, "Observado IC95_sup"])
+    assert (cp.loc[1, "Previsto (média)"] > cp.loc[1, "Observado IC95_sup"] and cp.loc[2, "Previsto (média)"] > cp.loc[2, "Observado IC95_sup"]
+            and cp.loc[5, "Previsto (média)"] < cp.loc[5, "Observado IC95_inf"]), "a frase da Seção 4.2 sobre o Cox penalizado deixou de valer"
     # Curva de decisão: maior diferença por 100 pacientes
     m["dcMaxDifPorCem"] = f(100 * dif.abs().max(), 1)
     # Vazamento (linha d) e classificação com exclusão (linha a), com o nível do IC (parecer 3, item 3.i)
