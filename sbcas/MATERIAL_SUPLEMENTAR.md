@@ -30,6 +30,7 @@ Detalhes técnicos que o artigo resume em linguagem direta. Cada item aponta o s
 
 - 2.000 reamostragens *bootstrap* pareadas de pacientes (semente 2026) sobre as predições fora da partição; IC 95% e IC de Bonferroni para 3 comparações (98,33%); reamostragens descartadas e motivos registrados (zero em todas as análises).
 - Resultados: `resultados_sbcas/valor_incremental.csv` e `valor_incremental_obito.csv`.
+- Leitura da sensibilidade só óbito (bootstrap do plano, teste corrigido e regra combinada), nos mesmos moldes da Tabela 3 do artigo: `sbcas/artigo/tabelas/leitura_obito.tex`, gerada por `gerar_tabelas.py`. O artigo a resume no texto da Seção 4.1.
 - Primeira execução (desvio D1, busca sobre o escore nativo): o limite superior de Bonferroni da RSF de 17 variáveis foi 0,0209, contra 0,0197 na execução final. A diferença é da ordem do erro de Monte Carlo de um *bootstrap* com 2.000 reamostragens; por isso o artigo trata a exclusão da margem de +0,02 para essa floresta como instável.
 - Estabilidade à semente (`sensibilidade_semente.py`): o mesmo *bootstrap* refeito com as sementes 1 a 25 deu limites de 0,0188 a 0,0212 para a RSF de 17 variáveis (média 0,0199, desvio 0,0007); a margem não foi excluída em 10 das 25. Resultado em `resultados_sbcas/sensibilidade_semente_bootstrap.csv`.
 
@@ -52,7 +53,7 @@ Detalhes técnicos que o artigo resume em linguagem direta. Cada item aponta o s
 
 ## S8. Importância por permutação (`importancia_permutacao.py`)
 
-- RSF de 17 variáveis, reajustada no treino de cada uma das 5 partições da primeira repetição com os hiperparâmetros escolhidos naquela partição; queda média do C de Uno no teste em 30 permutações por variável (semente 2026): `resultados_sbcas/importancia_permutacao_rsf17.csv`.
+- RSF de 17 variáveis, reajustada no treino de cada uma das 5 partições da primeira repetição com os hiperparâmetros escolhidos naquela partição; queda média do C de Uno no teste em 30 permutações por variável (semente 2026): `resultados_sbcas/importancia_permutacao_rsf17.csv`. Figura com as oito maiores quedas (ao lado da curva de decisão): `sbcas/artigo/figuras/figura_decisao_importancia.pdf`, gerada por `sbcas/artigo/figura_decisao_importancia.py`; o artigo cita os valores no texto.
 
 ## S9. Sensibilidade com óbito como evento
 

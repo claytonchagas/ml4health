@@ -58,7 +58,7 @@ def tabela_desempenho(suf=""):
     return "\n".join(linhas)
 
 
-def tabela_leitura(desfechos=(("", "Óbito ou transplante (principal)"), ("_obito", "Só óbito (sensibilidade)")), formula=True):
+def tabela_leitura(desfechos=(("", "Contra o Cox de Mayo reestimado (referência do plano)"), ("_obito", "Só óbito (sensibilidade)")), formula=True):
     """Leitura do valor incremental no C de Uno: bootstrap do plano e teste t corrigido (D11), regra combinada.
     Fable: o artigo mostra o desfecho principal e a fórmula de 1989; o bloco só óbito vai para leitura_obito.tex
     (suplementar) e é resumido no texto por macros (parecer 2, motivo 3)."""
@@ -78,7 +78,7 @@ def tabela_leitura(desfechos=(("", "Óbito ou transplante (principal)"), ("_obit
         return "\n".join(linhas)
     # G1 (D14): mesma leitura contra a fórmula de Mayo publicada em 1989 (final, sem reajuste), desfecho principal
     mf = pd.read_csv(R / "mayo1989_coorte.csv")
-    linhas.append("\\multicolumn{5}{@{}l}{\\textit{Óbito ou transplante, contra a fórmula de 1989 sem reajuste}} \\\\")
+    linhas.append("\\multicolumn{5}{@{}l}{\\textit{Contra a fórmula de 1989 sem reajuste (análise posterior)}} \\\\")
     for m in ORDEM:
         r = mf[mf["Comparação"] == f"{m} menos fórmula"].iloc[0]
         b_sup, t_sup = r["IC bootstrap sup"], r["IC teste corrigido sup"]
@@ -135,7 +135,7 @@ def tabela_fontes():
          "AUROC macro", mais(vz["Δ"]) + f" ({n_ganho} de 25 partições)"),
         bloco("Escolhas que pouco mudaram o resultado (IC 95\\% pareado)"),
         ("Fórmula avaliada onde foi estimada (muda também o modelo)",
-         "Fórmula de 1989 (estimada nos 312) contra Cox de Mayo fora da partição (312)",
+         "Fórmula de 1989 (estimada nos 312) contra Cox de Mayo ajustado só nos 312, fora da partição",
          "C de Uno", f"{mais(-dv['Diferença (Cox menos fórmula)'])} ({ic(-dv['IC95 sup'], -dv['IC95 inf'])})"),
         ("Outras variáveis no comparador", "Cox com as 7 variáveis de Graf et al. contra Cox de Mayo (312)",
          "C de Uno", f"{mais(gc['Diferença'])} ({ic(gc['IC95 inf'], gc['IC95 sup'])})"),
@@ -314,7 +314,7 @@ def main():
     (T / "desempenho.tex").write_text(tabela_desempenho("") + "\n")
     (T / "desempenho_obito.tex").write_text(tabela_desempenho("_obito") + "\n")
     (T / "enquadramentos.tex").write_text(tabela_enquadramentos() + "\n")
-    (T / "leitura.tex").write_text(tabela_leitura(desfechos=(("", "Óbito ou transplante (principal)"),)) + "\n")
+    (T / "leitura.tex").write_text(tabela_leitura(desfechos=(("", "Contra o Cox de Mayo reestimado (referência do plano)"),)) + "\n")
     (T / "leitura_obito.tex").write_text(tabela_leitura(desfechos=(("_obito", "Só óbito (sensibilidade)"),), formula=False) + "\n")
     (T / "fontes.tex").write_text(tabela_fontes() + "\n")
     (T / "cox.tex").write_text(tabela_cox() + "\n")
