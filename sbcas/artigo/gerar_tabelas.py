@@ -158,7 +158,7 @@ def tabela_fontes():
          "AUROC macro", mais(vz["Δ"]) + f" ({n_ganho} de 25 partições)"),
         bloco("Escolhas que pouco mudaram o resultado (IC 95\\% pareado)"),
         ("Fórmula avaliada onde foi estimada",
-         "Fórmula de 1989 (estimada nos 312) contra Cox de Mayo ajustado nos 312, fora da partição",
+         "Fórmula de 1989 contra Cox de Mayo, ambos nos 312; o Cox fora da partição",
          "C de Uno", f"{mais(-dv['Diferença (Cox menos fórmula)'])} ({ic(-dv['IC95 sup'], -dv['IC95 inf'])})"),
         ("Outras variáveis no comparador", "Cox com as 7 variáveis de Graf et al. contra Cox de Mayo (312)",
          "C de Uno", f"{mais(gc['Diferença'])} ({ic(gc['IC95 inf'], gc['IC95 sup'])})"),
