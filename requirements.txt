@@ -11,3 +11,4 @@ nbconvert==7.17.2
 ipykernel==7.4.0
 scikit-survival==0.28.0
 lifelines==0.30.3
+gradio==6.32.0

@@ -295,6 +295,8 @@ O plano foi registrado antes da análise de sobrevivência; há dezessete desvio
 | `"rapido"` | Refaz a validação cruzada com 1 repetição (5 partições) e um *bootstrap* menor, sem gravar por cima dos resultados oficiais | 15 a 25 minutos |
 | `"completo"` | Executa `sobrevivencia.py` e os scripts complementares, regravando `resultados_sbcas/` | várias horas no Colab gratuito (a execução oficial do desfecho principal levou cerca de {minutos} minutos) |
 
+A seção 5 do notebook é uma **demonstração interativa opcional** (Gradio): o mesmo paciente no Cox de Mayo e na random survival forest de 5 variáveis, com o risco em cinco anos e as curvas de sobrevivência. É didática, não é ferramenta clínica, e não altera as seções anteriores.
+
 **Localmente** (Python 3.11 ou mais novo; a execução oficial usou Python {py}, scikit-learn {sklearn} e scikit-survival {sksurv}):
 
 ```bash
