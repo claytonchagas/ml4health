@@ -1,270 +1,449 @@
-"""Gera o notebook de demonstracao a partir do modulo experimento.py (mantem uma unica fonte de verdade)."""
-import re
-import nbformat as nbf
+"""Gera o notebook de demonstração do trabalho final (versão SBCAS 2027).
 
-src = open("experimento.py", encoding="utf-8").read()
-src = src.split('if __name__ == "__main__":')[0]
-blocos = re.split(r"\n# -{20,} ?", src)
-cab, resto = blocos[0], blocos[1:]
-imports = cab.split('"""', 2)[2].strip()  # remove docstring
-secoes = {}
-for b in resto:
-    titulo, corpo = b.split("\n", 1)
-    secoes[titulo.strip()] = corpo.strip()
+O notebook não duplica o código da análise: importa as funções de sobrevivencia.py e experimento.py (a mesma fonte
+usada na execução oficial) e lê os resultados oficiais de resultados_sbcas/. Uso: python construir_notebook.py
+A primeira versão (classificação em 5 anos, outubro de 2026) está no ramo entrega-disciplina-out2026."""
+import nbformat as nbf
 
 md = nbf.v4.new_markdown_cell
 code = nbf.v4.new_code_cell
-nb = nbf.v4.new_notebook()
 C = []
 
-C.append(md("""# Aprendizado de Máquina versus Escore de Mayo: qual vale mais a pena na predição de óbito em cirrose biliar primária?
+C.append(md("""# O aprendizado de máquina supera o modelo clínico? Um estudo de caso em colangite biliar primária
 
 [![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/claytonchagas/ml4health/blob/main/ml4health_cbp_mayo.ipynb)
 
-**TCC00367, Introdução ao Aprendizado de Máquina para Saúde (PGC/UFF).** Clayton Escouper das Chagas.
+**Trabalho final da disciplina TCC00367, Introdução ao Aprendizado de Máquina para Saúde (PGC/UFF).** Clayton Escouper das Chagas e Flávio Seixas. Documentação completa no [README](https://github.com/claytonchagas/ml4health#readme) e artigo em `sbcas/artigo/main.pdf`.
 
-Notebook de demonstração do projeto. Pergunta: quanto o aprendizado de máquina acrescenta a um modelo de regressão com as 5 variáveis de rotina do Escore de Risco de Mayo (1989) na predição de óbito em até 5 anos, e a que custo? O desenho é 2 x 2: **regressão** e **aprendizado de máquina**, cada um com as **5 variáveis de Mayo** e com as **17 variáveis** do dataset, nos mesmos folds. A leitura vertical compara os pipelines de cada família com as mesmas variáveis (e uma análise de sensibilidade dá às árvores o mesmo pré-processamento da regressão, aproximando a comparação do efeito do algoritmo); a horizontal, o efeito das variáveis extras.
+**Pergunta.** Um serviço que estima o risco de pacientes com colangite biliar primária com as cinco variáveis do modelo de Mayo (idade, bilirrubina, albumina, tempo de protrombina e edema) ganharia algo ao trocar o modelo de Cox por um modelo de aprendizado de máquina? Comparamos, nos mesmos pacientes e nas mesmas partições, quatro modelos de sobrevivência num desenho 2 × 2:
 
-Tempo de execução: cerca de 35 a 40 minutos em CPU com 2 núcleos (o Colab gratuito serve). Para uma execução rápida de teste, mude `N_REP` para 1 na seção de hiperparâmetros."""))
+| | 5 variáveis de Mayo | 17 variáveis |
+|---|---|---|
+| **Cox** | Cox de Mayo reestimado (**referência**) | Cox penalizado (*elastic net*) |
+| **Aprendizado de máquina** | Random survival forest (RSF) | Random survival forest (RSF) |
 
-C.append(md("## 1. Dependências do ambiente de execução"))
-C.append(code("""# Instala apenas o que faltar (funciona no Colab e em ambiente local)
-import importlib.util, subprocess, sys
-faltando = [p for p in ["ucimlrepo", "xgboost", "sklearn", "pandas", "numpy", "matplotlib"] if importlib.util.find_spec(p) is None]
+O desfecho é óbito ou transplante em até cinco anos, a métrica principal é o C de Uno em cinco anos e a leitura segue um plano registrado antes da análise (margem de +0,02 no C de Uno).
+
+**Como usar.** Execute as células em ordem. O modo de execução é escolhido na seção 2.4:
+
+- `"apresentacao"` (padrão, 2 a 4 minutos): carrega os dados, mostra as curvas de iteração, treina os quatro modelos ao vivo em uma partição e lê os resultados oficiais para as tabelas e os gráficos;
+- `"rapido"` (15 a 25 minutos): refaz a validação cruzada com 1 repetição e um *bootstrap* menor, sem gravar por cima dos resultados oficiais;
+- `"completo"` (várias horas no Colab gratuito): executa os scripts da análise e regrava `resultados_sbcas/`."""))
+
+# ------------------------------------------------------------------------------------------------ 1
+C.append(md("""## 1. Dependências do ambiente de execução
+
+A célula abaixo prepara o ambiente: no Colab, clona o repositório (código, dados e resultados oficiais) e instala o que faltar. Os pacotes principais são `scikit-survival` (modelos e métricas de sobrevivência), `scikit-learn`, `pandas`, `numpy` e `matplotlib`; `xgboost` só é usado na análise de classificação da primeira versão. As versões exatas da execução oficial estão em `requirements.txt` (Python 3.13, scikit-learn 1.9.1, scikit-survival 0.28.0); no Colab, os números de uma reexecução podem diferir na terceira casa decimal."""))
+C.append(code("""import importlib.util, os, subprocess, sys
+
+REPO = "https://github.com/claytonchagas/ml4health"
+if not os.path.exists("sobrevivencia.py"):            # no Colab (ou fora do repositório): clona e entra na pasta
+    if not os.path.exists("ml4health"):
+        subprocess.run(["git", "clone", "--depth", "1", REPO], check=True)
+    os.chdir("ml4health")
+
+pacotes = {"sksurv": "scikit-survival", "xgboost": "xgboost", "matplotlib": "matplotlib"}
+faltando = [pip for mod, pip in pacotes.items() if importlib.util.find_spec(mod) is None]
 if faltando:
-    nomes_pip = {"sklearn": "scikit-learn"}
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "-q", *[nomes_pip.get(p, p) for p in faltando]])
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "-q", *faltando])
 
-import os
-os.makedirs("resultados", exist_ok=True); os.makedirs("figs", exist_ok=True)
-
-import sys, sklearn, xgboost, pandas, numpy, matplotlib
+import numpy, pandas, sklearn, sksurv, matplotlib
+print("Pasta de trabalho:", os.getcwd())
 print("Python", sys.version.split()[0])
-for m in (sklearn, xgboost, pandas, numpy, matplotlib):
+for m in (numpy, pandas, sklearn, sksurv, matplotlib):
     print(f"{m.__name__:12s} {m.__version__}")"""))
 
-C.append(md("## 2. Etapas de execução\n\n### 2.1 Bibliotecas utilizadas"))
-C.append(code(imports + "\n\nimport matplotlib.pyplot as plt\nfrom sklearn.calibration import calibration_curve\nfrom sklearn.metrics import roc_curve\nplt.rcParams.update({'figure.dpi': 110, 'axes.spines.top': False, 'axes.spines.right': False})"))
+# ------------------------------------------------------------------------------------------------ 2
+C.append(md("""## 2. Etapas de execução
+
+### 2.1 Bibliotecas utilizadas
+
+Além das bibliotecas gerais, o notebook importa os módulos do próprio projeto: `experimento.py` (carga e codificação dos dados) e `sobrevivencia.py` (modelos, métricas, validação cruzada e valor incremental). São os mesmos arquivos usados na execução oficial que gerou o artigo."""))
+C.append(code("""import time, warnings
+from collections import Counter
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from IPython.display import display, Markdown
+
+from sklearn.base import clone
+from sklearn.model_selection import RepeatedStratifiedKFold
+from sksurv.linear_model import CoxPHSurvivalAnalysis, CoxnetSurvivalAnalysis
+from sksurv.ensemble import RandomSurvivalForest
+from sksurv.metrics import concordance_index_ipcw
+from sksurv.nonparametric import kaplan_meier_estimator
+
+import experimento as exp
+import sobrevivencia as sv
+from sobrevivencia import HORIZONTE, MARGEM, N_BOOT, N_CONFIG_RSF, REFERENCIA, SEMENTE
+
+warnings.filterwarnings("ignore", category=FutureWarning)
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+plt.rcParams.update({"figure.dpi": 110, "axes.spines.top": False, "axes.spines.right": False})
+pd.set_option("display.precision", 3)
+R = "resultados_sbcas/"
+ALT = ["Cox penalizado, 17 var.", "RSF, 5 var.", "RSF, 17 var."]
+ORDEM = [REFERENCIA] + ALT
+CORES = dict(zip(ORDEM, ["#1f4e79", "#7fa7d0", "#c0504d", "#e6a19e"]))
+pd.set_option("display.float_format", lambda v: f"{v:.3f}")
+pd.set_option("display.max_colwidth", 80)
+NOMES = {"Age": "Idade", "Sex_M": "Sexo masculino", "Drug_Dpen": "Tratamento (D-penicilamina)", "Ascites": "Ascite",
+         "Hepatomegaly": "Hepatomegalia", "Spiders": "Aranhas vasculares", "Edema": "Edema", "Bilirubin": "Bilirrubina",
+         "Cholesterol": "Colesterol", "Albumin": "Albumina", "Copper": "Cobre urinário", "Alk_Phos": "Fosfatase alcalina",
+         "SGOT": "AST", "Tryglicerides": "Triglicerídeos", "Platelets": "Plaquetas", "Prothrombin": "Tempo de protrombina",
+         "Stage": "Estágio histológico"}"""))
 
 C.append(md("""### 2.2 Funções de apoio
 
-As funções estão agrupadas por papel: carga e codificação dos dados, Escore de Mayo, pipelines dos modelos, métricas e validação, experimento de vazamento e validação quase externa. Todo pré-processamento que aprende com os dados (imputação, padronização, ajuste de hiperparâmetros) fica **dentro** de um `Pipeline`, e portanto é refeito em cada partição de treino; o conjunto de teste nunca influencia nenhuma decisão."""))
-nomes = {"dados": "Carga e codificação dos dados", "Escore de Mayo": "Escore de Risco de Mayo (Dickson et al., 1989)",
-         "pipelines": "Pipelines dos modelos e grades de hiperparâmetros", "metricas": "Métricas, validação cruzada e bootstrap",
-         "vazamento (enquadramento PS3E26)": "Experimento de vazamento (enquadramento da competição Kaggle PS3E26)",
-         "validacao quase externa": "Validação quase externa"}
-for k, v in secoes.items():
-    C.append(md(f"#### {nomes.get(k, k)}"))
-    C.append(code(v))
+As funções que definem a análise estão em `sobrevivencia.py`. As três mais importantes são mostradas abaixo:
+
+- `modelos()`: os quatro *pipelines* (pré-processamento + modelo) e os espaços de busca de hiperparâmetros fixados no plano. Toda etapa que aprende com os dados (logaritmo, imputação, padronização, escolha de hiperparâmetros) fica dentro do `Pipeline` e é refeita no treino de cada partição;
+- `metricas()`: C de Uno, AUC e Brier em cinco anos e Brier integrado no conjunto de teste, com a distribuição de censura estimada no treino;
+- `valor_incremental()`: diferença de C de Uno contra a referência nas predições fora do treino, com *bootstrap* pareado de pacientes e intervalo de Bonferroni.
+
+Outras funções usadas: `preparar()` (carga e rótulo de sobrevivência), `ajustar()` (busca aninhada pelo C de Uno em cinco anos), `predizer()` (risco em cinco anos, $1 - S(5\\ \\text{anos} \\mid \\mathbf{x})$), `validacao_cruzada()` e `calibracao_5anos()`."""))
+C.append(code("""import inspect
+for fn in (sv.modelos, sv.metricas):
+    print(inspect.getsource(fn))"""))
+C.append(md("Funções auxiliares do notebook (leitura dos resultados e gráficos):"))
+C.append(code("""def ler(nome):
+    \"\"\"Lê um CSV de resultados_sbcas/.\"\"\"
+    return pd.read_csv(R + nome)
+
+
+def particao(df_part, rep, k):
+    \"\"\"Índices de treino e teste da partição k da repetição rep, tal como gravados na execução oficial.\"\"\"
+    col = df_part[f"Repetição {rep}"].to_numpy()
+    return np.where(col != k)[0], np.where(col == k)[0]
+
+
+def hiperparametros_da_particao(nome, fold):
+    \"\"\"Hiperparâmetros escolhidos pela busca aninhada na execução oficial, no formato do Pipeline.\"\"\"
+    h = ler("hiperparametros.csv")
+    h = h[(h.Modelo == nome) & (h.Fold == fold)].iloc[0]
+    if nome.startswith("Cox penalizado"):
+        return {"m__l1_ratio": float(h["l1_ratio"]), "m__alphas": [float(h["alphas"])]}
+    if nome.startswith("RSF"):
+        mf = h["max_features"]
+        mf = mf if mf == "sqrt" else float(mf)
+        md = None if pd.isna(h["max_depth"]) else int(h["max_depth"])
+        return {"m__min_samples_split": int(h["min_samples_split"]), "m__min_samples_leaf": int(h["min_samples_leaf"]),
+                "m__max_features": mf, "m__max_depth": md}
+    return {}
+
+
+def grafico_delta(vi, tc, titulo):
+    \"\"\"ΔC contra a referência com os dois intervalos de Bonferroni e a margem de +0,02.\"\"\"
+    fig, ax = plt.subplots(figsize=(7.5, 3))
+    for i, mod in enumerate(ALT):
+        v, t = vi.loc[mod], tc.loc[mod]
+        ax.errorbar(v["Diferença"], i + 0.12, xerr=[[v["Diferença"] - v["ICBonf_inf"]], [v["ICBonf_sup"] - v["Diferença"]]],
+                    fmt="o", color=CORES[mod], capsize=3, label="bootstrap (plano)" if i == 0 else None)
+        m = t["Diferença média por partição"]
+        ax.errorbar(m, i - 0.12, xerr=[[m - t["IC Bonferroni inf"]], [t["IC Bonferroni sup"] - m]],
+                    fmt="s", color=CORES[mod], mfc="white", capsize=3, label="teste t corrigido" if i == 0 else None)
+    ax.axvline(0, color="grey", lw=1); ax.axvline(MARGEM, color="black", ls="--", lw=1)
+    ax.set_yticks(range(len(ALT)), ALT); ax.set_ylim(len(ALT) - 0.5, -0.9)
+    ax.text(MARGEM, -0.75, " margem +0,02", fontsize=8)
+    ax.set_xlabel("ΔC de Uno em 5 anos (modelo menos referência), IC de Bonferroni 98,3%")
+    ax.set_title(titulo, fontsize=10); ax.legend(fontsize=8, loc="upper left", frameon=False, ncol=2)
+    plt.tight_layout(); plt.show()"""))
 
 C.append(md("""### 2.3 Carregamento e pré-processamento do dataset
 
-**Fonte dos dados.** Com `FONTE_DADOS = "local"` (padrão), o notebook usa a cópia versionada em `data/pbc_rdatasets.csv` (o `survival::pbc` do R, mesma coorte de 418 pacientes e mesmas variáveis do UCI 878, que foi derivado dele); se o arquivo não existir, como no Colab, ele é baixado do repositório, e o checksum SHA-256 é verificado. Com `FONTE_DADOS = "uci"`, o dataset oficial é baixado pelo `ucimlrepo` (id 878). A execução oficial usa `"local"`. A idade é convertida para anos.
+**Dados.** Coorte de 418 pacientes da Mayo Clinic (1974 a 1984), a mesma do UCI 878 ([doi.org/10.24432/C5R02G](https://doi.org/10.24432/C5R02G)). A execução usa a cópia versionada `data/pbc_rdatasets.csv` (o `survival::pbc` do R), verificada por SHA-256 a cada carga. Desses pacientes, 312 participaram de dois ensaios randomizados e 106 recusaram a randomização e têm só as medidas de rotina.
 
-**Rótulo.** Óbito em até 5 anos (1.826 dias):
-- `Status = D` e `N_Days ≤ 1826` → 1;
-- `N_Days > 1826` (qualquer status) → 0 (vivo aos 5 anos, com certeza);
-- `Status ∈ {C, CL}` e `N_Days ≤ 1826` → sem rótulo, excluído (saiu antes dos 5 anos sem óbito observado).
-
-`N_Days` é usado **apenas** para construir o rótulo; nunca é variável de entrada (exceto no braço de controle de vazamento, rodado de propósito)."""))
-C.append(code("""FONTE_DADOS = "local"   # "local" (reprodutível, padrão) ou "uci" (dataset oficial do UCI 878)
-df, ORIGEM = carregar_dados(FONTE_DADOS)
-X = codificar(df)
-y = rotulo_5anos(df)
-rot = y.notna()
-print("Origem dos dados:", ORIGEM)
-print("Pacientes:", len(df))
-print("Status:", df["Status"].value_counts().to_dict())
-print("Randomizados no ensaio (Drug presente):", int(df["Drug"].notna().sum()), "| não randomizados:", int(df["Drug"].isna().sum()))
-print(f"Rotulados para 5 anos: {int(rot.sum())} | óbitos em 5 anos: {int(y.sum())} ({y[rot].mean():.1%}) | excluídos por censura/transplante antes de 5 anos: {int((~rot).sum())}")"""))
-C.append(code("""# Ausentes por variável (coorte completa) e custo de dados de cada coluna do desenho 2 x 2
-aus = X[TODAS17].isna().sum().sort_values(ascending=False)
-print(aus[aus > 0].to_string())
-comp5 = int(X.loc[rot, MAYO5].notna().all(1).sum()); comp17 = int(X.loc[rot, TODAS17].notna().all(1).sum())
-print(f"\\nPacientes rotulados com dados completos, sem imputação: 5 variáveis = {comp5} de {int(rot.sum())}; 17 variáveis = {comp17} de {int(rot.sum())}")"""))
-C.append(code("""# Por que N_Days não pode ser entrada: ele separa as classes de Status quase sozinho
-fig, ax = plt.subplots(figsize=(6, 3.2))
-ordem = ["D", "CL", "C"]
-ax.boxplot([df.loc[df.Status == s, "N_Days"] for s in ordem], tick_labels=["Óbito (D)", "Transplante (CL)", "Censurado (C)"], vert=False)
-ax.axvline(HORIZONTE, ls="--", c="gray", lw=1); ax.text(HORIZONTE + 40, 3.35, "5 anos", color="gray", fontsize=8)
-ax.set_xlabel("N_Days (dias até óbito, transplante ou fim do estudo)"); ax.set_title("Distribuição de N_Days por Status")
-plt.tight_layout(); plt.savefig("figs/n_days_por_status.png", dpi=200, bbox_inches="tight"); plt.show()"""))
+**Rótulo de sobrevivência.** Cada paciente vira o par (tempo, evento): o evento principal é óbito ou transplante, e quem saiu do acompanhamento sem evento é censurado no último contato. Ninguém é excluído por ter saído antes de cinco anos. `N_Days` (tempo de seguimento) define o rótulo e **nunca** entra como preditor."""))
+C.append(code("""df, X, y, origem = sv.preparar("transplante_livre")
+print("Origem:", origem)
+print(f"Pacientes: {len(y)} | eventos (óbito ou transplante): {int(y['event'].sum())} "
+      f"| eventos até 5 anos: {int((y['event'] & (y['time'] <= HORIZONTE)).sum())}")
+print("Situação final:", df["Status"].map({"C": "censura", "CL": "transplante", "D": "óbito"}).value_counts().to_dict())
+print("Randomizados:", int(df["Drug"].notna().sum()), "| não randomizados:", int(df["Drug"].isna().sum()))
+print("Pacientes com as 17 variáveis completas:", int(X[exp.TODAS17].notna().all(axis=1).sum()),
+      "| com as 5 de Mayo completas:", int(X[exp.MAYO5].notna().all(axis=1).sum()))
+X.head()"""))
+C.append(code("""fig, ax = plt.subplots(1, 2, figsize=(11, 3.4))
+for rotulo, mask in [("todos (418)", np.ones(len(y), bool)), ("randomizados (312)", df["Drug"].notna().to_numpy()),
+                     ("não randomizados (106)", df["Drug"].isna().to_numpy())]:
+    t, s = kaplan_meier_estimator(y[mask]["event"], y[mask]["time"])
+    ax[0].step(t / 365.25, s, where="post", label=rotulo)
+ax[0].axvline(5, color="grey", ls=":"); ax[0].set_xlabel("Anos"); ax[0].set_ylabel("Sobrevida livre de transplante")
+ax[0].set_title("Kaplan-Meier", fontsize=10); ax[0].legend(fontsize=8, frameon=False)
+aus = X[exp.TODAS17].isna().sum().sort_values()
+ax[1].barh([NOMES[c] for c in aus.index], aus.values, color=["#1f4e79" if c in exp.MAYO5 else "#bbbbbb" for c in aus.index])
+ax[1].set_xlabel("Pacientes com valor ausente"); ax[1].set_title("Ausentes por variável (azul: variáveis de Mayo)", fontsize=10)
+plt.tight_layout(); plt.show()"""))
+C.append(md("""**Pré-processamento.** Nos modelos de Cox: logaritmo das variáveis laboratoriais assimétricas, imputação (mediana com 5 variáveis; imputação iterativa multivariada com 17) e padronização. Nas florestas: só imputação, na escala original. Abaixo, o *pipeline* do Cox de Mayo ajustado no treino da primeira partição e aplicado ao seu teste: o teste é transformado com a mediana, as médias e os desvios do treino."""))
+C.append(code("""part = pd.read_csv(R + "particoes.csv", index_col=0)
+tr, te = particao(part, 0, 0)
+nome, cols, est, grade, n_config = sv.modelos()[0]
+pre = clone(est)[:-1].fit(X.iloc[tr][cols])
+print(f"Partição 0 da repetição 0: {len(tr)} pacientes de treino, {len(te)} de teste")
+pd.DataFrame(pre.transform(X.iloc[te][cols]), columns=cols, index=X.index[te]).head()"""))
 
 C.append(md("""### 2.4 Hiperparâmetros utilizados
 
-- **Validação externa ao ajuste:** validação cruzada estratificada repetida, `N_REP` repetições de 5 folds (padrão 5 x 5 = 25 avaliações); as mesmas 25 divisões para todos os modelos.
-- **Ajuste aninhado:** `RandomizedSearchCV` com **12 configurações sorteadas para todos os modelos ajustáveis**, 3 folds internos, critério AUROC, somente no treino de cada fold externo. As grades foram definidas antes de qualquer resultado e não foram alteradas depois.
-- **Escore de Mayo final (Dickson et al., 1989, n = 418), referência histórica.** Duas versões, ambas com os coeficientes publicados sem reestimar: (i) **probabilidade original** do modelo de Cox, $1 - 0{,}774^{\\exp(R - 5{,}07)}$, sem nenhum ajuste; (ii) **recalibrado no treino**, com intercepto e inclinação de uma regressão logística sobre $R$. Como os coeficientes finais foram estimados com os 418 pacientes desta coorte, nenhuma das duas é uma validação independente (auditoria, A-01 e A-07).
-- **Escore de Mayo inicial (n = 312)**, só na validação quase externa: coeficientes da Tabela 2 de Dickson, estimados apenas nos pacientes randomizados, recalibrados no treino.
-- **Regressão logística com 5 variáveis (referência principal):** mesma especificação de Mayo (logaritmo de bilirrubina, albumina e protrombina; edema em 0, 0,5 e 1), sem penalização, reestimada em cada fold.
-- **Regressão logística com 17 variáveis:** *elastic net* (solver `saga` com semente), laboratórios assimétricos em logaritmo, imputação iterativa, padronização.
-- **Random forest:** 300 árvores; grade sobre folha mínima, variáveis por divisão e profundidade. Imputação iterativa na escala original.
-- **XGBoost:** ausentes tratados nativamente; grade sobre número de árvores, taxa de aprendizado, profundidade, peso mínimo por folha e regularização L2.
-- **Sensibilidade do pré-processamento:** random forest e XGBoost com 17 variáveis recebendo exatamente o pré-processamento da regressão com 17 variáveis (auditoria, A-04).
-- **Métricas:** AUROC (principal); **AP** (*average precision*, precisão média: soma da precisão ponderada pelos incrementos de revocação, estimador usual da área sob a curva precisão-revocação, mas não a integração trapezoidal); Brier; CITL (intercepto com o logit da predição como *offset*); inclinação de calibração.
-- **Sem balanceamento artificial de classes:** escolha deste estudo para preservar as probabilidades estimadas; em regressão logística, correções de desbalanceamento por reamostragem pioraram a calibração sem melhorar a discriminação (van den Goorbergh et al., 2022).
-- **Avisos de convergência** não são silenciados: são contados, têm categoria e mensagem registradas e são reportados após a validação cruzada e na validação quase externa."""))
-C.append(code("""N_REP = 5      # repetições da validação cruzada (use 1 para um teste rápido)
-N_FOLDS = 5
-print("Semente:", SEMENTE, "| horizonte:", HORIZONTE, "dias")
-for nome, cols, est, grade in modelos():
-    print(f"- {nome:32s} {len(cols):2d} variáveis | grade: {grade if grade else 'sem ajuste'}")
-print("\\nGrades:")
-for k, g in GRADES.items():
-    print(" ", k, g)"""))
+Escolha aqui o **modo de execução**. Os hiperparâmetros abaixo foram fixados no plano de análise; os valores de cada modelo são escolhidos por busca aninhada (3 partições internas, critério C de Uno em cinco anos) dentro do treino de cada partição externa."""))
+C.append(code("""MODO = "apresentacao"     # "apresentacao" (padrão), "rapido" ou "completo"
 
+print(f"Horizonte: {HORIZONTE} dias (5 anos) | semente: {SEMENTE} | validação cruzada: 5 repetições x 5 partições")
+print(f"Configurações sorteadas por floresta: {N_CONFIG_RSF} | reamostragens bootstrap: {N_BOOT} | margem: +{MARGEM}")
+for nome, cols, est, grade, n_config in sv.modelos():
+    m = est.named_steps["m"]
+    fixos = {k: v for k, v in m.get_params().items() if k in ("n_estimators", "ties", "alpha", "fit_baseline_model")}
+    print(f"\\n{nome}: {len(cols)} variáveis | fixos: {fixos}")
+    if grade:
+        print(f"  busca: {n_config} configurações em", {k.replace('m__', ''): (v if k != 'm__alphas' else
+              [round(a[0], 4) for a in v]) for k, v in grade.items()})"""))
+C.append(md("Hiperparâmetros escolhidos nas 25 partições da execução oficial (frequência de cada valor):"))
+C.append(code("""h = ler("hiperparametros.csv")
+for nome, colunas in [("Cox penalizado, 17 var.", ["l1_ratio", "alphas", "coeficientes não nulos"]),
+                      ("RSF, 5 var.", ["min_samples_leaf", "min_samples_split", "max_features", "max_depth"]),
+                      ("RSF, 17 var.", ["min_samples_leaf", "min_samples_split", "max_features", "max_depth"])]:
+    sub = h[h.Modelo == nome]
+    print(nome + ":")
+    for c in colunas:
+        cont = sub[c].fillna("livre").astype(str).value_counts().to_dict()
+        print(f"  {c}: {cont}")"""))
+
+# ------------------------------------------------------------------------------------------------ 3
 C.append(md("""## 3. Execução
 
-### 3.1 Curvas de iteração
+### 3.1 Valores e gráficos de iteração
 
-Curvas **demonstrativas**, num único corte treino/teste (80/20 estratificado), para mostrar como cada modelo aprende: perda logarítmica do XGBoost por rodada de *boosting*, erro fora-da-bolsa (OOB) do random forest por número de árvores (até 500, para mostrar a estabilização; a avaliação principal usa 300) e AUROC da regressão logística penalizada ao longo da força de regularização. Essas curvas **não participam** da seleção de modelos nem das tabelas de resultados. Na curva do random forest, a imputação é ajustada antes do *bootstrap*, de modo que o erro OOB ali é apenas ilustrativo, não uma validação do pipeline."""))
-C.append(code("""from sklearn.model_selection import train_test_split
-Xr, yr = X[rot], y[rot].astype(int)
-Xtr, Xte, ytr, yte = train_test_split(Xr, yr, test_size=0.2, stratify=yr, random_state=SEMENTE)
+Modelos de sobrevivência não são treinados por épocas como uma rede neural, mas cada um tem um eixo de iteração que mostra como o ajuste evolui. Os três gráficos usam o treino e o teste da primeira partição:
 
-fig, axs = plt.subplots(1, 3, figsize=(14, 3.6))
+- **Cox de Mayo:** a verossimilhança parcial negativa a cada iteração de Newton-Raphson (a "perda" do Cox), que converge em poucas iterações;
+- **Cox penalizado:** o caminho de regularização, isto é, o C de Uno no teste e o número de coeficientes não nulos ao longo das intensidades de penalização, para cada proporção L1;
+- **RSF de 17 variáveis:** o C de Uno no teste e o C fora da amostra *bootstrap* (*out-of-bag*) conforme o número de árvores cresce, com os hiperparâmetros escolhidos nessa partição."""))
+C.append(code("""def nll_parcial(beta, Z, tempo, evento):
+    \"\"\"Verossimilhança parcial negativa de Cox (empates de Breslow), dividida pelo número de pacientes.\"\"\"
+    eta = Z @ beta
+    ordem = np.argsort(-tempo)
+    eta_o, ev_o, t_o = eta[ordem], evento[ordem], tempo[ordem]
+    log_risco = np.logaddexp.accumulate(eta_o)                # log da soma de exp(eta) no conjunto de risco
+    # empates: o conjunto de risco inclui todos com o mesmo tempo (o maior acumulado entre os empatados)
+    df_t = pd.DataFrame({"t": t_o, "lr": log_risco})
+    lr = df_t.groupby("t")["lr"].transform("max").to_numpy()
+    return -np.sum(ev_o * (eta_o - lr)) / len(tempo)
 
-# (a) XGBoost: log loss por rodada
-for cols, nome in [(MAYO5, "5 var."), (TODAS17, "17 var.")]:
-    m = XGBClassifier(n_estimators=400, learning_rate=0.05, max_depth=2, subsample=0.8, colsample_bytree=0.8,
-                      eval_metric="logloss", random_state=SEMENTE, verbosity=0)
-    m.fit(Xtr[cols], ytr, eval_set=[(Xtr[cols], ytr), (Xte[cols], yte)], verbose=False)
-    ev = m.evals_result()
-    axs[0].plot(ev["validation_0"]["logloss"], ls="--", lw=1, label=f"treino, {nome}")
-    axs[0].plot(ev["validation_1"]["logloss"], lw=1.6, label=f"teste, {nome}")
-axs[0].set_title("XGBoost: log loss por rodada"); axs[0].set_xlabel("rodada de boosting"); axs[0].set_ylabel("log loss"); axs[0].legend(fontsize=7)
+nome, cols, est, grade, _ = sv.modelos()[0]
+pre = clone(est)[:-1].fit(X.iloc[tr][cols]); Ztr = pre.transform(X.iloc[tr][cols]); Zte = pre.transform(X.iloc[te][cols])
+perdas = []
+warnings.filterwarnings("ignore", category=UserWarning)   # avisos esperados: penalização que zera tudo; poucas árvores no OOB
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    for k in range(0, 9):
+        beta = np.zeros(len(cols)) if k == 0 else CoxPHSurvivalAnalysis(alpha=0.0, ties="breslow", n_iter=k).fit(Ztr, y[tr]).coef_
+        perdas.append(nll_parcial(beta, Ztr, y[tr]["time"], y[tr]["event"]))
 
-# (b) Random forest: erro OOB por número de árvores
-for cols, nome in [(MAYO5, "5 var."), (TODAS17, "17 var.")]:
-    Xi = SimpleImputer(strategy="median").fit(Xtr[cols]).transform(Xtr[cols])
-    rf = RandomForestClassifier(warm_start=True, oob_score=True, min_samples_leaf=5, random_state=SEMENTE, n_jobs=-1)
-    ns, err = list(range(25, 525, 25)), []
-    for n in ns:
-        rf.set_params(n_estimators=n); rf.fit(Xi, ytr); err.append(1 - rf.oob_score_)
-    axs[1].plot(ns, err, marker="o", ms=3, label=nome)
-axs[1].set_title("Random forest: erro OOB"); axs[1].set_xlabel("número de árvores"); axs[1].set_ylabel("erro OOB"); axs[1].legend(fontsize=7)
+nome, cols, est, grade, _ = sv.modelos()[1]
+pre = clone(est)[:-1].fit(X.iloc[tr][cols]); Ztr17 = pre.transform(X.iloc[tr][cols]); Zte17 = pre.transform(X.iloc[te][cols])
+alphas = np.logspace(0, -3, 40)
+caminho = {}
+for l1 in [0.1, 0.5, 0.9, 1.0]:
+    cn = CoxnetSurvivalAnalysis(l1_ratio=l1, alphas=alphas, fit_baseline_model=False).fit(Ztr17, y[tr])
+    cs = [concordance_index_ipcw(y[tr], y[te], Zte17 @ cn.coef_[:, j], tau=HORIZONTE)[0] for j in range(len(cn.alphas_))]
+    caminho[l1] = (cn.alphas_, cs, (np.abs(cn.coef_) > 1e-10).sum(axis=0))
 
-# (c) Regressão logística penalizada: AUROC de teste ao longo de C
-Cs = np.logspace(-3, 1, 15); auc_tr, auc_te = [], []
-for c in Cs:
-    p = pipe_regressao(TODAS17, True).set_params(clf__C=c, clf__l1_ratio=0.5).fit(Xtr[TODAS17], ytr)
-    auc_tr.append(roc_auc_score(ytr, p.predict_proba(Xtr[TODAS17])[:, 1])); auc_te.append(roc_auc_score(yte, p.predict_proba(Xte[TODAS17])[:, 1]))
-axs[2].semilogx(Cs, auc_tr, "--", label="treino"); axs[2].semilogx(Cs, auc_te, label="teste")
-axs[2].set_title("RL elastic net, 17 var.: AUROC vs. C"); axs[2].set_xlabel("C (inverso da regularização)"); axs[2].set_ylabel("AUROC"); axs[2].legend(fontsize=7)
-plt.tight_layout(); plt.savefig("figs/curvas_iteracao.png", dpi=200, bbox_inches="tight"); plt.show()"""))
+nome, cols, est, grade, _ = sv.modelos()[3]
+hp = hiperparametros_da_particao(nome, 0)
+imp = clone(est)[:-1].fit(X.iloc[tr][cols]); Wtr = imp.transform(X.iloc[tr][cols]); Wte = imp.transform(X.iloc[te][cols])
+rsf = RandomSurvivalForest(n_estimators=10, warm_start=True, oob_score=True, random_state=SEMENTE, n_jobs=-1,
+                           **{k.replace("m__", ""): v for k, v in hp.items()})
+n_arvores, c_teste, c_oob = [], [], []
+for n in [10, 25, 50, 75, 100, 150, 200, 250, 300]:
+    rsf.set_params(n_estimators=n).fit(Wtr, y[tr])
+    r5 = 1 - np.array([f(HORIZONTE) for f in rsf.predict_survival_function(Wte)])
+    n_arvores.append(n); c_teste.append(concordance_index_ipcw(y[tr], y[te], r5, tau=HORIZONTE)[0]); c_oob.append(rsf.oob_score_)
 
-C.append(md("### 3.2 Avaliação principal: desenho 2 x 2 em validação cruzada 5 x 5 aninhada"))
-C.append(code("""import time
+fig, ax = plt.subplots(1, 3, figsize=(14, 3.5))
+ax[0].plot(range(len(perdas)), perdas, "o-", color=CORES[REFERENCIA])
+ax[0].set_xlabel("Iteração de Newton-Raphson"); ax[0].set_ylabel("Verossimilhança parcial negativa / n")
+ax[0].set_title("Cox de Mayo: perda por iteração", fontsize=10)
+for l1, (a, cs, nz) in caminho.items():
+    ax[1].plot(a, cs, label=f"proporção L1 = {l1}")
+ax[1].set_xscale("log"); ax[1].invert_xaxis(); ax[1].set_xlabel("Intensidade da penalização (α), decrescente")
+ax[1].set_ylabel("C de Uno no teste"); ax[1].set_title("Cox penalizado: caminho de regularização", fontsize=10)
+ax[1].legend(fontsize=7, frameon=False)
+ax[2].plot(n_arvores, c_teste, "o-", color=CORES["RSF, 17 var."], label="C de Uno no teste")
+ax[2].plot(n_arvores, c_oob, "s--", color="grey", label="C fora da amostra bootstrap (OOB)")
+ax[2].set_xlabel("Número de árvores"); ax[2].set_title("RSF de 17 variáveis: desempenho por número de árvores", fontsize=10)
+ax[2].legend(fontsize=7, frameon=False)
+plt.tight_layout(); plt.show()
+print("Perda do Cox por iteração:", np.round(perdas, 4))
+a, cs, nz = caminho[0.5]
+print("Cox penalizado (L1 = 0,5): coeficientes não nulos de", nz.min(), "a", nz.max(), "ao longo do caminho")"""))
+
+C.append(md("""### 3.2 Os quatro modelos treinados ao vivo em uma partição
+
+Antes de olhar as 25 partições, uma partição treinada aqui mesmo: a primeira da primeira repetição, com os hiperparâmetros que a busca aninhada escolheu nela na execução oficial. Como as partições, as sementes e os hiperparâmetros são os mesmos, as métricas devem coincidir com as gravadas em `resultados_sbcas/folds.csv` (última coluna), a menos de diferenças de versão das bibliotecas."""))
+C.append(code("""folds_oficiais = ler("folds.csv")
+linhas, riscos = [], {}
 t0 = time.time()
-folds, oof, hiper = validacao_cruzada(X[rot], y[rot], n_rep=N_REP, n_folds=N_FOLDS)
-folds.to_csv("resultados/folds.csv", index=False); oof.to_csv("resultados/oof.csv")
-hiper.to_csv("resultados/hiperparametros.csv", index=False)
+for nome, cols, est, grade, n_config in sv.modelos():
+    m = clone(est).set_params(**hiperparametros_da_particao(nome, 0)).fit(X.iloc[tr][cols], y[tr])
+    esc, r5, fs = sv.predizer(m, X.iloc[te][cols])
+    riscos[nome] = r5
+    met = sv.metricas(y[tr], y[te], r5, fs)
+    oficial = folds_oficiais[(folds_oficiais.Modelo == nome) & (folds_oficiais.Fold == 0)]["C de Uno (5 anos)"].iloc[0]
+    linhas.append({"Modelo": nome, **{k: v for k, v in met.items() if k != "Suporte 1 a 5 anos"},
+                   "C de Uno oficial (folds.csv)": oficial})
 print(f"Tempo: {time.time() - t0:.0f} s")
-conv = folds.groupby("Modelo", sort=False)["Avisos de convergência"].sum()
-print("Avisos de convergência por modelo (soma nos 25 folds, incluindo a busca interna):")
-print(conv.to_string() if conv.sum() else "  nenhum")
-msgs = sorted({m for s in folds["Mensagens dos avisos"].dropna() for m in str(s).split(" | ") if m})
-for m in msgs: print("  ", m)"""))
-C.append(code("""# Hiperparâmetros escolhidos pela busca aninhada: configuração mais frequente em cada modelo (todas em resultados/hiperparametros.csv)
-hp = hiper.dropna(axis=1, how="all")
-for nome, g in hp.groupby("Modelo", sort=False):
-    g = g.drop(columns=["Modelo", "Fold"]).dropna(axis=1, how="all")
-    if g.shape[1]:
-        inteiros = {"min_samples_leaf", "max_depth", "n_estimators", "min_child_weight"}  # max_features 1.0 = fração, não 1 variável
-        g = g.apply(lambda col: col.map(lambda v: int(v) if col.name in inteiros and isinstance(v, float) and v.is_integer() else v))
-        moda = g.astype(str).value_counts().head(1)
-        print(f"{nome}: {dict(zip(g.columns, moda.index[0]))} (em {moda.iloc[0]} de {len(g)} folds)")"""))
-C.append(code("""resumo = folds.drop(columns=["Fold", "Avisos de convergência", "Mensagens dos avisos"]).groupby("Modelo", sort=False).agg(["mean", "std"])
-fmt = resumo.copy()
-tab = pd.DataFrame({c: [f"{m:.3f} ± {s:.3f}" for m, s in zip(resumo[(c, 'mean')], resumo[(c, 'std')])] for c in ["AUROC", "AP", "Brier", "CITL", "Incl. calibr."]}, index=resumo.index)
-tab"""))
-C.append(md("""**Valor incremental.** A referência principal é a regressão logística com as 5 variáveis de Mayo, **reestimada em cada fold** (mesma especificação de Dickson, sem ter visto o fold de teste). O Escore de Mayo publicado não serve de referência para essa inferência porque seus coeficientes finais foram estimados com os 418 pacientes desta coorte (auditoria, achado A-01).
+pd.DataFrame(linhas).set_index("Modelo").drop(columns=["C de Harrell (risco em 5 anos)"])"""))
 
-Os intervalos são por bootstrap **pareado** de pacientes sobre as predições fora-do-fold médias. São **condicionais** a essas predições: não incorporam a variação de refazer o treino e a busca de hiperparâmetros, por isso são exploratórios. Para as cinco comparações principais, além do IC 95%, mostramos o IC simultâneo de Bonferroni (99%); só falamos em "maior" ou "menor" quando ele exclui zero. "Sem evidência de diferença" não significa equivalência: nenhuma margem foi definida a priori. A dispersão fold a fold complementa com a variação do treino."""))
-C.append(code("""yy = y[rot].to_numpy()
-incremental = valor_incremental(yy, oof, folds, "RL, 5 var. (Mayo reestimado)", COMPARACOES_PRINCIPAIS)
-incremental.to_csv("resultados/valor_incremental.csv", index=False)
-# Referência histórica (exploratória): mesmos modelos contra a probabilidade original do Mayo publicado
-historico = valor_incremental(yy, oof, folds, "Mayo 1989 final, prob. original", ["RL, 5 var. (Mayo reestimado)"] + COMPARACOES_PRINCIPAIS)
-historico.to_csv("resultados/valor_incremental_vs_mayo_publicado.csv", index=False)
-resumo.to_csv("resultados/resumo_cv.csv")
-fmt_ic = lambda a, b: f"[{a:+.3f}; {b:+.3f}]"
-mostra = lambda t: pd.DataFrame({"Modelo": t.Modelo, "ΔAUROC": t["ΔAUROC"].round(3),
-    "IC 95%": [fmt_ic(a, b) for a, b in zip(t.IC95_inf, t.IC95_sup)],
-    "IC Bonferroni": [fmt_ic(a, b) for a, b in zip(t.filter(like="ICBonf").iloc[:, 0], t.filter(like="ICBonf").iloc[:, 1])],
-    "Leitura": t["Leitura (Bonferroni)"],
-    "Δ por fold (média ± desvio)": [f"{m:+.3f} ± {s:.3f}" for m, s in zip(t["Δ fold a fold (média)"], t["Δ fold a fold (desvio)"])],
-    "Folds com ganho": [f"{v:.0f}%" for v in t["Folds com ganho (%)"]]})
-print("Referência: RL, 5 var. (Mayo reestimado)")
-display(mostra(incremental))
-print("Referência histórica (exploratória): Mayo 1989 final, probabilidade original")
-display(mostra(historico))"""))
-C.append(md("""**Análise de sensibilidade do pré-processamento (achado A-04 da auditoria).** Na coluna de 17 variáveis, os pipelines principais diferem também no tratamento dos dados: a regressão recebe logaritmos e imputação iterativa; o random forest, imputação iterativa na escala original; o XGBoost trata ausentes nativamente. Por isso a leitura vertical principal compara **pipelines**, não só algoritmos. Aqui, random forest e XGBoost recebem **exatamente** o pré-processamento da regressão com 17 variáveis; como árvores são invariantes a transformações monotônicas, a diferença restante é o algoritmo com seus hiperparâmetros. A comparação aproxima o efeito do algoritmo, mas não testa diretamente o efeito do pré-processamento. A referência é a própria regressão com 17 variáveis (IC de Bonferroni para 2 comparações)."""))
-C.append(code("""sensibilidade = valor_incremental(yy, oof, folds, "RL penalizada, 17 var.", COMPARACOES_SENSIBILIDADE)
-sensibilidade.to_csv("resultados/sensibilidade_preprocessamento.csv", index=False)
-display(mostra(sensibilidade))"""))
-C.append(code("""# Tabela 2 x 2: AUROC médio (desvio) e custo de dados
-celula = lambda n: f"{resumo.loc[n, ('AUROC','mean')]:.3f} ± {resumo.loc[n, ('AUROC','std')]:.3f}"
-t22 = pd.DataFrame({
-    f"5 variáveis (elegíveis sem imputação: {comp5})": [celula("RL, 5 var. (Mayo reestimado)") + "  [Mayo 1989 final, ref. histórica: " + celula("Mayo 1989 final, prob. original") + "]",
-                                                        celula("Random forest, 5 var.") + " (RF) / " + celula("XGBoost, 5 var.") + " (XGB)"],
-    f"17 variáveis (elegíveis sem imputação: {comp17})": [celula("RL penalizada, 17 var."),
-                                                          celula("Random forest, 17 var.") + " (RF) / " + celula("XGBoost, 17 var.") + " (XGB)"]},
-    index=["Regressão", "Aprendizado de máquina"])
-t22"""))
-C.append(code("""cores = {"Mayo 1989 final, prob. original": "#000000", "Mayo 1989 final, recalibrado": "#666666", "Mayo 1989 inicial (n=312), recalibrado": "#999999", "RL, 5 var. (Mayo reestimado)": "#1f77b4", "RL penalizada, 17 var.": "#6baed6",
-         "Random forest, 5 var.": "#2ca02c", "Random forest, 17 var.": "#98df8a", "XGBoost, 5 var.": "#d62728", "XGBoost, 17 var.": "#ff9896",
-         "Random forest, 17 var., pré-proc. da RL": "#2ca02c", "XGBoost, 17 var., pré-proc. da RL": "#d62728"}
-principais = [c for c in oof.columns if "pré-proc" not in c]  # sensibilidade fica só nas tabelas
-fig, axs = plt.subplots(1, 3, figsize=(15, 4.3))
-# (a) AUROC por fold
-dados = [folds.loc[folds.Modelo == n, "AUROC"] for n in principais]
-bp = axs[0].boxplot(dados, vert=False, patch_artist=True, tick_labels=principais)
-for patch, n in zip(bp["boxes"], principais): patch.set_facecolor(cores[n]); patch.set_alpha(.7)
-axs[0].set_xlabel("AUROC (25 folds)"); axs[0].set_title("Discriminação"); axs[0].invert_yaxis(); axs[0].tick_params(axis="y", labelsize=8)
-# (b) curvas ROC (predições fora-do-fold médias)
-for n in principais:
-    f, t, _ = roc_curve(yy, oof[n]); axs[1].plot(f, t, c=cores[n], lw=1.3, label=f"{n} ({roc_auc_score(yy, oof[n]):.3f})")
-axs[1].plot([0, 1], [0, 1], ":", c="gray"); axs[1].set_xlabel("1 - especificidade"); axs[1].set_ylabel("sensibilidade"); axs[1].set_title("Curvas ROC"); axs[1].legend(fontsize=6.5, loc="lower right")
-# (c) curvas de calibração
-for n in principais:
-    fo, mp = calibration_curve(yy, oof[n], n_bins=10, strategy="quantile"); axs[2].plot(mp, fo, marker="o", ms=3, c=cores[n], lw=1.2, label=n)
-axs[2].plot([0, 1], [0, 1], ":", c="gray"); axs[2].set_xlabel("probabilidade prevista"); axs[2].set_ylabel("frequência observada"); axs[2].set_title("Calibração (decis de risco)"); axs[2].legend(fontsize=6.5)
-plt.tight_layout(); plt.savefig("figs/discriminacao_roc_calibracao.png", dpi=200, bbox_inches="tight"); plt.show()"""))
+C.append(md("""### 3.3 Validação cruzada 5 × 5 aninhada
 
-C.append(md("### 3.3 Validação quase externa: desenvolvimento nos pacientes do ensaio, teste nos não randomizados"))
-C.append(code("""qe, ntr, nte, nev, hqe = validacao_quase_externa(df, X, y)
-qe.to_csv("resultados/quase_externa.csv", index=False)
-hqe.to_csv("resultados/hiperparametros_quase_externa.csv", index=False)
-print(f"Treino: {ntr} pacientes randomizados | Teste: {nte} não randomizados ({nev} óbitos em 5 anos)")
-print("No teste, as variáveis exclusivas do ensaio estão ausentes e são imputadas (17 var.) ou tratadas nativamente (XGBoost).")
-print("Avisos de convergência:", int(qe["Avisos de convergência"].sum()) or "nenhum")
-qe.drop(columns=["Avisos de convergência", "Mensagens dos avisos"]).set_index("Modelo").round(3)"""))
-C.append(code("""# Hiperparâmetros escolhidos pela busca no treino da validação quase externa (resultados/hiperparametros_quase_externa.csv)
-hqe.drop(columns="Cenário").set_index("Modelo").dropna(axis=0, how="all").dropna(axis=1, how="all")"""))
+Conforme o `MODO`:
 
-C.append(md("### 3.4 Braço de controle: vazamento por `N_Days` no enquadramento da PS3E26 (3 classes)"))
-C.append(code("""vz = experimento_vazamento(df, X, n_rep=N_REP)
-vz.to_csv("resultados/vazamento.csv", index=False)
-vz_res = vz.drop(columns="Fold").groupby("Entrada").agg(["mean", "std"]).round(3)
-vz_res"""))
-C.append(code("""fig, axs = plt.subplots(1, 2, figsize=(9, 3.2))
-for ax, met in zip(axs, ["AUROC macro (OvR)", "Log loss"]):
-    d = [vz.loc[vz.Entrada == e, met] for e in ["sem N_Days", "com N_Days"]]
-    ax.boxplot(d, tick_labels=["sem N_Days", "com N_Days"]); ax.set_title(met)
-plt.suptitle("XGBoost, 17 variáveis, Status em 3 classes (C, CL, D)", fontsize=10); plt.tight_layout(); plt.savefig("figs/vazamento_n_days.png", dpi=200, bbox_inches="tight"); plt.show()"""))
+- `"apresentacao"`: lê os resultados oficiais (25 partições, 2.000 reamostragens);
+- `"rapido"`: refaz a validação cruzada com 1 repetição (5 partições) e 200 reamostragens, só na memória;
+- `"completo"`: executa os scripts da análise, que regravam `resultados_sbcas/` (várias horas no Colab gratuito)."""))
+C.append(code("""if MODO == "completo":
+    for cmd in (["sobrevivencia.py"], ["sobrevivencia.py", "--desfecho", "obito"], ["ic_desempenho.py"],
+                ["calibracao_figura.py"], ["curva_decisao.py"], ["importancia_permutacao.py"],
+                ["comparador_graf.py"], ["mayo1989.py"], ["sbcas/artigo/gerar_tabelas.py"]):
+        print(">>", " ".join(cmd)); subprocess.run([sys.executable, *cmd], check=True)
 
+if MODO == "rapido":
+    t0 = time.time()
+    folds, oof, hiper, _, _ = sv.validacao_cruzada(X, y, n_rep=1)
+    vi_todos = sv.valor_incremental(y, oof, folds, ALT, n_boot=200)
+    print(f"Tempo: {time.time() - t0:.0f} s (1 repetição; resultados só na memória)")
+else:
+    folds, vi_todos = ler("folds.csv"), ler("valor_incremental.csv")
+    oof = pd.read_csv(R + "oof_risco5.csv", index_col=0)
+print("Partições avaliadas por modelo:", folds.groupby("Modelo").size().to_dict())"""))
+
+C.append(md("""### 3.4 Medidas de desempenho
+
+**Discriminação e erro de predição** (média e desvio entre partições). C de Uno e AUC: maior é melhor (0,5 é o acaso). Brier: menor é melhor."""))
+C.append(code("""met = ["C de Uno (5 anos)", "AUC (5 anos)", "Brier (5 anos)", "Brier integrado (1 a 5 anos)"]
+resumo = folds.groupby("Modelo", sort=False)[met].agg(["mean", "std"]).loc[ORDEM]
+display(resumo.round(3))
+
+fig, ax = plt.subplots(figsize=(7, 3))
+dados = [folds[folds.Modelo == m]["C de Uno (5 anos)"] for m in ORDEM]
+bp = ax.boxplot(dados, vert=False, patch_artist=True, widths=0.5)
+for caixa, m in zip(bp["boxes"], ORDEM):
+    caixa.set_facecolor(CORES[m]); caixa.set_alpha(0.7)
+ax.set_yticks(range(1, 5), ORDEM); ax.invert_yaxis()
+ax.set_xlabel("C de Uno em 5 anos no teste de cada partição"); ax.set_title("Variação entre partições", fontsize=10)
+plt.tight_layout(); plt.show()"""))
+
+C.append(md("""**Valor incremental: a pergunta principal.** $\\Delta C$ é a diferença de C de Uno entre o modelo e a referência nos mesmos pacientes. Regra de leitura do plano: se o intervalo exclui zero, a diferença está **demonstrada**; se o limite superior fica abaixo da margem de +0,02, um ganho dessa ordem está **descartado**; se o intervalo inclui zero e passa da margem, a coorte **não decide**. Desde a regra combinada (análise posterior), um ganho só é dado como descartado quando o *bootstrap* (círculos) e o teste t corrigido (quadrados) o descartam."""))
+C.append(code("""vi = vi_todos[vi_todos["Métrica"] == "C de Uno (5 anos)"].set_index("Modelo")
+if MODO == "rapido":       # teste t corrigido refeito sobre as 5 partições desta execução
+    from scipy import stats
+    fo = folds.pivot(index="Fold", columns="Modelo", values="C de Uno (5 anos)")
+    q = stats.t.ppf(1 - 0.05 / 3 / 2, len(fo) - 1)
+    tc = pd.DataFrame([{"Modelo": m, "Diferença média por partição": (fo[m] - fo[REFERENCIA]).mean(),
+                        "IC Bonferroni inf": (fo[m] - fo[REFERENCIA]).mean() - q * np.sqrt(1 / len(fo) + 1 / 4) * (fo[m] - fo[REFERENCIA]).std(),
+                        "IC Bonferroni sup": (fo[m] - fo[REFERENCIA]).mean() + q * np.sqrt(1 / len(fo) + 1 / 4) * (fo[m] - fo[REFERENCIA]).std()}
+                       for m in ALT]).set_index("Modelo")
+else:
+    tc = ler("valor_incremental_t_corrigido.csv").set_index("Modelo").loc[ALT]
+if MODO == "rapido":
+    display(Markdown("*Modo rápido: 1 repetição e 200 reamostragens. Os números diferem dos oficiais (5 repetições, 2.000 reamostragens) e servem só para demonstrar a execução.*"))
+
+def leitura(v, t):
+    boot = v["ICBonf_inf"] > 0 or v["ICBonf_sup"] < 0
+    teste = t["IC Bonferroni inf"] > 0 or t["IC Bonferroni sup"] < 0
+    lado = "a favor do modelo" if v["Diferença"] > 0 else "a favor da referência"
+    if boot and teste:
+        return f"diferença demonstrada ({lado})"
+    if boot:
+        return f"indício de diferença {lado} (só no bootstrap)"
+    if v["ICBonf_sup"] < MARGEM and t["IC Bonferroni sup"] < MARGEM:
+        return "sem ganho demonstrado; ganho de 0,02 descartado"
+    if v["ICBonf_sup"] < MARGEM:
+        return "sem ganho demonstrado; ganho de 0,02 descartado só no plano"
+    return "sem ganho demonstrado; a coorte não decide"
+
+tab = pd.DataFrame({m: {"ΔC": vi.loc[m, "Diferença"],
+                        "IC bootstrap": f"{vi.loc[m, 'ICBonf_inf']:.4f} a {vi.loc[m, 'ICBonf_sup']:.4f}",
+                        "IC teste t corrigido": f"{tc.loc[m, 'IC Bonferroni inf']:.3f} a {tc.loc[m, 'IC Bonferroni sup']:.3f}",
+                        "Leitura": leitura(vi.loc[m], tc.loc[m])} for m in ALT}).T
+display(tab)
+grafico_delta(vi, tc, "Óbito ou transplante em 5 anos, contra o Cox de Mayo reestimado")"""))
+
+C.append(md("""**Sensibilidade: só óbito** (transplante tratado como censura), resultados oficiais."""))
+C.append(code("""vio = ler("valor_incremental_obito.csv")
+vio = vio[vio["Métrica"] == "C de Uno (5 anos)"].set_index("Modelo")
+tco = ler("valor_incremental_t_corrigido.csv").set_index("Modelo")
+tco = tco.loc[[m + " (óbito)" for m in ALT]].rename(index=lambda s: s.replace(" (óbito)", ""))
+display(pd.DataFrame({m: {"ΔC": vio.loc[m, "Diferença"], "Leitura": leitura(vio.loc[m], tco.loc[m])} for m in ALT}).T)
+grafico_delta(vio, tco, "Só óbito em 5 anos, contra o Cox reestimado")"""))
+
+C.append(md("""**Calibração em cinco anos.** Por quintis de risco previsto, o risco previsto contra o observado por Kaplan-Meier (barras: IC 95%); a diagonal é a calibração perfeita. A razão O/E resume a coorte inteira (ideal 1). Resultados oficiais, nas predições agregadas."""))
+C.append(code("""cal = ler("calibracao_quintis_ic.csv")
+fig, ax = plt.subplots(1, 4, figsize=(15, 3.6), sharey=True)
+for a, m in zip(ax, ORDEM):
+    c = cal[cal.Modelo == m]
+    a.errorbar(c["Previsto (média)"], c["Observado (KM)"],
+               yerr=[c["Observado (KM)"] - c["Observado IC95_inf"], c["Observado IC95_sup"] - c["Observado (KM)"]],
+               fmt="o", color=CORES[m], capsize=3)
+    a.plot([0, 1], [0, 1], color="grey", ls=":"); a.set_xlim(0, 1); a.set_ylim(0, 1)
+    oe = c.iloc[0]
+    a.set_title(f"{m}\\nO/E = {oe['O/E (5 anos)']:.2f} ({oe['O/E IC95_inf']:.2f} a {oe['O/E IC95_sup']:.2f})", fontsize=9)
+    a.set_xlabel("Risco previsto em 5 anos")
+ax[0].set_ylabel("Risco observado (Kaplan-Meier)")
+plt.tight_layout(); plt.show()"""))
+
+C.append(md("""**Utilidade clínica: curva de decisão.** Para a decisão hipotética de intensificar o acompanhamento de quem tem risco acima de um limiar, o benefício líquido conta os pacientes com evento corretamente sinalizados e desconta os sinalizados sem evento; 0,01 equivale a um acerto líquido a mais por 100 pacientes."""))
+C.append(code("""dc = ler("curva_decisao.csv")
+fig, ax = plt.subplots(figsize=(7, 3.8))
+ax.plot(dc["Limiar"], dc["Tratar todos"], color="lightgrey", label="tratar todos")
+ax.plot(dc["Limiar"], dc["Tratar nenhum"], color="black", lw=0.8, label="tratar nenhum")
+for m in ORDEM:
+    ax.plot(dc["Limiar"], dc[m], color=CORES[m], label=m)
+ax.set_ylim(-0.05, 0.35); ax.set_xlabel("Limiar de risco em 5 anos"); ax.set_ylabel("Benefício líquido")
+ax.legend(fontsize=7, frameon=False); plt.tight_layout(); plt.show()
+dif = (dc["RSF, 17 var."] - dc[REFERENCIA])
+i = dif.abs().idxmax()
+print(f"Maior distância entre RSF de 17 variáveis e referência: {abs(dif[i]) * 100:.1f} acertos líquidos por 100 pacientes "
+      f"no limiar de {dc.loc[i, 'Limiar']:.0%} (a favor da {'RSF' if dif[i] > 0 else 'referência'})")"""))
+
+C.append(md("""**Subgrupo fora do treino.** Treino nos 312 randomizados e teste nos 106 não randomizados, que nenhum modelo viu. Com 17 variáveis é um teste de transporte, porque nove delas são imputadas nos 106."""))
+C.append(code("""sg = ler("subgrupo_independente.csv").set_index("Modelo").loc[ORDEM]
+display(sg[["C de Uno (5 anos)", "C de Uno IC95_inf", "C de Uno IC95_sup", "AUC (5 anos)", "Brier (5 anos)", "O/E (5 anos)"]].round(3))"""))
+
+C.append(md("""**Contra a fórmula de Mayo de 1989** (análise posterior ao plano): os coeficientes publicados, sem reajuste, avaliados nos pacientes em que foram estimados."""))
+C.append(code("""mf = ler("mayo1989_coorte.csv").set_index("Comparação")
+display(mf[["C de Uno agregado", "Diferença", "IC bootstrap inf", "IC bootstrap sup", "IC teste corrigido inf", "IC teste corrigido sup"]].round(4))"""))
+
+C.append(md("""**De onde vêm os ganhos aparentes.** Escolhas de avaliação que produzem ganho sem que o modelo melhore: avaliar o modelo nos próprios pacientes de treino (nos 312 randomizados) e usar o tempo de seguimento como entrada, um vazamento do desfecho (XGBoost de 17 variáveis na tarefa de três classes do Kaggle, versão de outubro)."""))
+C.append(code("""da = ler("graf312_dentro_amostra.csv").set_index("Modelo")
+display(da[["C de Uno dentro da amostra", "C de Uno fora da partição (agregado)", "Otimismo (Uno)"]].round(3))
+vz = pd.read_csv("resultados/vazamento.csv").groupby("Entrada")[["Log loss", "AUROC macro (OvR)", "Acuracia"]].mean()
+display(vz.round(3))
+print(f"Ganho aparente da RSF de 17 variáveis avaliada no treino: +{da.loc['RSF, 17 var.', 'Otimismo (Uno)']:.3f} no C de Uno")
+print(f"Ganho aparente do vazamento por N_Days: +{vz.loc['com N_Days', 'AUROC macro (OvR)'] - vz.loc['sem N_Days', 'AUROC macro (OvR)']:.3f} na AUROC macro")
+print(f"Maior |ΔC| entre modelos (Tabela de valor incremental): {vi['Diferença'].abs().max():.3f}")"""))
+
+C.append(md("""**O que a floresta usa.** Importância por permutação na RSF de 17 variáveis: quanto o C de Uno cai no teste ao embaralhar cada variável (média nas 5 partições da primeira repetição; barras: desvio entre partições)."""))
+C.append(code("""ip = ler("importancia_permutacao_rsf17.csv").head(8).iloc[::-1]
+fig, ax = plt.subplots(figsize=(6, 3.2))
+ax.barh(ip["Variável"].map(NOMES), ip["Queda média"], xerr=ip["Desvio entre partições"],
+        color=["#1f4e79" if v in exp.MAYO5 else "#bbbbbb" for v in ip["Variável"]])
+ax.set_xlabel("Queda no C de Uno ao permutar"); ax.set_title("Oito maiores (azul: variáveis de Mayo)", fontsize=10)
+plt.tight_layout(); plt.show()"""))
+
+# ------------------------------------------------------------------------------------------------ 4
 C.append(md("""## 4. Leitura dos resultados
 
-- **Discriminação:** compare cada modelo com a regressão logística com as 5 variáveis de Mayo (referência) pela tabela de valor incremental; só se afirma ganho ou perda quando o IC de Bonferroni exclui zero, e um IC que inclui zero indica ausência de evidência de diferença, não equivalência. O Mayo publicado é só referência histórica.
-- **Desenho 2 x 2:** a leitura vertical (mesma coluna) compara pipelines, que diferem no algoritmo e também no tratamento dos dados; a análise de sensibilidade aproxima o efeito do algoritmo ao dar às árvores o pré-processamento da regressão. A leitura horizontal (mesma linha) mostra o efeito nominal das variáveis extras, que não teve contraste inferencial próprio. Exigir as 17 variáveis completas, sem imputação, reduziria os elegíveis de 310 para 210.
-- **Calibração:** inclinação próxima de 1 e CITL próximo de 0 indicam probabilidades confiáveis.
-- **Vazamento:** a diferença entre os braços com e sem `N_Days` mede o quanto o enquadramento da PS3E26 infla o desempenho.
+1. **Nenhum modelo teve ganho demonstrado** sobre o Cox com as cinco variáveis de Mayo: nenhum intervalo de $\\Delta C$ exclui zero, nos dois métodos de inferência.
+2. **A resposta muda de modelo para modelo** quanto a descartar um ganho de 0,02: descartado para a RSF de 5 variáveis; para o Cox penalizado, a coorte não decide; para a RSF de 17 variáveis, o resultado depende do método e da semente do *bootstrap* (inconclusivo). Com cerca de 130 eventos até cinco anos, a meia-largura dos intervalos é da ordem da própria margem.
+3. **Calibração e curva de decisão** não sugeriram vantagem do aprendizado de máquina; o Cox penalizado, o de maior C, teve o desvio de calibração mais nítido.
+4. **Ganho aparente:** avaliar a floresta nos próprios pacientes de treino eleva o C mais do que qualquer diferença entre modelos, e usar o tempo de seguimento como entrada infla a AUROC na tarefa de classificação. A lição é de método: julgar o ganho do AM contra o modelo clínico pertinente, fora da amostra de treino, com a incerteza explícita e sem variáveis que vazem o desfecho.
 
-As conclusões e a discussão estão no `README.md` e no artigo."""))
+Os números exatos, as limitações e a discussão estão no README e no artigo (`sbcas/artigo/main.pdf`)."""))
 
+nb = nbf.v4.new_notebook()
 nb["cells"] = C
-nb["metadata"]["kernelspec"] = {"name": "python3", "display_name": "Python 3", "language": "python"}
-nb["metadata"]["language_info"] = {"name": "python"}
+nb["metadata"] = {"kernelspec": {"display_name": "Python 3", "language": "python", "name": "python3"},
+                  "language_info": {"name": "python"}, "colab": {"provenance": []}}
 nbf.write(nb, "ml4health_cbp_mayo.ipynb")
-print("ok", len(C), "celulas")
+print("Notebook gerado com", len(C), "células")

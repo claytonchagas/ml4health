@@ -1,5 +1,5 @@
-# Versões exatas da execução oficial (Python 3.13; exige Python 3.11 ou mais novo). Para reproduzir os números do README:
-#   pip install -r requirements.txt   e   FONTE_DADOS = "local" no notebook.
+# Versões exatas da execução oficial (Python 3.13; exige Python 3.11 ou mais novo). Para reproduzir os números do README
+# e do artigo: pip install -r requirements.txt e execute os scripts listados no README (seção "Como executar").
 ucimlrepo==0.0.7
 scikit-learn==1.9.1
 xgboost==3.4.1
